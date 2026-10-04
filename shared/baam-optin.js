@@ -51,8 +51,17 @@ const BaamOptin=(()=>{
 .bo-dialog input[type=email],.bo-dialog input[type=text]{width:100%;box-sizing:border-box;font-family:var(--bo-ui);font-size:15px;border:1px solid ${LINE};border-radius:8px;padding:10px 12px;outline:none;}
 .bo-dialog input[type=email]:focus,.bo-dialog input[type=text]:focus{border-color:${ACC};}
 .bo-err{color:#c62828;font-family:var(--bo-ui);font-size:12.5px;margin-top:6px;min-height:1em;}
-.bo-check{display:flex;gap:9px;align-items:flex-start;font-family:var(--bo-ui);font-size:13px;margin-top:10px;cursor:pointer;line-height:1.4;}
-.bo-check input{margin-top:3px;}
+.bo-choice{border:0;padding:0;margin:16px 0 0;min-width:0;}
+.bo-choice legend{font-family:${MONO};font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:${MUTED};padding:0;margin:0 0 7px;}
+.bo-choice-card{display:flex;gap:10px;align-items:flex-start;border:1px solid ${LINE};border-radius:9px;padding:11px 12px;margin-top:7px;cursor:pointer;font-family:var(--bo-ui);line-height:1.35;transition:border-color .16s,background .16s,transform .16s;}
+.bo-choice-card:hover{border-color:${MUTED};transform:translateY(-1px);}
+.bo-choice-card:has(input:checked){border-color:${ACC};background:color-mix(in srgb,${ACC} 7%,#fff);}
+.bo-choice-card input{margin:3px 0 0;accent-color:${ACC};flex:0 0 auto;}
+.bo-choice-card span{display:flex;flex-direction:column;gap:3px;}
+.bo-choice-card b{font-size:13.5px;color:${INK};}
+.bo-choice-card small{font-size:11.5px;color:${MUTED};}
+.bo-choice-yes{border-left:3px solid ${ACC};}
+.bo-choice-badge{display:inline-flex!important;width:max-content;font-family:${MONO};font-size:9px!important;text-transform:uppercase;letter-spacing:.08em;color:${ACC}!important;}
 .bo-legal{font-family:var(--bo-ui);font-size:11.5px;color:${MUTED};margin:12px 0 0;line-height:1.5;}
 .bo-legal a{color:inherit;}
 .bo-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
@@ -87,8 +96,11 @@ const BaamOptin=(()=>{
       `<section class="bo-gate"><h2>${o.bonusTitle}</h2><p class="bo-lead">${o.bonusPitch}</p>`+
       `<form novalidate><label class="bo-f" for="bo-email">Ton e-mail</label>`+
       `<input type="email" id="bo-email" autocomplete="email" placeholder="toi@exemple.com" required><div class="bo-err"></div>`+
-      `<label class="bo-check"><input type="checkbox" class="bo-news"> <span>Je veux recevoir les nouveaux tools et contenus BAAM (1 à 2 e-mails par mois, désinscription en un clic).</span></label>`+
-      `<p class="bo-legal">Ton e-mail débloque les bonus BAAM Tools sur cet appareil. On ne t'écrit que si tu coches la case. <a class="bo-priv" target="_blank" rel="noopener">Confidentialité</a></p>`+
+      `<fieldset class="bo-choice"><legend>Et pour la suite ?</legend>`+
+      `<label class="bo-choice-card bo-choice-yes"><input type="radio" name="bo-news-choice" value="yes"> <span><i class="bo-choice-badge">Le meilleur de BAAM</i><b>Oui — je veux les nouveaux tools, guides et bonus</b><small>Avant-premières · 1 à 2 e-mails par mois · désinscription en un clic</small></span></label>`+
+      `<label class="bo-choice-card"><input type="radio" name="bo-news-choice" value="no"> <span><b>Non — je veux seulement ce bonus</b><small>Aucun e-mail éditorial ne sera envoyé</small></span></label></fieldset>`+
+      `<div class="bo-err bo-choice-err"></div>`+
+      `<p class="bo-legal">Ton e-mail débloque les bonus BAAM Tools sur cet appareil. Ton choix newsletter est enregistré séparément. <a class="bo-priv" target="_blank" rel="noopener">Confidentialité</a></p>`+
       `<div class="bo-row"><button type="submit" class="bo-btn bo-primary bo-submit">${o.unlockLabel}</button><button type="button" class="bo-btn bo-close">Annuler</button></div></form></section>`+
       `<section class="bo-bonus" hidden></section></div>`;
     document.body.appendChild(el.modal);
@@ -107,10 +119,12 @@ const BaamOptin=(()=>{
   function close(){ if(busy) return; el.modal.hidden=true; }
   async function submit(e){
     e.preventDefault();
-    const f=e.target, input=f.querySelector("#bo-email"), email=input.value.trim(), err=f.querySelector(".bo-err"), btn=f.querySelector(".bo-submit");
+    const f=e.target, input=f.querySelector("#bo-email"), email=input.value.trim(), err=f.querySelector(".bo-err"), choiceErr=f.querySelector(".bo-choice-err"), choice=f.querySelector('input[name="bo-news-choice"]:checked'), btn=f.querySelector(".bo-submit");
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ err.textContent="Cette adresse ne semble pas valide."; input.focus(); return; }
-    err.textContent=""; btn.disabled=true; const label=btn.textContent; btn.textContent="Un instant…";
-    await send(email, f.querySelector(".bo-news").checked);
+    err.textContent="";
+    if(!choice){ choiceErr.textContent="Choisis l'une des deux options pour continuer."; f.querySelector('input[name="bo-news-choice"]').focus(); return; }
+    choiceErr.textContent=""; btn.disabled=true; const label=btn.textContent; btn.textContent="Un instant…";
+    await send(email, choice.value==="yes");
     session=true; try{ localStorage.setItem(KEY,"1"); }catch(_){}
     btn.disabled=false; btn.textContent=label;
     el.modal.querySelector(".bo-gate").hidden=true; el.modal.querySelector(".bo-bonus").hidden=false; renderBonus();

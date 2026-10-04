@@ -21,8 +21,8 @@ Livré localement :
 - mode d'habillage `frame` pour envelopper un HTML autonome dans la coque BAAM sans
   modifier sa source, avec synchronisation du hash entre l'outil et l'URL publique ;
 - Color Picker intégré comme deuxième BAAM Tool et conservé comme source autonome ;
-- système d'opt-in partagé embarqué dans les BAAM Tools : bonus après usage, consentement
-  newsletter séparé, mémoire de déblocage et injection synchronisée depuis `shared/` ;
+- système d'opt-in partagé embarqué dans les BAAM Tools : bonus après usage, choix actif
+  obligatoire et séparé pour la newsletter, mémoire de déblocage et injection depuis `shared/` ;
 - collecte Netlify Forms `bonus` raccordée au build pour les outils natifs et encadrés,
   avec formulaire statique, honeypot, configuration commune et page `/confidentialite/` ;
 - registre territorial, graphe, JSON-LD, manifest `/.well-known/baam.json`, sitemap ;

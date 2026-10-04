@@ -3,7 +3,8 @@
 `baam-optin.js` contient deux modules utilisés par tous les BAAM Tools :
 
 - **`BaamOptin`** — la carte discrète qui apparaît *après* l'usage, le CTA vers l'univers
-  BAAM concerné, la fenêtre « bonus contre e-mail » (case newsletter séparée, décochée),
+  BAAM concerné, la fenêtre « bonus contre e-mail » (choix newsletter actif, séparé et
+  sans option présélectionnée),
   la mémoire du déblocage (une seule fois pour tous les tools) et l'envoi du lead ;
 - **`BaamVideo`** — l'enregistreur vidéo (MP4, ou WebM selon le navigateur) et son panneau.
 

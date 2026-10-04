@@ -77,8 +77,9 @@ Les URLs privées de hooks resteront dans Netlify et ne seront jamais versionné
 
 Le build publie un formulaire Netlify Forms statique nommé `bonus` et injecte
 automatiquement `/leads-config.js` dans chaque BAAM Tool, qu'il soit natif ou encadré.
-Les outils envoient l'adresse, le choix newsletter, l'outil, le bonus et la page ; la
-case newsletter reste indépendante et décochée par défaut. La page
+Les outils envoient l'adresse, le choix newsletter, l'outil, le bonus et la page. Le
+formulaire impose un choix actif entre recevoir les prochains contenus BAAM ou obtenir
+seulement le bonus ; aucune option n'est présélectionnée. La page
 `/confidentialite/` décrit le traitement et le stockage local fonctionnel.
 
 Après le premier déploiement, activer **Forms → Form detection** dans Netlify puis
