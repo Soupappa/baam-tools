@@ -17,7 +17,7 @@
     <section class="builder-intro">
       <span>Atelier local / sortie JSON</span>
       <h1>Une fiche.<br>Trois formes.</h1>
-      <p>Choisir un type, remplir les champs puis télécharger la fiche. Le fichier rejoint ensuite <code>content/</code> : au prochain build, sa page, sa carte et son manifest sont produits ensemble.</p>
+      <p>Choisir un type, composer la carte et, pour un guide, ajouter les blocs dans l’ordre voulu. En local, le bouton d’enregistrement crée la fiche dans <code>content/</code> et reconstruit le site. Sur le web, le builder reste un exporteur JSON.</p>
     </section>
 
     <div class="builder-layout">
@@ -29,10 +29,21 @@
         <div class="field"><label for="themes">Thèmes · séparés par des virgules</label><input id="themes" value="design, méthode"></div>
         <div class="field"><label for="slug">Identifiant</label><input id="slug" value="nouvel-outil" pattern="[a-z0-9]+(?:-[a-z0-9]+)*"></div>
         <div class="field" id="specific-field"></div>
+        <div class="builder-subsection">
+          <h3>Preview de la carte</h3>
+          <div class="field"><label for="preview-type">Format</label><select id="preview-type"><option value="text">Texte animé</option><option value="svg">SVG</option><option value="image">Image</option><option value="video">Vidéo MP4/WebM</option><option value="iframe">Page / iframe</option><option value="none">Aucune</option></select></div>
+          <div id="preview-fields"></div>
+        </div>
+        <div class="builder-subsection" id="blocks-panel" hidden>
+          <div class="block-toolbar"><h3>Blocs du guide</h3><div><select id="new-block-type"><option value="lead">Introduction</option><option value="section">Section</option><option value="steps">Étapes</option><option value="prompt">Prompt copiable</option><option value="checklist">Checklist</option><option value="callout">Encadré BAAM</option><option value="links">Liens</option></select><button type="button" class="mini-button" id="add-block">+ Ajouter</button></div></div>
+          <div id="blocks-list"></div>
+        </div>
         <div class="builder-actions">
-          <button type="button" id="download-json">Télécharger JSON</button>
+          <button type="button" id="save-local">Enregistrer + reconstruire</button>
+          <button type="button" class="secondary" id="download-json">Télécharger JSON</button>
           <button type="button" class="secondary" id="copy-json">Copier</button>
         </div>
+        <p class="builder-status" id="builder-status" aria-live="polite"></p>
       </form>
 
       <section class="builder-panel">

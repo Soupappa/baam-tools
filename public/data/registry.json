@@ -2,9 +2,9 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "c45d1a0a1c344560a04ddbf2966b46919d813beb9bc87513885d5f5246bf4c08",
+    "sourceHash": "b78b53691053987955360239a6282749692b59cbc17ec86abf116ad92639022b",
     "compiledAt": "2026-10-04",
-    "count": 3,
+    "count": 4,
     "contentTypes": {
       "free-webtool": "BAAM Tool",
       "tutorial": "Guide",
@@ -69,6 +69,11 @@
         "type": "iframe",
         "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
       },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/operateur-texte/",
+        "alt": "L’Opérateur Texte BAAM en mouvement"
+      },
       "presentation": {
         "accent": "#00a86b",
         "index": "01",
@@ -77,55 +82,121 @@
       "relations": [
         {
           "type": "related-to",
-          "target": "guide-mot-signe-vivant"
+          "target": "guide-motion-claude"
         }
       ],
       "sourceOrigin": "file"
     },
     {
       "schemaVersion": 1,
-      "id": "guide-mot-signe-vivant",
-      "title": "Créer un mot-signe vivant",
-      "eyebrow": "Guide express · 6 min",
-      "summary": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "id": "guide-motion-claude",
+      "title": "Le guide BAAM du motion par Claude",
+      "eyebrow": "Guide complet · modèle",
+      "summary": "Transformer une matière réelle en motion codé, dirigé et réutilisable — sans confondre génération spectaculaire et direction artistique.",
       "type": "tutorial",
       "typeLabel": "Guide",
       "status": "public",
       "territories": [
         "tools"
       ],
-      "url": "https://tools.baam.pro/guides/mot-signe-vivant/",
-      "path": "/guides/mot-signe-vivant/",
+      "url": "https://tools.baam.pro/guides/motion-par-claude/",
+      "path": "/guides/motion-par-claude/",
       "externalUrl": null,
       "updatedAt": "2026-10-04",
       "tags": [
-        "design",
-        "svg",
-        "méthode"
+        "motion",
+        "claude",
+        "méthode",
+        "design"
       ],
       "themes": [
-        "design",
-        "svg",
-        "méthode"
+        "motion",
+        "claude",
+        "méthode",
+        "design"
       ],
       "meta": [
-        "6 minutes",
-        "4 étapes",
-        "3 champs à copier"
+        "Guide modèle",
+        "9 passages",
+        "5 blocs copiables"
       ],
-      "cta": "Lire le guide",
+      "cta": "Lire le guide complet",
       "preview": {
         "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "MATIÈRE → SCÈNES → MOUVEMENT → RENDU",
+        "caption": "Le motion comme système dirigé, pas comme effet surprise."
       },
       "presentation": {
         "accent": "#ff8a34",
         "index": "02",
-        "glyph": "//"
+        "glyph": "▶"
       },
       "relations": [
         {
           "type": "related-to",
           "target": "operateur-texte"
+        },
+        {
+          "type": "related-to",
+          "target": "opus-55-videos"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "opus-55-videos",
+      "title": "Opus 5.5 Videos",
+      "eyebrow": "Ressource externe",
+      "summary": "Une galerie de motions, explainers, scènes 3D et jeux créés avec Claude, avec prompts d’origine et remakes consultables.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/opus-55-videos/",
+      "path": "/externes/opus-55-videos/",
+      "externalUrl": "https://skillry.dev/ai-videos/opus-5-5",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "motion",
+        "claude",
+        "inspiration",
+        "vidéo"
+      ],
+      "themes": [
+        "motion",
+        "claude",
+        "inspiration",
+        "vidéo"
+      ],
+      "meta": [
+        "Externe",
+        "Galerie",
+        "Prompts et remakes"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "MOTION · EXPLAINERS · 3D · GAMES",
+        "caption": "Comparer les prompts, les moteurs et les choix de mise en scène."
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "03",
+        "glyph": "◫"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-motion-claude"
         }
       ],
       "sourceOrigin": "file"
@@ -165,9 +236,14 @@
       "preview": {
         "type": "none"
       },
+      "cardPreview": {
+        "type": "text",
+        "headline": "SVG IN → SVG LIGHT",
+        "caption": "Voir immédiatement l’effet de chaque option d’optimisation."
+      },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "03",
+        "index": "04",
         "glyph": "↗"
       },
       "relations": [],

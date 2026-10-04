@@ -16,12 +16,17 @@
     "type": "iframe",
     "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
   },
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/operateur-texte/",
+    "alt": "L’Opérateur Texte BAAM en mouvement"
+  },
   "presentation": {
     "accent": "#00a86b",
     "index": "01",
     "glyph": "Aa"
   },
   "relations": [
-    { "type": "related-to", "target": "guide-mot-signe-vivant" }
+    { "type": "related-to", "target": "guide-motion-claude" }
   ]
 }

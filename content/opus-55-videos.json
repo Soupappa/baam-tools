@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "opus-55-videos",
+  "title": "Opus 5.5 Videos",
+  "eyebrow": "Ressource externe",
+  "summary": "Une galerie de motions, explainers, scènes 3D et jeux créés avec Claude, avec prompts d’origine et remakes consultables.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["motion", "claude", "inspiration", "vidéo"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/opus-55-videos/",
+  "externalUrl": "https://skillry.dev/ai-videos/opus-5-5",
+  "sourceUrl": "https://skillry.dev/ai-videos/opus-5-5",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Galerie", "Prompts et remakes"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "03",
+    "glyph": "◫"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "MOTION · EXPLAINERS · 3D · GAMES",
+    "caption": "Comparer les prompts, les moteurs et les choix de mise en scène."
+  },
+  "notes": [
+    "Filtrer les exemples par famille de sortie et technologie utilisée.",
+    "Lire le prompt comme point de départ, puis observer tout ce qui vient du contexte du projet.",
+    "Utiliser la galerie comme réserve de mécaniques, jamais comme banque de styles à copier."
+  ],
+  "relations": [
+    { "type": "related-to", "target": "guide-motion-claude" }
+  ]
+}

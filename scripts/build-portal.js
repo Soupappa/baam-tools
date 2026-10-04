@@ -83,6 +83,7 @@ const assets = visible.map((item) => ({
   meta: item.meta || [],
   cta: item.cta,
   preview: item.preview || { type: "none" },
+  cardPreview: item.cardPreview || { type: "none" },
   presentation: item.presentation,
   relations: item.relations,
   sourceOrigin: "file"
@@ -184,21 +185,41 @@ function pageShell(item, body, aside = "") {
 </html>`;
 }
 
+function renderGuideBlock(block, index) {
+  const copyId = `copy-block-${index}`;
+  if (block.type === "lead") return `<p class="lead">${escapeHtml(block.text)}</p>`;
+  if (block.type === "section") return `<section class="guide-section"><h2>${escapeHtml(block.title)}</h2><p>${escapeHtml(block.body)}</p></section>`;
+  if (block.type === "callout") return `<aside class="guide-callout"><span>${escapeHtml(block.title)}</span><p>${escapeHtml(block.body)}</p></aside>`;
+  if (block.type === "steps") {
+    const steps = (block.items || []).map((step, stepIndex) => `
+      <section class="guide-step">
+        <span class="step-index">${String(stepIndex + 1).padStart(2, "0")}</span>
+        <div><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.body)}</p></div>
+      </section>`).join("");
+    return `<section class="guide-block"><h2>${escapeHtml(block.title)}</h2><div class="guide-steps">${steps}</div></section>`;
+  }
+  if (block.type === "checklist") {
+    return `<section class="guide-block"><h2>${escapeHtml(block.title)}</h2><ul class="guide-checklist">${(block.items || []).map((entry) => `<li>${escapeHtml(entry)}</li>`).join("")}</ul></section>`;
+  }
+  if (block.type === "prompt") {
+    return `<section class="prompt-block"><div class="prompt-head"><span>${escapeHtml(block.title)}</span><button type="button" data-copy-target="${copyId}">Copier le prompt</button></div><pre><code id="${copyId}">${escapeHtml(block.text)}</code></pre></section>`;
+  }
+  if (block.type === "links") {
+    return `<section class="guide-block"><h2>${escapeHtml(block.title)}</h2><ul class="guide-links">${(block.items || []).map((entry) => `<li><a href="${escapeHtml(entry.url)}"${entry.url.startsWith("http") ? ' target="_blank" rel="noreferrer"' : ""}>${escapeHtml(entry.label)} ↗</a></li>`).join("")}</ul></section>`;
+  }
+  return "";
+}
+
 function tutorialPage(item) {
-  const steps = item.steps.map((step, index) => `
-    <section class="guide-step">
-      <span class="step-index">${String(index + 1).padStart(2, "0")}</span>
-      <div><h2>${escapeHtml(step.title)}</h2><p>${escapeHtml(step.body)}</p></div>
-    </section>`).join("");
-  const copyBlocks = item.copyBlocks.map((block) => `
-    <div class="copy-block">
-      <span>${escapeHtml(block.label)}</span>
-      <code>${escapeHtml(block.value)}</code>
-      <button type="button" data-copy="${escapeHtml(block.value)}">Copier</button>
-    </div>`).join("");
-  const body = `<p class="lead">${escapeHtml(item.intro)}</p><div class="guide-steps">${steps}</div><h2>Champs à copier</h2><div class="copy-stack">${copyBlocks}</div>`;
-  const aside = `<aside class="detail-aside"><span>Outil associé</span><strong>Opérateur Texte</strong><p>Tester chaque étape directement dans le premier BAAM Tool.</p><a class="action-link" href="/baam-tools/operateur-texte/">Ouvrir l’outil ↗</a></aside>`;
-  return pageShell(item, body, aside);
+  const blocks = Array.isArray(item.blocks)
+    ? item.blocks.map(renderGuideBlock).join("")
+    : [
+        { type: "lead", text: item.intro },
+        { type: "steps", title: "Étapes", items: item.steps },
+        ...(item.copyBlocks || []).map((block) => ({ type: "prompt", title: block.label, text: block.value }))
+      ].map(renderGuideBlock).join("");
+  const aside = `<aside class="detail-aside"><span>Terrain d’essai</span><strong>Opérateur Texte</strong><p>Un outil simple pour éprouver les notions de matière, tension, continuité et texture.</p><a class="action-link" href="/baam-tools/operateur-texte/">Ouvrir l’outil ↗</a><a class="subtle-link" href="#copy-block-7">Aller au patron MOTION.md</a></aside>`;
+  return pageShell(item, blocks, aside);
 }
 
 function resourcePage(item) {

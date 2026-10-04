@@ -31,9 +31,12 @@ content/*.json
 carte d'accueil + page dédiée + registre Tools + manifest BAAM + sitemap
 ```
 
-Le builder local est disponible sur `/builder/`. Il ne publie rien : il produit une
-fiche JSON à relire puis à déposer dans `content/`. Ce garde-fou conserve le workflow
-Git et évite d'introduire un CMS avant qu'il soit utile.
+Le builder local est disponible sur `/builder/`. Il gère les champs communs, les
+previews de carte (`text`, `svg`, `image`, `video`, `iframe`) et un guide composé de
+blocs réordonnables : introduction, section, étapes, prompt copiable, checklist,
+encadré et liens. Depuis le serveur local, **Enregistrer + reconstruire** valide la
+fiche, la crée dans `content/` et régénère le portail. Une fiche existante n'est jamais
+écrasée. Le téléchargement JSON reste disponible comme solution de repli.
 
 L'Opérateur Texte reste maintenu dans `operateur-texte.html`. Le build le copie vers
 `public/baam-tools/operateur-texte/index.html` sans dupliquer sa logique.
@@ -57,3 +60,11 @@ push Tools → Netlify Tools → hook BAAM.pro → racine
 ```
 
 Les URLs privées de hooks resteront dans Netlify et ne seront jamais versionnées.
+
+## Flux éditorial conseillé
+
+1. Lancer `lancer-site.bat`, puis ouvrir `/builder/`.
+2. Choisir le type, écrire la fiche et sélectionner son aperçu de carte.
+3. Pour un guide, ajouter puis réordonner les blocs nécessaires.
+4. Enregistrer et reconstruire, puis contrôler la carte et la page générée.
+5. Committer les contenus validés localement ; pousser uniquement avec le prochain lot.

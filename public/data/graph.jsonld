@@ -22,15 +22,33 @@
       }
     },
     {
-      "@id": "https://tools.baam.pro/guides/mot-signe-vivant/",
+      "@id": "https://tools.baam.pro/guides/motion-par-claude/",
       "@type": "HowTo",
-      "name": "Créer un mot-signe vivant",
-      "description": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "name": "Le guide BAAM du motion par Claude",
+      "description": "Transformer une matière réelle en motion codé, dirigé et réutilisable — sans confondre génération spectaculaire et direction artistique.",
       "dateModified": "2026-10-04",
       "keywords": [
-        "design",
-        "svg",
-        "méthode"
+        "motion",
+        "claude",
+        "méthode",
+        "design"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/opus-55-videos/",
+      "@type": "WebSite",
+      "name": "Opus 5.5 Videos",
+      "description": "Une galerie de motions, explainers, scènes 3D et jeux créés avec Claude, avec prompts d’origine et remakes consultables.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "motion",
+        "claude",
+        "inspiration",
+        "vidéo"
       ],
       "isPartOf": {
         "@id": "https://tools.baam.pro/",

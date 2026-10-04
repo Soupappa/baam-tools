@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "id": "guide-motion-claude",
+  "title": "Le guide BAAM du motion par Claude",
+  "eyebrow": "Guide complet · modèle",
+  "summary": "Transformer une matière réelle en motion codé, dirigé et réutilisable — sans confondre génération spectaculaire et direction artistique.",
+  "type": "tutorial",
+  "status": "public",
+  "themes": ["motion", "claude", "méthode", "design"],
+  "updatedAt": "2026-10-04",
+  "path": "/guides/motion-par-claude/",
+  "cta": "Lire le guide complet",
+  "meta": ["Guide modèle", "9 passages", "5 blocs copiables"],
+  "presentation": {
+    "accent": "#ff8a34",
+    "index": "02",
+    "glyph": "▶"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "MATIÈRE → SCÈNES → MOUVEMENT → RENDU",
+    "caption": "Le motion comme système dirigé, pas comme effet surprise."
+  },
+  "blocks": [
+    {
+      "type": "lead",
+      "text": "Claude ne remplace pas le regard du motion designer. Il rend programmable une chaîne qui allait autrefois du brief au storyboard, puis du storyboard au mouvement et au rendu. Le gain décisif n’est pas de demander une vidéo en une phrase : c’est de construire un système que l’on peut corriger, comparer et rejouer."
+    },
+    {
+      "type": "section",
+      "title": "1. Comprendre ce que l’agent fabrique",
+      "body": "Dans ce workflow, la vidéo n’est pas peinte image par image par un modèle vidéo. L’agent écrit une scène en HTML, SVG, Canvas, WebGL ou React, organise une chronologie, puis rend les images et les assemble. Chaque élément reste donc modifiable : texte, couleur, vitesse, entrée, cadrage, durée. Cette traçabilité est la vraie puissance du motion codé."
+    },
+    {
+      "type": "callout",
+      "title": "Principe BAAM",
+      "body": "Le mouvement n’est pas une couche ajoutée à la fin. C’est une relation entre une matière, une contrainte, une durée et une transformation. Avant de demander « quelque chose de dynamique », nommer ce qui doit rester stable et ce qui peut dériver."
+    },
+    {
+      "type": "checklist",
+      "title": "Préparer le terrain",
+      "items": [
+        "Un dossier de projet dédié, versionné dès le début.",
+        "Une matière vraie : texte, chiffres, captures, produit, témoignage ou données.",
+        "Un format de sortie décidé avant le storyboard : 9:16, 4:5, 1:1 ou 16:9.",
+        "Une durée cible et une plateforme de diffusion.",
+        "Un moteur de rendu reproductible : HyperFrames, Remotion ou une page HTML capturée image par image."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Brief de départ",
+      "text": "Voici la matière source :\n{COLLER LE TEXTE, LES DONNÉES OU LES CHEMINS DES FICHIERS}\n\nObjectif : faire comprendre {UNE SEULE IDÉE} à {PUBLIC}.\nDurée : {15 À 30 SECONDES}. Format : {9:16 / 4:5 / 1:1 / 16:9}.\n\nCommence par extraire uniquement les faits vérifiables. Propose ensuite un plan scène par scène avec, pour chaque scène : message, durée, élément visible, mouvement et transition. N’invente aucune donnée. Signale séparément chaque reformulation. Attends ma validation avant de construire."
+    },
+    {
+      "type": "steps",
+      "title": "2. Le pipeline en neuf passages",
+      "items": [
+        { "title": "Choisir la matière", "body": "Partir d’un contenu qui existe déjà. Une vidéo juste mais simple vaut mieux qu’une démonstration brillante remplie de phrases génériques." },
+        { "title": "Formuler une transformation", "body": "Écrire ce que le spectateur doit comprendre ou ressentir entre la première et la dernière image." },
+        { "title": "Fixer les contraintes", "body": "Format, durée, plateforme, présence ou non du son, langue et zone de sécurité du texte." },
+        { "title": "Découper en scènes", "body": "Une scène porte une idée et possède une fonction : accrocher, situer, démontrer, contraster, conclure." },
+        { "title": "Définir le champ de mouvement", "body": "Écrire les règles visuelles et dynamiques avant de coder : couleurs, polices, rythme, matière, transitions et interdits." },
+        { "title": "Construire une première passe", "body": "Produire une version structurelle complète. Ne pas polir une scène tant que l’ensemble ne tient pas." },
+        { "title": "Diriger par différences", "body": "Comparer deux états et demander une seule correction observable à la fois." },
+        { "title": "Tester dans le vrai format", "body": "Regarder sur mobile, sans le son, puis avec le son. Vérifier lisibilité, respiration et fatigue." },
+        { "title": "Capitaliser", "body": "Transformer le workflow stable en gabarit ou en skill, avec ses contrôles et ses tests."
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "3. Écrire un fichier de mouvement",
+      "body": "Une charte graphique décrit souvent des couleurs et des polices. Un système de motion doit aussi décrire le temps : comment une forme apparaît, accélère, résiste, se déforme, se stabilise ou disparaît. Dans BAAM, on traite ce document comme un champ de forces plutôt que comme une collection d’effets."
+    },
+    {
+      "type": "prompt",
+      "title": "Patron MOTION.md enrichi BAAM",
+      "text": "Construis un fichier MOTION.md à partir de mes références. Il doit définir :\n\n1. Les couleurs et le rôle de chacune\n2. Les polices, tailles minimales et règles de contraste\n3. La grille, les marges et les zones de sécurité par format\n4. Le rythme : attaque, maintien, sortie et respiration\n5. La matière : nette, granuleuse, liquide, sèche, élastique ou autre\n6. Les paramètres de mouvement : énergie, tension, continuité, grain, clarté, impulsion, persistance, dispersion, instabilité et mémoire\n7. Les transitions autorisées et interdites\n8. Cinq défauts à éviter absolument\n9. Un exemple réussi décrit scène par scène\n10. Les points impossibles à déduire, marqués À DEMANDER\n\nNe copie pas le style des références. Déduis leurs règles et montre-moi le document avant de l’enregistrer."
+    },
+    {
+      "type": "section",
+      "title": "4. Emprunter la mécanique, jamais le style",
+      "body": "Les catalogues de composants et de motions sont utiles pour trouver un comportement déjà résolu : compteur, transition, caméra, typographie cinétique ou graphique. On peut reprendre cette mécanique, puis traduire chaque couleur, durée, bordure et mouvement dans le champ du projet. Une référence sert de structure de comparaison, pas de raccourci esthétique."
+    },
+    {
+      "type": "prompt",
+      "title": "Adapter une référence",
+      "text": "Analyse cette référence uniquement comme une mécanique. Décris :\n- sa chronologie ;\n- les éléments qui entrent et sortent ;\n- les accélérations et pauses ;\n- la hiérarchie de lecture ;\n- ce qui dépend du contenu et ce qui dépend du style.\n\nPropose ensuite une adaptation conforme à MOTION.md. Conserve la logique utile, mais remplace le vocabulaire visuel, les textes, les couleurs et les durées par ceux du projet."
+    },
+    {
+      "type": "section",
+      "title": "5. Donner des notes exploitables",
+      "body": "Une correction efficace décrit un écart visible. « Plus premium » ou « plus fluide » laissent trop de liberté. « Le titre dépasse de son cadre à 3,2 secondes » ou « la pause avant le chiffre doit durer deux fois plus longtemps » produisent une modification contrôlable. Une note, une différence ; tout le reste reste stable."
+    },
+    {
+      "type": "prompt",
+      "title": "Passe de direction artistique",
+      "text": "Regarde le rendu comme un directeur artistique exigeant. Classe les défauts du plus grave au plus mineur. Pour chacun, indique :\n1. ce qui est observable ;\n2. pourquoi cela affaiblit le message ;\n3. la correction minimale ;\n4. ce qui doit rester strictement inchangé.\n\nNe corrige rien avant ma validation."
+    },
+    {
+      "type": "checklist",
+      "title": "6. Contrôle avant export",
+      "items": [
+        "L’accroche est lisible sur la première image.",
+        "Chaque scène porte une seule idée.",
+        "Aucun fait, chiffre ou témoignage n’a été inventé.",
+        "Les textes restent lisibles sur un écran de téléphone.",
+        "Les zones importantes ne sont pas masquées par l’interface de la plateforme.",
+        "Le mouvement conserve une fonction même sans le son.",
+        "La boucle ou la fin ne produit pas de rupture involontaire.",
+        "Une version légère et un poster sont exportés avec le master."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Transformer la méthode en skill",
+      "text": "Transforme le workflow validé en skill réutilisable. À chaque utilisation, il doit : lire MOTION.md, demander la matière source et le format, extraire les faits, proposer un storyboard, attendre la validation, construire une première passe, effectuer les contrôles de lisibilité et lister toutes les reformulations. Sépare clairement les étapes déterministes des décisions créatives qui exigent mon arbitrage."
+    },
+    {
+      "type": "callout",
+      "title": "Le cap",
+      "body": "Un prompt donne parfois une bonne vidéo. Un système donne une deuxième, une dixième et une cinquantième vidéo qui restent reconnaissables, corrigeables et transmissibles. Le but n’est pas d’automatiser le goût : c’est d’automatiser tout ce qui permet au goût de s’exercer."
+    },
+    {
+      "type": "links",
+      "title": "Sources et terrains d’essai",
+      "items": [
+        { "label": "Claude est devenu mon motion designer — Théophile Burnet", "url": "https://theophileburnet.substack.com/p/claude-est-devenu-mon-motion-designer" },
+        { "label": "Opus 5.5 videos — Skillry", "url": "https://skillry.dev/ai-videos/opus-5-5" },
+        { "label": "Opérateur Texte — BAAM Tool", "url": "/baam-tools/operateur-texte/" }
+      ]
+    }
+  ],
+  "relations": [
+    { "type": "related-to", "target": "operateur-texte" },
+    { "type": "related-to", "target": "opus-55-videos" }
+  ]
+}

@@ -15,8 +15,13 @@
   "meta": ["Externe", "Open source", "Optimisation SVG"],
   "presentation": {
     "accent": "#5b45ff",
-    "index": "03",
+    "index": "04",
     "glyph": "↗"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "SVG IN → SVG LIGHT",
+    "caption": "Voir immédiatement l’effet de chaque option d’optimisation."
   },
   "notes": [
     "Comparer visuellement avant et après optimisation.",

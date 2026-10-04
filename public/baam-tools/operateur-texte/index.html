@@ -51,6 +51,18 @@
 
   /* ── Les contrôles ── */
   .controls{border-top:1px solid var(--line); background:var(--panel); padding:16px 22px 22px;}
+  .quick-guide{margin:0 0 18px; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:6px; background:var(--bg);}
+  .quick-guide summary{cursor:pointer; padding:11px 13px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; list-style:none;}
+  .quick-guide summary::-webkit-details-marker{display:none;}
+  .quick-guide summary::after{content:"+"; float:right; color:var(--accent); font-size:14px;}
+  .quick-guide[open] summary::after{content:"−";}
+  .quick-guide-body{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:0 13px 13px; border-top:1px solid var(--line);}
+  .quick-guide-body div{padding-top:12px;}
+  .quick-guide-body b{display:block; margin-bottom:5px; color:var(--accent); font-size:10px;}
+  .quick-guide-body span{display:block; color:var(--muted); font-size:10px; line-height:1.5;}
+  .quick-guide-link{grid-column:1/-1; padding-top:10px!important; border-top:1px dashed var(--line);}
+  .quick-guide-link a{color:var(--ink); font-weight:700; text-underline-offset:3px;}
+  @media (max-width:720px){.quick-guide-body{grid-template-columns:repeat(2,1fr);}}
   /* Couleur du logo */
   .row-color{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:18px;}
   .row-color .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-right:4px;}
@@ -122,6 +134,16 @@
   </div>
 
   <div class="controls">
+    <details class="quick-guide">
+      <summary>Comment construire un mot-signe vivant</summary>
+      <div class="quick-guide-body">
+        <div><b>01 · Écris</b><span>Choisis un mot court, une police et une casse lisible.</span></div>
+        <div><b>02 · Donne une force</b><span>Sélectionne un opérateur : il définit la famille de mouvement.</span></div>
+        <div><b>03 · Dirige</b><span>Règle énergie, contrainte, continuité et texture sans perdre le sens.</span></div>
+        <div><b>04 · Emporte</b><span>Copie le lien pour rejouer l’état ou exporte le SVG autonome.</span></div>
+        <div class="quick-guide-link"><a href="/guides/motion-par-claude/">Aller plus loin : le guide BAAM du motion par Claude →</a></div>
+      </div>
+    </details>
     <div class="row-text">
       <input id="text" maxlength="40" value="BAAM" aria-label="Ton texte" placeholder="écris un mot…" />
       <select id="font" class="font-sel" title="Police"><!-- polices injectées --></select>

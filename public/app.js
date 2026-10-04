@@ -68,10 +68,28 @@ function cardTemplate(asset) {
         <span class="card-open" aria-hidden="true">+</span>
       </button>
       <div class="card-details" id="details-${escapeHtml(asset.id)}">
+        ${previewTemplate(asset.cardPreview)}
         <div class="detail-tags">${asset.meta.map((meta) => `<span>${escapeHtml(meta)}</span>`).join("")}${asset.themes.map((theme) => `<span>#${escapeHtml(theme)}</span>`).join("")}</div>
         <div class="card-actions">${external}<a class="primary-action" href="${escapeHtml(asset.path)}">${escapeHtml(asset.cta || "Ouvrir")} ↗</a></div>
       </div>
     </article>`;
+}
+
+function previewTemplate(preview = { type: "none" }) {
+  if (!preview || preview.type === "none") return "";
+  if (preview.type === "text") {
+    return `<div class="card-preview text-preview"><strong>${escapeHtml(preview.headline)}</strong><span>${escapeHtml(preview.caption || "")}</span><i aria-hidden="true"></i></div>`;
+  }
+  if (preview.type === "video") {
+    return `<div class="card-preview media-preview"><video muted loop autoplay playsinline preload="metadata"${preview.poster ? ` poster="${escapeHtml(preview.poster)}"` : ""} aria-label="${escapeHtml(preview.alt || "Aperçu vidéo")}"><source src="${escapeHtml(preview.url)}"></video></div>`;
+  }
+  if (preview.type === "iframe") {
+    return `<div class="card-preview media-preview"><iframe src="${escapeHtml(preview.url)}" title="${escapeHtml(preview.alt || "Aperçu interactif")}" loading="lazy" sandbox="allow-scripts" tabindex="-1"></iframe></div>`;
+  }
+  if (preview.type === "image" || preview.type === "svg") {
+    return `<div class="card-preview media-preview"><img src="${escapeHtml(preview.url)}" alt="${escapeHtml(preview.alt || "")}" loading="lazy"></div>`;
+  }
+  return "";
 }
 
 function renderCards() {

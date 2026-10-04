@@ -29,20 +29,21 @@
       }
     },
     {
-      "id": "guide-mot-signe-vivant",
-      "title": "Créer un mot-signe vivant",
-      "summary": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "id": "guide-motion-claude",
+      "title": "Le guide BAAM du motion par Claude",
+      "summary": "Transformer une matière réelle en motion codé, dirigé et réutilisable — sans confondre génération spectaculaire et direction artistique.",
       "type": "tutorial",
       "status": "public",
       "territories": [
         "tools"
       ],
-      "url": "https://tools.baam.pro/guides/mot-signe-vivant/",
+      "url": "https://tools.baam.pro/guides/motion-par-claude/",
       "updatedAt": "2026-10-04",
       "tags": [
-        "design",
-        "svg",
-        "méthode"
+        "motion",
+        "claude",
+        "méthode",
+        "design"
       ],
       "preview": {
         "type": "none"
@@ -50,7 +51,33 @@
       "presentation": {
         "accent": "#ff8a34",
         "index": "02",
-        "glyph": "//"
+        "glyph": "▶"
+      }
+    },
+    {
+      "id": "opus-55-videos",
+      "title": "Opus 5.5 Videos",
+      "summary": "Une galerie de motions, explainers, scènes 3D et jeux créés avec Claude, avec prompts d’origine et remakes consultables.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/opus-55-videos/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "motion",
+        "claude",
+        "inspiration",
+        "vidéo"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "03",
+        "glyph": "◫"
       }
     },
     {
@@ -74,7 +101,7 @@
       },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "03",
+        "index": "04",
         "glyph": "↗"
       }
     }
@@ -82,13 +109,25 @@
   "edges": [
     {
       "source": "operateur-texte",
-      "target": "guide-mot-signe-vivant",
+      "target": "guide-motion-claude",
       "type": "related-to",
       "generated": false
     },
     {
-      "source": "guide-mot-signe-vivant",
+      "source": "guide-motion-claude",
       "target": "operateur-texte",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-motion-claude",
+      "target": "opus-55-videos",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "opus-55-videos",
+      "target": "guide-motion-claude",
       "type": "related-to",
       "generated": false
     }

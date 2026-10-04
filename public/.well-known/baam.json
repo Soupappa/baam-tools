@@ -23,7 +23,11 @@
     },
     {
       "type": "has-part",
-      "target": "guide-mot-signe-vivant"
+      "target": "guide-motion-claude"
+    },
+    {
+      "type": "has-part",
+      "target": "opus-55-videos"
     },
     {
       "type": "has-part",
