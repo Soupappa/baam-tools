@@ -38,6 +38,22 @@
       }
     },
     {
+      "@id": "https://tools.baam.pro/baam-tools/mindmap-recursive/",
+      "@type": "SoftwareApplication",
+      "name": "Mindmap Récursive",
+      "description": "Créer des mindmaps modulables à nœuds récursifs, importer un texte puis exporter la structure en Markdown ou en JSON.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "méthode",
+        "cartographie"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
       "@id": "https://tools.baam.pro/guides/motion-par-claude/",
       "@type": "HowTo",
       "name": "Le guide BAAM du motion par Claude",

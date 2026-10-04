@@ -9,11 +9,12 @@ const portal = JSON.parse(await readFile(join(publicDir, ".well-known", "baam.js
 
 assert.equal(registry.meta.territory, "tools");
 assert.equal(registry.meta.count, registry.assets.length);
-assert.ok(registry.assets.length >= 5);
+assert.ok(registry.assets.length >= 6);
 assert.deepEqual(new Set(registry.assets.map((asset) => asset.type)), new Set(["free-webtool", "tutorial", "resource"]));
 assert.equal(portal.id, "baam-tools");
 assert.equal(portal.relations.length, registry.assets.length);
 assert.ok(registry.assets.every((asset) => asset.cardPreview));
+assert.equal(registry.assets.find((asset) => asset.id === "mindmap-recursive")?.cardPreview.url, "/baam-tools/mindmap-recursive/");
 
 for (const asset of registry.assets) {
   await access(join(publicDir, asset.path, "index.html"));

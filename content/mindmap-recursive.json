@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mindmap-recursive",
+  "title": "Mindmap Récursive",
+  "eyebrow": "Cartographie récursive",
+  "summary": "Créer des mindmaps modulables à nœuds récursifs, importer un texte puis exporter la structure en Markdown ou en JSON.",
+  "type": "free-webtool",
+  "status": "preview",
+  "themes": [
+    "design",
+    "méthode",
+    "cartographie"
+  ],
+  "updatedAt": "2026-10-04",
+  "path": "/baam-tools/mindmap-recursive/",
+  "cta": "Ouvrir l’outil",
+  "meta": [
+    "Gratuit",
+    "Import texte",
+    "Export MD et JSON"
+  ],
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/mindmap-recursive/",
+    "alt": "La Mindmap Récursive BAAM en action"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "03",
+    "glyph": "⌘"
+  },
+  "relations": [],
+  "sourceFile": "mindmap.html",
+  "toolShell": "frame"
+}

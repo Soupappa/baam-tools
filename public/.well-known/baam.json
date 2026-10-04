@@ -27,6 +27,10 @@
     },
     {
       "type": "has-part",
+      "target": "mindmap-recursive"
+    },
+    {
+      "type": "has-part",
       "target": "guide-motion-claude"
     },
     {

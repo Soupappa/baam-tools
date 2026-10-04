@@ -144,7 +144,8 @@ function buildCardPreview() {
   const type = previewTypeInput.value;
   if (type === "none") return { type };
   if (type === "text") return { type, headline: document.querySelector("#preview-headline")?.value.trim() || "APERÇU", caption: document.querySelector("#preview-caption")?.value.trim() || "" };
-  const fallbackUrl = type === "video" ? "/media/apercu.mp4" : type === "iframe" ? "/baam-tools/mon-outil/" : "/media/apercu.svg";
+  const currentId = slugify(slugInput.value || titleInput.value) || "nouveau-contenu";
+  const fallbackUrl = type === "video" ? "/media/apercu.mp4" : type === "iframe" ? `${types[typeInput.value].prefix}${currentId}/` : "/media/apercu.svg";
   const result = { type, url: document.querySelector("#preview-url")?.value.trim() || fallbackUrl, alt: document.querySelector("#preview-alt")?.value.trim() || "Aperçu du contenu" };
   const poster = document.querySelector("#preview-poster")?.value.trim();
   if (poster) result.poster = poster;

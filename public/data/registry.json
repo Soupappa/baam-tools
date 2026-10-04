@@ -2,9 +2,9 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "1813c0ac3385426294babdbd9679dd70f6afbb65ffea766ea6665f153a04521a",
+    "sourceHash": "86eb9b44aa0ebb9883dc278ba11848b2c8fa329efdac0ca3c60543f09ad10824",
     "compiledAt": "2026-10-04",
-    "count": 5,
+    "count": 6,
     "contentTypes": {
       "free-webtool": "BAAM Tool",
       "tutorial": "Guide",
@@ -137,6 +137,54 @@
     },
     {
       "schemaVersion": 1,
+      "id": "mindmap-recursive",
+      "title": "Mindmap Récursive",
+      "eyebrow": "Cartographie récursive",
+      "summary": "Créer des mindmaps modulables à nœuds récursifs, importer un texte puis exporter la structure en Markdown ou en JSON.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "preview",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/mindmap-recursive/",
+      "path": "/baam-tools/mindmap-recursive/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "méthode",
+        "cartographie"
+      ],
+      "themes": [
+        "design",
+        "méthode",
+        "cartographie"
+      ],
+      "meta": [
+        "Gratuit",
+        "Import texte",
+        "Export MD et JSON"
+      ],
+      "cta": "Ouvrir l’outil",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/mindmap-recursive/",
+        "alt": "La Mindmap Récursive BAAM en action"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "03",
+        "glyph": "⌘"
+      },
+      "relations": [],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
       "id": "guide-motion-claude",
       "title": "Le guide BAAM du motion par Claude",
       "eyebrow": "Guide complet · modèle",
@@ -179,7 +227,7 @@
       },
       "presentation": {
         "accent": "#ff8a34",
-        "index": "03",
+        "index": "04",
         "glyph": "▶"
       },
       "relations": [
@@ -238,7 +286,7 @@
       },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "04",
+        "index": "05",
         "glyph": "◫"
       },
       "relations": [
@@ -291,7 +339,7 @@
       },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "05",
+        "index": "06",
         "glyph": "↗"
       },
       "relations": [],
