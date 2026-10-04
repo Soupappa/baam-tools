@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -239,6 +239,7 @@ await mkdir(join(publicDir, ".well-known"), { recursive: true });
 for (const file of ["index.html", "styles.css", "app.js", "page.js", "favicon.svg"]) {
   await copyFile(join(root, "src", file), join(publicDir, file));
 }
+await copyFile(join(root, "src", "tool-shell.css"), join(publicDir, "tool-shell.css"));
 await mkdir(join(publicDir, "builder"), { recursive: true });
 await copyFile(join(root, "src", "builder.html"), join(publicDir, "builder", "index.html"));
 await copyFile(join(root, "src", "builder.js"), join(publicDir, "builder", "builder.js"));
@@ -247,7 +248,8 @@ for (const item of visible) {
   const destination = join(publicDir, item.path);
   await mkdir(destination, { recursive: true });
   if (item.type === "free-webtool") {
-    await copyFile(resolve(root, item.sourceFile), join(destination, "index.html"));
+    if (item.sourceDir) await cp(resolve(root, item.sourceDir), destination, { recursive: true, force: true });
+    else await copyFile(resolve(root, item.sourceFile), join(destination, "index.html"));
   } else if (item.type === "tutorial") {
     await writeFile(join(destination, "index.html"), tutorialPage(item));
   } else if (item.type === "resource") {

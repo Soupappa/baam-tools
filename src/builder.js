@@ -34,6 +34,7 @@ let blocks = [
   { type: "lead", text: "Ce guide permet de passer d’une intention à une méthode reproductible." },
   { type: "section", title: "Premier principe", body: "Décrire ici le premier enseignement du guide." }
 ];
+let toolSources = [];
 
 const slugify = (value) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const escapeHtml = (value = "") => String(value)
@@ -51,14 +52,37 @@ function inputField(label, id, value = "", options = {}) {
 
 function setSpecificFields() {
   if (typeInput.value === "free-webtool") {
-    specificHost.innerHTML = '<label for="source-file">Fichier HTML source</label><input id="source-file" placeholder="mon-outil.html">';
+    specificHost.innerHTML = `<label for="source-dir">Source de l’outil</label><select id="source-dir"><option value="">Chargement des sources…</option></select><div class="source-actions"><button type="button" class="mini-button" id="scaffold-tool">Créer depuis le patron BAAM</button><button type="button" class="mini-button" id="refresh-sources">Rafraîchir</button></div><p class="field-help">HTML autonomes détectés à la racine et dossiers complets dans <code>tools-src/</code>.</p>`;
+    renderToolSources();
   } else if (typeInput.value === "resource") {
     specificHost.innerHTML = '<label for="external-url">Lien externe</label><input id="external-url" type="url" placeholder="https://…"><label for="source-url" class="inline-label">Lien source · optionnel</label><input id="source-url" type="url" placeholder="https://…">';
   } else {
     specificHost.innerHTML = '<label>Page guide</label><p class="field-help">Le contenu se construit avec les blocs ci-dessous.</p>';
   }
-  specificHost.querySelectorAll("input").forEach((input) => input.addEventListener("input", update));
+  specificHost.querySelectorAll("input, select").forEach((input) => input.addEventListener("input", update));
   blocksPanel.hidden = typeInput.value !== "tutorial";
+}
+
+function renderToolSources(selected = "") {
+  const select = document.querySelector("#source-dir");
+  if (!select) return;
+  const current = selected || select.value;
+  select.innerHTML = `<option value="">Choisir une source…</option>${toolSources.map((source) => `<option value="${escapeHtml(source.value)}">${source.kind === "directory" ? "Dossier" : "HTML autonome"} · ${escapeHtml(source.id)}</option>`).join("")}`;
+  if (toolSources.some((source) => source.value === current)) select.value = current;
+}
+
+async function loadToolSources(selected = "") {
+  try {
+    const response = await fetch("/api/builder/sources", { cache: "no-store" });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+    toolSources = result.sources || [];
+    renderToolSources(selected);
+  } catch {
+    toolSources = [];
+    renderToolSources();
+    statusHost.textContent = "Inventaire local indisponible : utilise le serveur BAAM.Tools lancé par lancer-site.bat.";
+  }
 }
 
 function setPreviewFields() {
@@ -149,7 +173,11 @@ function buildItem() {
     presentation: { accent: spec.accent, index: "00", glyph: spec.glyph },
     relations: []
   };
-  if (type === "free-webtool") item.sourceFile = document.querySelector("#source-file")?.value.trim() || `${id}.html`;
+  if (type === "free-webtool") {
+    const selectedSource = toolSources.find((source) => source.value === document.querySelector("#source-dir")?.value);
+    if (selectedSource?.kind === "directory") item.sourceDir = selectedSource.sourceDir;
+    else if (selectedSource?.kind === "file") item.sourceFile = selectedSource.sourceFile;
+  }
   if (type === "tutorial") item.blocks = structuredClone(blocks);
   if (type === "resource") {
     item.externalUrl = document.querySelector("#external-url")?.value.trim() || "https://example.com/";
@@ -174,6 +202,36 @@ titleInput.addEventListener("input", () => { if (!slugInput.dataset.touched) slu
 slugInput.addEventListener("input", () => { slugInput.dataset.touched = "true"; update(); });
 form.addEventListener("input", (event) => { if (!event.target.closest("#blocks-list")) update(); });
 blocksList.addEventListener("input", update);
+
+specificHost.addEventListener("click", async (event) => {
+  if (event.target.id === "refresh-sources") {
+    statusHost.textContent = "Actualisation des dossiers source…";
+    await loadToolSources(document.querySelector("#source-dir")?.value || "");
+    statusHost.textContent = `${toolSources.length} source${toolSources.length > 1 ? "s" : ""} détectée${toolSources.length > 1 ? "s" : ""}.`;
+    update();
+  }
+  if (event.target.id === "scaffold-tool") {
+    const item = buildItem();
+    statusHost.textContent = "Création du dossier depuis le patron BAAM…";
+    event.target.disabled = true;
+    try {
+      const response = await fetch("/api/builder/scaffold", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id, title: item.title, summary: item.summary, accent: item.presentation.accent })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+      await loadToolSources(result.sourceValue);
+      statusHost.textContent = `Dossier ${result.sourceDir} créé et sélectionné. Édite maintenant index.html, style.css et app.js.`;
+      update();
+    } catch (error) {
+      statusHost.textContent = error.message.includes("Failed to fetch") ? "Création locale indisponible ici." : error.message;
+    } finally {
+      event.target.disabled = false;
+    }
+  }
+});
 
 document.querySelector("#add-block").addEventListener("click", () => {
   readBlocksFromDom();
@@ -212,6 +270,10 @@ document.querySelector("#download-json").addEventListener("click", () => {
 });
 
 saveButton.addEventListener("click", async () => {
+  if (typeInput.value === "free-webtool" && !document.querySelector("#source-dir")?.value) {
+    statusHost.textContent = "Choisis un dossier source ou crée-le depuis le patron BAAM.";
+    return;
+  }
   statusHost.textContent = "Validation et reconstruction…";
   saveButton.disabled = true;
   try {
@@ -230,3 +292,4 @@ setSpecificFields();
 setPreviewFields();
 renderBlocks();
 update();
+loadToolSources();

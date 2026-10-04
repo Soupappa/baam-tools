@@ -1,0 +1,16 @@
+:root { --tool-accent: {{ACCENT}}; }
+
+.demo-output {
+  max-width: 100%;
+  color: var(--tool-ink);
+  font-size: clamp(3.6rem, 14vw, 10rem);
+  font-weight: 850;
+  line-height: .8;
+  letter-spacing: -.08em;
+  overflow-wrap: anywhere;
+  transform: scale(var(--demo-scale, 1));
+  filter: blur(var(--demo-blur, 0));
+  transition: transform 220ms ease, filter 220ms ease, color 220ms ease;
+}
+
+.demo-output.is-active { color: var(--tool-accent); }

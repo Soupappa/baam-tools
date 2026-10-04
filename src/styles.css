@@ -185,7 +185,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .field textarea { min-height: 92px; resize: vertical; }
 .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--violet); }
 .field-help { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+.field-help code { color: var(--ink); font: .72rem/1.4 var(--mono); }
 .inline-label { margin-top: 10px; }
+.source-actions { display: flex; flex-wrap: wrap; gap: 7px; }
 .builder-subsection { margin: 26px 0 18px; padding-top: 20px; border-top: 1px solid var(--soft-line); }
 .builder-subsection h3 { margin: 0 0 8px; font-size: .83rem; letter-spacing: -.01em; }
 .builder-subsection > p { margin: 0 0 16px; color: var(--muted); font-size: .78rem; line-height: 1.45; }

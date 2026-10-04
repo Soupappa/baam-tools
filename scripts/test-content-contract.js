@@ -25,5 +25,9 @@ assert.throws(
   () => validateContent({ ...items.find((item) => item.type === "resource"), externalUrl: "javascript:alert(1)" }),
   /externalUrl/
 );
+assert.throws(
+  () => validateContent({ ...items.find((item) => item.type === "free-webtool"), sourceDir: "../ailleurs", sourceFile: undefined }),
+  /sourceDir/
+);
 
 console.log(`Tests réussis : ${items.length} contenus valides, trois gabarits couverts.`);

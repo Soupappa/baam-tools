@@ -18,6 +18,8 @@ export const relationVocabulary = Object.freeze({
 
 const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+const sourceDirPattern = /^tools-src\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const sourceFilePattern = /^(?![A-Za-z]:)(?![/\\])(?!.*(?:^|[/\\])\.\.(?:[/\\]|$)).+\.html$/i;
 const cardPreviewTypes = new Set(["none", "text", "svg", "image", "video", "iframe"]);
 
 function isHttpUrl(value) {
@@ -75,7 +77,11 @@ export function validateContent(item) {
     if (!idPattern.test(relation.target || "")) errors.push("cible de relation invalide");
   }
 
-  if (item.type === "free-webtool" && !item.sourceFile) errors.push("un BAAM Tool requiert sourceFile");
+  if (item.type === "free-webtool") {
+    if (!item.sourceDir && !item.sourceFile) errors.push("un BAAM Tool requiert sourceDir ou sourceFile");
+    if (item.sourceDir && !sourceDirPattern.test(item.sourceDir)) errors.push("sourceDir doit suivre tools-src/identifiant");
+    if (item.sourceFile && !sourceFilePattern.test(item.sourceFile)) errors.push("sourceFile doit être un chemin HTML relatif sans ..");
+  }
   if (item.type === "tutorial") {
     const hasLegacyGuide = Array.isArray(item.steps) && item.steps.length > 0 && Array.isArray(item.copyBlocks);
     const hasBlockGuide = Array.isArray(item.blocks) && item.blocks.length > 0;

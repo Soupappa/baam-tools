@@ -38,8 +38,15 @@ encadré et liens. Depuis le serveur local, **Enregistrer + reconstruire** valid
 fiche, la crée dans `content/` et régénère le portail. Une fiche existante n'est jamais
 écrasée. Le téléchargement JSON reste disponible comme solution de repli.
 
-L'Opérateur Texte reste maintenu dans `operateur-texte.html`. Le build le copie vers
-`public/baam-tools/operateur-texte/index.html` sans dupliquer sa logique.
+Les BAAM Tools riches vivent chacun dans `tools-src/<identifiant>/`. Le builder inventorie
+les dossiers contenant un `index.html` ainsi que les HTML autonomes placés à la racine,
+permet d'en choisir un et sait créer un nouveau
+dossier depuis `_template`. Le patron fournit le shell commun BAAM — topbar, retour,
+tokens, contrôles et responsive — puis laisse libres la scène et la logique. Le build
+copie récursivement tout le dossier vers `public/baam-tools/<identifiant>/`, y compris
+CSS, JavaScript, images, polices ou vidéos locales.
+
+L'Opérateur Texte utilise déjà ce format dans `tools-src/operateur-texte/`.
 
 ## Commandes
 
@@ -64,7 +71,9 @@ Les URLs privées de hooks resteront dans Netlify et ne seront jamais versionné
 ## Flux éditorial conseillé
 
 1. Lancer `lancer-site.bat`, puis ouvrir `/builder/`.
-2. Choisir le type, écrire la fiche et sélectionner son aperçu de carte.
-3. Pour un guide, ajouter puis réordonner les blocs nécessaires.
-4. Enregistrer et reconstruire, puis contrôler la carte et la page générée.
-5. Committer les contenus validés localement ; pousser uniquement avec le prochain lot.
+2. Pour un outil, choisir un dossier existant ou cliquer **Créer depuis le patron BAAM**.
+3. Éditer son `index.html`, `style.css` et `app.js`, puis rafraîchir les sources.
+4. Écrire la fiche et sélectionner son aperçu de carte.
+5. Pour un guide, ajouter puis réordonner les blocs nécessaires.
+6. Enregistrer et reconstruire, puis contrôler la carte et la page générée.
+7. Committer les contenus validés localement ; pousser uniquement avec le prochain lot.

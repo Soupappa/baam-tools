@@ -9,7 +9,7 @@
   "themes": ["design", "svg", "animation"],
   "updatedAt": "2026-10-04",
   "path": "/baam-tools/operateur-texte/",
-  "sourceFile": "operateur-texte.html",
+  "sourceDir": "tools-src/operateur-texte",
   "cta": "Ouvrir l’outil",
   "meta": ["Gratuit", "Navigateur", "Export SVG"],
   "preview": {

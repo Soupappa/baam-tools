@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}} · BAAM.TOOLS</title>
+  <meta name="description" content="{{SUMMARY}}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/tool-shell.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="baam-tool">
+  <header class="tool-shell-header">
+    <a class="tool-wordmark" href="/"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="tool-back" href="/">← Bibliothèque</a>
+  </header>
+
+  <main class="tool-main">
+    <section class="tool-heading">
+      <div><span class="tool-kicker">BAAM Tool · {{ID}}</span><h1>{{TITLE}}</h1></div>
+      <p>{{SUMMARY}}</p>
+    </section>
+
+    <section class="tool-workspace">
+      <div class="tool-stage" aria-live="polite">
+        <div class="demo-output" id="output">BAAM</div>
+      </div>
+      <div class="tool-controls">
+        <div class="tool-field">
+          <label for="matter">Matière</label>
+          <input id="matter" value="BAAM" maxlength="48">
+        </div>
+        <div class="tool-field">
+          <label for="intensity">Intensité</label>
+          <input id="intensity" type="range" min="0" max="100" value="52">
+        </div>
+        <button class="tool-button" id="action" type="button">Activer</button>
+      </div>
+    </section>
+    <p class="tool-note">Point de départ : conserve le shell, puis remplace librement la scène, les contrôles et la logique.</p>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

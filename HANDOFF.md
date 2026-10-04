@@ -16,6 +16,8 @@ Livré localement :
 - previews de cartes flexibles : texte animé, SVG/image, MP4 et iframe locale ;
 - aide condensée intégrée à l'Opérateur Texte ;
 - page builder locale avec guides par blocs, enregistrement validé et reconstruction ;
+- sources BAAM Tools organisées par dossiers dans `tools-src/`, inventaire automatique,
+  copie récursive des assets et création depuis un patron graphique commun ;
 - registre territorial, graphe, JSON-LD, manifest `/.well-known/baam.json`, sitemap ;
 - serveur local déclaré sur le port 8091 et configuration Netlify prête ;
 - recette navigateur desktop/mobile et parcours accueil → guide → outil réussis.
