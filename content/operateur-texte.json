@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "operateur-texte",
+  "title": "Opérateur Texte",
+  "eyebrow": "Premier outil BAAM",
+  "summary": "Écrire un mot, lui appliquer un comportement vivant et exporter un SVG animé autonome — sans appel IA.",
+  "type": "free-webtool",
+  "status": "public",
+  "themes": ["design", "svg", "animation"],
+  "updatedAt": "2026-10-04",
+  "path": "/baam-tools/operateur-texte/",
+  "sourceFile": "operateur-texte.html",
+  "cta": "Ouvrir l’outil",
+  "meta": ["Gratuit", "Navigateur", "Export SVG"],
+  "preview": {
+    "type": "iframe",
+    "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "01",
+    "glyph": "Aa"
+  },
+  "relations": [
+    { "type": "related-to", "target": "guide-mot-signe-vivant" }
+  ]
+}

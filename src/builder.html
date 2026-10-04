@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page builder · BAAM.TOOLS</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header compact">
+    <a class="wordmark" href="/"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="header-link" href="/">← Bibliothèque</a>
+  </header>
+  <main class="builder-main">
+    <section class="builder-intro">
+      <span>Atelier local / sortie JSON</span>
+      <h1>Une fiche.<br>Trois formes.</h1>
+      <p>Choisir un type, remplir les champs puis télécharger la fiche. Le fichier rejoint ensuite <code>content/</code> : au prochain build, sa page, sa carte et son manifest sont produits ensemble.</p>
+    </section>
+
+    <div class="builder-layout">
+      <form class="builder-panel" id="builder-form">
+        <h2>Contenu</h2>
+        <div class="field"><label for="content-type">Type</label><select id="content-type"><option value="free-webtool">BAAM Tool</option><option value="tutorial">Guide</option><option value="resource">Externe</option></select></div>
+        <div class="field"><label for="title">Titre</label><input id="title" required value="Nouvel outil"></div>
+        <div class="field"><label for="summary">Résumé</label><textarea id="summary" required>Une phrase claire pour dire ce que ce contenu permet de faire.</textarea></div>
+        <div class="field"><label for="themes">Thèmes · séparés par des virgules</label><input id="themes" value="design, méthode"></div>
+        <div class="field"><label for="slug">Identifiant</label><input id="slug" value="nouvel-outil" pattern="[a-z0-9]+(?:-[a-z0-9]+)*"></div>
+        <div class="field" id="specific-field"></div>
+        <div class="builder-actions">
+          <button type="button" id="download-json">Télécharger JSON</button>
+          <button type="button" class="secondary" id="copy-json">Copier</button>
+        </div>
+      </form>
+
+      <section class="builder-panel">
+        <h2>Aperçu</h2>
+        <article class="builder-preview" id="builder-preview"></article>
+        <pre class="json-preview" id="json-preview"></pre>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer"><span>Le builder ne publie rien seul</span><span>Validation Git avant diffusion</span></footer>
+  <script src="/builder/builder.js" defer></script>
+</body>
+</html>

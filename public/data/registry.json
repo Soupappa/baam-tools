@@ -1,0 +1,177 @@
+{
+  "meta": {
+    "schemaVersion": 1,
+    "territory": "tools",
+    "sourceHash": "c45d1a0a1c344560a04ddbf2966b46919d813beb9bc87513885d5f5246bf4c08",
+    "compiledAt": "2026-10-04",
+    "count": 3,
+    "contentTypes": {
+      "free-webtool": "BAAM Tool",
+      "tutorial": "Guide",
+      "resource": "Externe"
+    },
+    "relationVocabulary": [
+      "uses",
+      "used-by",
+      "inspired-by",
+      "inspires",
+      "derived-from",
+      "has-derivative",
+      "part-of",
+      "has-part",
+      "related-to"
+    ]
+  },
+  "territory": {
+    "id": "tools",
+    "name": "Tools",
+    "title": "BAAM.TOOLS",
+    "url": "https://tools.baam.pro/",
+    "localUrl": "http://127.0.0.1:8091/",
+    "accent": "#5b45ff",
+    "tagline": "Prendre. Comprendre. Fabriquer.",
+    "description": "Des outils concrets, des guides copiables et une sélection de ressources externes pour fabriquer sans détour."
+  },
+  "assets": [
+    {
+      "schemaVersion": 1,
+      "id": "operateur-texte",
+      "title": "Opérateur Texte",
+      "eyebrow": "Premier outil BAAM",
+      "summary": "Écrire un mot, lui appliquer un comportement vivant et exporter un SVG animé autonome — sans appel IA.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/operateur-texte/",
+      "path": "/baam-tools/operateur-texte/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "themes": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "meta": [
+        "Gratuit",
+        "Navigateur",
+        "Export SVG"
+      ],
+      "cta": "Ouvrir l’outil",
+      "preview": {
+        "type": "iframe",
+        "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "01",
+        "glyph": "Aa"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-mot-signe-vivant"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "guide-mot-signe-vivant",
+      "title": "Créer un mot-signe vivant",
+      "eyebrow": "Guide express · 6 min",
+      "summary": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "type": "tutorial",
+      "typeLabel": "Guide",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/mot-signe-vivant/",
+      "path": "/guides/mot-signe-vivant/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "svg",
+        "méthode"
+      ],
+      "themes": [
+        "design",
+        "svg",
+        "méthode"
+      ],
+      "meta": [
+        "6 minutes",
+        "4 étapes",
+        "3 champs à copier"
+      ],
+      "cta": "Lire le guide",
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "02",
+        "glyph": "//"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "operateur-texte"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "svgomg",
+      "title": "SVGOMG",
+      "eyebrow": "Ressource externe",
+      "summary": "Une interface web pour alléger un SVG avec SVGO et observer immédiatement l’effet de chaque option.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/svgomg/",
+      "path": "/externes/svgomg/",
+      "externalUrl": "https://jakearchibald.github.io/svgomg/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "svg",
+        "performance",
+        "web"
+      ],
+      "themes": [
+        "svg",
+        "performance",
+        "web"
+      ],
+      "meta": [
+        "Externe",
+        "Open source",
+        "Optimisation SVG"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "03",
+        "glyph": "↗"
+      },
+      "relations": [],
+      "sourceOrigin": "file"
+    }
+  ]
+}

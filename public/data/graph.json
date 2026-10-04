@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-10-04T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "operateur-texte",
+      "title": "Opérateur Texte",
+      "summary": "Écrire un mot, lui appliquer un comportement vivant et exporter un SVG animé autonome — sans appel IA.",
+      "type": "free-webtool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/operateur-texte/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "preview": {
+        "type": "iframe",
+        "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "01",
+        "glyph": "Aa"
+      }
+    },
+    {
+      "id": "guide-mot-signe-vivant",
+      "title": "Créer un mot-signe vivant",
+      "summary": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "type": "tutorial",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/mot-signe-vivant/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "svg",
+        "méthode"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "02",
+        "glyph": "//"
+      }
+    },
+    {
+      "id": "svgomg",
+      "title": "SVGOMG",
+      "summary": "Une interface web pour alléger un SVG avec SVGO et observer immédiatement l’effet de chaque option.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/svgomg/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "svg",
+        "performance",
+        "web"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "03",
+        "glyph": "↗"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "operateur-texte",
+      "target": "guide-mot-signe-vivant",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-mot-signe-vivant",
+      "target": "operateur-texte",
+      "type": "related-to",
+      "generated": false
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BAAM.TOOLS — outils, guides et ressources</title>
+  <meta name="description" content="Outils gratuits, guides copiables et ressources externes sélectionnées par BAAM.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="BAAM Tools"><span>BAAM</span><i>·</i>TOOLS</a>
+    <div class="header-meta"><span>Bibliothèque active</span><a href="https://baam.pro/">BAAM.pro ↗</a></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-code" aria-hidden="true">
+        <span>TYPE</span><b>×</b><span>THÈME</span><b>=</b><span>MOUVEMENT</span>
+      </div>
+      <p class="hero-kicker">Outils concrets / modes opératoires / chemins de traverse</p>
+      <h1>Prendre.<br>Comprendre.<br><em>Fabriquer.</em></h1>
+      <p class="hero-copy">Une bibliothèque légère pour passer directement à l’action. Chaque carte s’ouvre, chaque filtre recompose le terrain.</p>
+    </section>
+
+    <section class="catalogue" aria-labelledby="catalogue-title">
+      <div class="filter-deck">
+        <div class="filter-heading">
+          <div><span class="section-index">01</span><h2 id="catalogue-title">Bibliothèque</h2></div>
+          <p id="result-count" aria-live="polite">Chargement…</p>
+        </div>
+
+        <div class="filter-row" aria-label="Filtrer par type">
+          <span class="filter-label">Type</span>
+          <div class="filter-options" id="type-filters"></div>
+        </div>
+        <div class="filter-row" aria-label="Filtrer par thème">
+          <span class="filter-label">Thème</span>
+          <div class="filter-options" id="theme-filters"></div>
+        </div>
+      </div>
+
+      <div class="card-grid" id="library" aria-busy="true"></div>
+      <div class="empty-state" id="empty-state" hidden>
+        <span>∅</span><p>Aucune carte à cette intersection.</p><button type="button" id="clear-filters">Tout afficher</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>BAAM.TOOLS / portail autonome</span>
+    <nav><a href="/builder/">Page builder</a><a href="/data/registry.json">Registre JSON</a></nav>
+  </footer>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

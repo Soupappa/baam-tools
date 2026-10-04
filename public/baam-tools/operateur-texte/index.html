@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BAAM · Champ de texte</title>
+<meta name="description" content="Écris un mot. Un opérateur BAAM runtime le rend vivant — sans IA, en temps réel. Le premier outil BAAM." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Syncopate:wght@700&family=Space+Grotesk:wght@700&family=Unbounded:wght@800&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<style>
+  /* ── Tokens : plateforme « usage » (blanc cassé), sobre et utilitaire ── */
+  :root{
+    --bg:#f1efe9; --ink:#17150f; --muted:#8a867c; --line:#ddd8cd; --panel:#ffffff;
+    --accent:#00a847; --accent-ink:#fff;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --disp:"Arial Black","Helvetica Neue",Impact,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--mono); font-size:13px; line-height:1.5;
+    -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; min-height:100%;
+  }
+
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 22px; border-bottom:1px solid var(--line);
+  }
+  .brand{font-family:var(--disp); font-size:20px; letter-spacing:-.02em; text-transform:uppercase; color:inherit; text-decoration:none;}
+  .brand .dot{color:var(--accent);}
+  .brand small{font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--muted); margin-left:10px; text-transform:uppercase;}
+  .head-right{display:flex; gap:8px; align-items:center;}
+  button, .btn{font-family:var(--mono); font-size:11px; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:7px 11px; cursor:pointer; text-transform:uppercase; letter-spacing:.06em;}
+  button:hover{border-color:var(--muted);}
+  button.on{border-color:var(--accent); color:var(--accent);}
+
+  main{flex:1; display:flex; flex-direction:column;}
+
+  /* ── La scène : le texte vivant ── */
+  .stage{position:relative; flex:1; min-height:46vh; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+  .stage svg{width:100%; height:100%; display:block;}
+  #field{fill:var(--ink); font-family:var(--disp); letter-spacing:-.01em;}
+  .sig{position:absolute; right:14px; bottom:10px; font-size:9px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; text-decoration:none;}
+  .sig b{color:var(--accent);}
+
+  /* Actions directement sous la preview */
+  .actions{display:flex; gap:10px; justify-content:center; padding:12px 22px; border-top:1px solid var(--line);}
+  .actions button{font-size:12px;}
+
+  /* ── Les contrôles ── */
+  .controls{border-top:1px solid var(--line); background:var(--panel); padding:16px 22px 22px;}
+  /* Couleur du logo */
+  .row-color{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:18px;}
+  .row-color .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); margin-right:4px;}
+  .swatch{width:26px; height:26px; border-radius:6px; border:1px solid var(--line); cursor:pointer; padding:0;}
+  .swatch.on{outline:2px solid var(--accent); outline-offset:1px;}
+  .color-pick{width:36px; height:28px; padding:0; border:1px solid var(--line); border-radius:6px; background:var(--panel); cursor:pointer;}
+  .row-text{display:flex; gap:10px; margin-bottom:18px;}
+  .row-text input{flex:1; font-family:var(--disp); font-size:22px; letter-spacing:-.01em; background:transparent; color:var(--ink); border:none; border-bottom:2px solid var(--line); padding:6px 2px; outline:none;}
+  .row-text input:focus{border-color:var(--accent);}
+  .font-sel{flex:0 0 auto; align-self:flex-end; font-family:var(--mono); font-size:11px; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:7px 9px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em;}
+  .font-sel:hover{border-color:var(--muted);}
+
+  .row-style{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:18px;}
+  .row-style .case-btn{text-transform:none; font-family:var(--disp); min-width:38px;}
+  .row-style .italic-btn{font-style:italic;}
+  .row-style .spacer{flex:1;}
+  .ops{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .op{flex:0 0 auto;}
+  .op .op-sub{display:block; font-size:9px; color:var(--muted); letter-spacing:.04em; text-transform:none; margin-top:2px;}
+
+  .macro{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:720px){ .macro{grid-template-columns:repeat(2,1fr);} .brand small{display:none;} }
+  .axis label{display:flex; justify-content:space-between; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:7px;}
+  .axis label b{color:var(--ink); font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%; -webkit-appearance:none; appearance:none; height:3px; background:var(--line); border-radius:2px; outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--bg);}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--bg);}
+
+  /* ── Sous le capot : le dépliage 4 → 10 (lecture seule) ── */
+  .adv{margin-top:18px; border-top:1px dashed var(--line); padding-top:14px;}
+  .adv summary{cursor:pointer; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); list-style:none;}
+  .adv summary::-webkit-details-marker{display:none;}
+  .adv summary::before{content:"▸ "; color:var(--accent);}
+  .adv[open] summary::before{content:"▾ ";}
+  .baam-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px 14px; margin-top:12px;}
+  @media (max-width:720px){ .baam-grid{grid-template-columns:repeat(3,1fr);} }
+  .baam{font-size:10px;}
+  .baam .bk{color:var(--muted); text-transform:uppercase; letter-spacing:.06em; display:block;}
+  .baam .bv{color:var(--ink); font-variant-numeric:tabular-nums;}
+  .bar{height:3px; background:var(--line); border-radius:2px; margin-top:3px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--accent);}
+  .baam input[type=range]{margin-top:5px;}
+  .adv-tools{display:flex; gap:8px; margin:12px 0 2px; flex-wrap:wrap;}
+  .macro.locked{opacity:.35; pointer-events:none; filter:grayscale(1);}
+  .adv-note{font-size:9px; color:var(--muted); margin-top:12px; line-height:1.6;}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/"><span>BAAM</span><span class="dot">·</span>TOOLS <small>BAAM Tool</small></a>
+  <div class="head-right"><a class="btn" href="/">← Bibliothèque</a></div>
+</header>
+<main>
+  <div class="stage">
+    <svg id="svg" viewBox="0 0 1000 420" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="op" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+          <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="1" result="noise"/>
+          <feDisplacementMap id="disp" in="SourceGraphic" in2="noise" result="dsp" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+          <feGaussianBlur id="blur" in="dsp" stdDeviation="0"/>
+        </filter>
+      </defs>
+      <text id="field" x="500" y="232" text-anchor="middle" dominant-baseline="middle" filter="url(#op)" font-size="160">BAAM</text>
+    </svg>
+  </div>
+  <div class="actions">
+    <button id="copy" title="Copier un lien qui rejoue ce résultat">Copier le lien</button>
+    <button id="export" title="Télécharger le logo en SVG animé autonome">Exporter SVG</button>
+  </div>
+
+  <div class="controls">
+    <div class="row-text">
+      <input id="text" maxlength="40" value="BAAM" aria-label="Ton texte" placeholder="écris un mot…" />
+      <select id="font" class="font-sel" title="Police"><!-- polices injectées --></select>
+    </div>
+
+    <div class="row-style" id="rowStyle"><!-- casse / italique / reset --></div>
+
+    <div class="row-color" id="rowColor"><!-- couleur du logo --></div>
+
+    <div class="ops" id="ops"><!-- opérateurs injectés --></div>
+
+    <div class="macro" id="macro"><!-- 4 axes injectés --></div>
+
+    <details class="adv">
+      <summary>sous le capot — le dépliage 4 axes → 10 paramètres BAAM</summary>
+      <div class="adv-tools" id="advTools"><!-- bouton prendre le contrôle --></div>
+      <div class="baam-grid" id="baamGrid"><!-- 10 params live --></div>
+      <div class="adv-note">
+        Chaîne : <b>4 axes macro</b> → dépliage → <b>10 paramètres BAAM</b> → matrice de l'opérateur
+        (<code>R = B + M·U_signed</code>) → <b>runtime</b> (turbulence + displacement) → rendu.
+        Tout est déterministe, sans IA. À 0.5 partout, l'opérateur retombe sur sa base.
+      </div>
+    </details>
+  </div>
+</main>
+
+<script>
+/* ============================================================================
+   OPÉRATEUR BAAM RUNTIME — implémentation fidèle à SPECS_OPERATEUR_BAAM.md
+   + couche macro 4 axes (Details_mapping4.md).
+   Chaîne : macro(4) -> BAAM(10) -> runtime(8) -> effet SVG, en temps réel, sans IA.
+============================================================================ */
+
+// Ordre vectoriel de référence (NE JAMAIS changer).
+const BAAM_ORDER = ["alive","tension","flow","grain","clarity","impulse","persistence","spread","jitter","hysteresis"];
+const RT_ORDER   = ["noiseFrequency","noiseDetail","displacementPeak","cycleDuration","displacementFloor","temporalVariation","effectExtent","returnBias"];
+// SENSIBILITÉ par runtime param : les poids matriciels [-1..1] y sont multipliés.
+// Sans ça, un poids de 0.9 n'ajoutait que ~0.9 à un displacementPeak qui va jusqu'à 80
+// (effet invisible). Avec SPAN, chaque axe a enfin du muscle, à l'échelle de son param.
+const SPAN = [0.25, 3, 46, 6, 22, 220, 0.5, 0.45];
+const MACRO_ORDER= ["energy","constraint","continuity","texture"];
+const MACRO_LABEL= { energy:"Énergie", constraint:"Contrainte", continuity:"Continuité", texture:"Texture" };
+
+// Polices typées graphisme (Google Fonts).
+const FONTS = [
+  { id:"archivo",   label:"Archivo Black",       css:"'Archivo Black',sans-serif" },
+  { id:"anton",     label:"Anton",               css:"'Anton',sans-serif" },
+  { id:"unbounded", label:"Unbounded",           css:"'Unbounded',sans-serif" },
+  { id:"space",     label:"Space Grotesk",       css:"'Space Grotesk',sans-serif" },
+  { id:"syncopate", label:"Syncopate",           css:"'Syncopate',sans-serif" },
+  { id:"bricolage", label:"Bricolage Grotesque", css:"'Bricolage Grotesque',sans-serif" },
+  { id:"major",     label:"Major Mono",          css:"'Major Mono Display',monospace" }
+];
+const fontCss = id => (FONTS.find(f=>f.id===id)||FONTS[0]).css;
+// Pour l'export fidèle : la requête Google Fonts (famille+graisse) et la graisse du rendu.
+const FONT_SPEC = {
+  archivo:"Archivo+Black", anton:"Anton", unbounded:"Unbounded:wght@800",
+  space:"Space+Grotesk:wght@700", syncopate:"Syncopate:wght@700",
+  bricolage:"Bricolage+Grotesque:opsz,wght@48,800", major:"Major+Mono+Display"
+};
+const FONT_WEIGHT = { archivo:400, anton:400, unbounded:800, space:700, syncopate:700, bricolage:800, major:400 };
+const FONT_FAMILY = id => (FONTS.find(f=>f.id===id)||FONTS[0]).label;
+
+// Récupère la police en woff2 et la renvoie en @font-face base64 (logo autonome).
+// Échec silencieux (hors-ligne / CORS) -> "" : l'export marche, police système en repli.
+async function embedFont(id){
+  try{
+    const fam=FONT_FAMILY(id);
+    const css=await fetch(`https://fonts.googleapis.com/css2?family=${FONT_SPEC[id]||encodeURIComponent(fam)}&display=swap`).then(r=>r.text());
+    const m=css.match(/url\((https:\/\/[^)]+\.woff2)\)/);
+    if(!m) return "";
+    const buf=await fetch(m[1]).then(r=>r.arrayBuffer());
+    let bin=""; const b=new Uint8Array(buf); const C=0x8000;
+    for(let i=0;i<b.length;i+=C) bin+=String.fromCharCode.apply(null, b.subarray(i,i+C));
+    return `@font-face{font-family:'${fam}';font-style:normal;font-weight:${FONT_WEIGHT[id]||400};src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2');}`;
+  }catch(_){ return ""; }
+}
+
+// ── Couche A→B : dépliage des 4 axes macro vers les 10 BAAM ──────────────────
+// Poids de DÉVIATION en espace signé : baam = clamp01(0.5 + 0.5 * Σ w·macro_signed).
+// Donc macro=0.5 partout -> baam=0.5 partout (neutralité préservée).
+// Honore les exemples de la spec (alive, grain, flow).
+const PROJECTION = { // [energy, constraint, continuity, texture]
+  alive:       [ 0.7,  0.0,  0.2,  0.1],
+  tension:     [ 0.2,  0.8,  0.0,  0.0],
+  flow:        [ 0.0, -0.3,  0.7,  0.0],
+  grain:       [ 0.2,  0.0,  0.0,  0.8],
+  clarity:     [ 0.0,  0.3,  0.2, -0.5],
+  impulse:     [ 0.7,  0.0,  0.0,  0.2],
+  persistence: [ 0.0,  0.3,  0.5,  0.0],
+  spread:      [ 0.4,  0.0,  0.3,  0.2],
+  jitter:      [ 0.3,  0.2,  0.0,  0.6],
+  hysteresis:  [ 0.0,  0.4,  0.5,  0.0]
+};
+function macroToBaam(macro){
+  const ms = MACRO_ORDER.map(k => 2*macro[k] - 1); // signé [-1..1]
+  const baam = {};
+  for (const p of BAAM_ORDER){
+    const w = PROJECTION[p];
+    let s = 0; for (let i=0;i<4;i++) s += w[i]*ms[i];
+    baam[p] = clamp01(0.5 + 0.5*s);
+  }
+  return baam;
+}
+
+// ── Couche B→C : matrice de l'opérateur. R = B + M × U_signed ────────────────
+// Matrice générique (10×8), réutilisée (mise à l'échelle) par les opérateurs doux.
+// Lignes = BAAM_ORDER, colonnes = RT_ORDER.
+const G = [
+//   nFreq  nDet  dPeak  cycle  dFloor tVar  ext   rBias
+   [ 0.05,  0.00, 0.10,  0.10,  0.30,  0.25, 0.00, 0.00], // alive
+   [ 0.05,  0.10, 0.70, -0.20,  0.05,  0.10, 0.00, 0.10], // tension
+   [-0.10, -0.20, 0.00,  0.60,  0.05, -0.10, 0.10, 0.00], // flow
+   [ 0.60,  0.50, 0.10, -0.10,  0.00,  0.10, 0.00, 0.00], // grain
+   [-0.20, -0.40,-0.50,  0.10,  0.00, -0.20, 0.00,-0.05], // clarity
+   [ 0.05,  0.00, 0.60, -0.50, -0.10,  0.30, 0.00, 0.15], // impulse
+   [-0.05,  0.00, 0.10,  0.50,  0.40, -0.05, 0.05, 0.20], // persistence
+   [ 0.00,  0.00, 0.10,  0.00,  0.05,  0.00, 0.90, 0.00], // spread
+   [ 0.40,  0.20, 0.15, -0.30,  0.00,  0.70, 0.00, 0.10], // jitter
+   [ 0.00,  0.00, 0.05,  0.20,  0.30, -0.10, 0.00, 0.85]  // hysteresis
+];
+const scaleM = (m,k)=> m.map(row=>row.map(v=>v*k));
+
+// Matrice officielle de "fulguration" (SPECS_OPERATEUR_BAAM.md §11).
+const M_FULGURATION = [
+  [0.20,0.10,0.10,-0.20,0.00,0.90,0.00,0.10],
+  [0.10,0.00,0.95,-0.10,0.10,0.10,0.00,0.20],
+  [-0.10,0.00,0.10,0.80,0.00,-0.10,0.10,0.00],
+  [0.95,0.40,0.10,-0.10,0.00,0.20,0.00,0.00],
+  [-0.30,-0.80,-0.35,0.10,0.00,-0.20,0.00,-0.10],
+  [0.00,0.00,0.80,-0.75,-0.20,0.20,0.00,0.20],
+  [-0.10,0.00,0.10,0.45,0.85,0.10,0.10,0.20],
+  [0.00,0.00,0.10,0.00,0.00,0.00,1.00,0.00],
+  [0.80,0.20,0.15,-0.85,0.00,0.95,0.00,0.15],
+  [0.00,0.00,0.10,0.10,0.30,0.00,0.00,0.95]
+];
+
+// Opérateurs : base (runtime neutre) + matrice + un COMPORTEMENT propre `drive(rt,t)`.
+// La matrice/BAAM calcule le vecteur runtime ; le drive lui donne sa personnalité de
+// mouvement (ce qui distingue vraiment les opérateurs, pas juste l'amplitude).
+const TWO_PI = Math.PI*2;
+const OPERATORS = {
+  souffle: {
+    label:"Souffle", sub:"flotte — de la brise à la tempête",
+    base:[0.010, 1, 24, 5.0, 6, 20, 0.5, 0.50],
+    matrix: scaleM(G, 0.8),
+    // FLOTTE : grandes ondes (octaves 1, basse fréquence) => ça déforme mais NE PLIE PAS.
+    // + translation/cisaillement lents => la matière flotte. Amplitude brise -> tempête.
+    drive(rt,t){
+      turb.setAttribute("numOctaves", 1);
+      const bf = 0.006 + 0.012*clamp01(rt.noiseFrequency/0.1);
+      turb.setAttribute("baseFrequency", bf.toFixed(4));
+      const cyc = Math.max(rt.cycleDuration, 2.2);
+      const breath = 0.45 + 0.55*Math.sin(t*TWO_PI/cyc);
+      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*breath;
+      disp.setAttribute("scale", scale.toFixed(2));
+      const A = rt.displacementPeak*0.75;                 // flottaison ∝ force
+      const tx = A*Math.sin(t*0.5), ty = A*0.5*Math.sin(t*0.37+1.3), sk = 2.4*Math.sin(t*0.43);
+      fieldEl.setAttribute("transform", `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) skewX(${sk.toFixed(2)})`);
+      blur.setAttribute("stdDeviation", 0);
+      const sd = Math.floor(t*0.9); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
+    }
+  },
+  mirage: {
+    label:"Mirage", sub:"la matière se brouille, des ondes la déforment",
+    base:[0.050, 2, 30, 2.4, 10, 170, 0.6, 0.50],
+    matrix: scaleM(G, 1.0),
+    // MIRAGE : déformation INTERNE. Des ondes (fréquence moyenne qui dérive) traversent la
+    // matière et la gonflent/retombent, pendant qu'un flou respirant la BROUILLE.
+    drive(rt,t){
+      turb.setAttribute("numOctaves", Math.max(2, rt.noiseDetail));
+      const base = rt.noiseFrequency;
+      const fx = (base*(1.1+0.25*Math.sin(t*0.5))).toFixed(4);   // les ondes dérivent
+      const fy = (base*(0.8+0.25*Math.cos(t*0.4))).toFixed(4);
+      turb.setAttribute("baseFrequency", fx+" "+fy);
+      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*(0.55+0.45*Math.sin(t*1.3));
+      disp.setAttribute("scale", scale.toFixed(2));                // ondes amples INTERNES
+      blur.setAttribute("stdDeviation", (0.6+1.4*(0.5+0.5*Math.sin(t*1.1))).toFixed(2)); // ça se brouille
+      fieldEl.removeAttribute("transform");
+      seedPhase += (rt.temporalVariation/70)*0.016;
+      const sd = Math.floor(seedPhase); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
+    }
+  },
+  fulguration: {
+    label:"Fulguration", sub:"matière fulgurée, puis détente",
+    base:[0.08, 4, 48, 1.2, 1, 150, 0.6, 0.22],
+    matrix: M_FULGURATION,
+    // FULGURATION : calme, puis frappe sèche (attaque ~8% du cycle) + crépitement, puis
+    // détente exponentielle (returnBias règle la lenteur du relâchement). Soubresaut au pic.
+    drive(rt,t){
+      const cyc = Math.max(rt.cycleDuration, 0.6);
+      const ph = (t % cyc)/cyc, spike = 0.08;
+      let env;
+      if (ph < spike) env = ph/spike;
+      else { const k = 3 + (1-rt.returnBias)*7; env = Math.exp(-((ph-spike)/(1-spike))*k); }
+      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*env;
+      disp.setAttribute("scale", scale.toFixed(2));
+      turb.setAttribute("baseFrequency", (rt.noiseFrequency*(1+3.5*env)).toFixed(4));
+      turb.setAttribute("numOctaves", Math.min(6, rt.noiseDetail + (env>0.4?2:0)));
+      if (env>0.6){ const j=rt.displacementPeak*0.12; fieldEl.setAttribute("transform", `translate(${((Math.random()-0.5)*j).toFixed(1)} ${((Math.random()-0.5)*j).toFixed(1)})`); }
+      else fieldEl.removeAttribute("transform");
+      blur.setAttribute("stdDeviation", 0);
+      seedPhase += (rt.temporalVariation/40)*0.016*(0.3+env);
+      const sd = Math.floor(seedPhase); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
+    }
+  }
+};
+
+// Bornes runtime (SPECS §8.2).
+function clampRuntime(raw){
+  const r = {
+    noiseFrequency:    clamp(raw[0], 0.001, 1.2),
+    noiseDetail:       Math.round(clamp(raw[1], 1, 6)),
+    displacementPeak:  clamp(raw[2], 0, 80),
+    cycleDuration:     clamp(raw[3], 0.2, 20),
+    displacementFloor: clamp(raw[4], 0, 40),
+    temporalVariation: clamp(raw[5], 0, 500),
+    effectExtent:      clamp(raw[6], 0, 1),
+    returnBias:        clamp(raw[7], 0, 1)
+  };
+  if (r.displacementFloor > r.displacementPeak) r.displacementFloor = r.displacementPeak; // règle spec
+  return r;
+}
+// R = B + M × U_signed  (U = BAAM 10, recentré en [-1..1]).
+function resolveRuntime(op, baam){
+  const U = BAAM_ORDER.map(k => 2*baam[k] - 1);
+  const out = op.base.slice();
+  for (let col=0; col<RT_ORDER.length; col++){
+    let d = 0;
+    for (let row=0; row<U.length; row++) d += op.matrix[row][col]*U[row];
+    out[col] += SPAN[col]*d;   // sensibilité à l'échelle du param
+  }
+  return clampRuntime(out);
+}
+
+const clamp   = (v,a,b)=> v<a?a : v>b?b : v;
+const clamp01 = v => clamp(v,0,1);
+
+/* ── État + UI ─────────────────────────────────────────────────────────── */
+const state = {
+  text:"BAAM",
+  op:"souffle",
+  macro:{ energy:0.5, constraint:0.5, continuity:0.5, texture:0.5 },
+  font:"archivo",     // police graphique
+  case:"upper",       // upper | lower | normal
+  italic:false,
+  color:"#17150f",    // couleur du logo (noir par défaut, sur fond transparent)
+  expert:false,       // Mode 2 : les 10 BAAM prennent le contrôle
+  manual:null         // valeurs manuelles des 10 quand expert
+};
+const caseText = (s,c)=> c==="upper"? s.toUpperCase() : c==="lower"? s.toLowerCase() : s;
+const SWATCHES = ["#17150f","#ffffff","#00a847","#e2342d","#2563eb","#f5a623"];
+const normColor = c=> /^#[0-9a-f]{6}$/i.test(c)? c : "#000000";
+
+const $ = s => document.querySelector(s);
+const svg=$("#svg"), fieldEl=$("#field"), turb=$("#turb"), disp=$("#disp"), blur=$("#blur"), filt=$("#op");
+
+// Construit les boutons d'opérateurs.
+function buildOps(){
+  const host=$("#ops"); host.innerHTML="";
+  for (const id of Object.keys(OPERATORS)){
+    const b=document.createElement("button");
+    b.className="op"+(id===state.op?" on":"");
+    b.dataset.op=id;
+    b.innerHTML = OPERATORS[id].label + '<span class="op-sub">'+OPERATORS[id].sub+'</span>';
+    b.onclick=()=>{ state.op=id; buildOps(); apply(); };
+    host.appendChild(b);
+  }
+}
+// Construit les 4 sliders macro.
+function buildMacro(){
+  const host=$("#macro"); host.innerHTML="";
+  for (const k of MACRO_ORDER){
+    const wrap=document.createElement("div"); wrap.className="axis";
+    wrap.innerHTML =
+      '<label>'+MACRO_LABEL[k]+' <b id="v_'+k+'">'+state.macro[k].toFixed(2)+'</b></label>'+
+      '<input type="range" min="0" max="1" step="0.01" value="'+state.macro[k]+'" id="s_'+k+'">';
+    host.appendChild(wrap);
+    wrap.querySelector("input").addEventListener("input", e=>{
+      state.macro[k]=parseFloat(e.target.value);
+      $("#v_"+k).textContent=state.macro[k].toFixed(2);
+      apply();
+    });
+  }
+}
+// Sélecteur de police (chaque option s'affiche dans sa propre fonte).
+function buildFonts(){
+  const sel=$("#font"); sel.innerHTML="";
+  for (const f of FONTS){
+    const o=document.createElement("option"); o.value=f.id; o.textContent=f.label; o.style.fontFamily=f.css;
+    sel.appendChild(o);
+  }
+  sel.value=state.font;
+  sel.onchange=()=>{ state.font=sel.value; apply(); };
+}
+
+// Casse (MAJ/min/normal), italique, et reset du vecteur BAAM.
+function buildStyle(){
+  const host=$("#rowStyle"); host.innerHTML="";
+  for (const [c,lbl] of [["upper","AA"],["lower","aa"],["normal","Aa"]]){
+    const b=document.createElement("button");
+    b.className="case-btn"+(state.case===c?" on":""); b.textContent=lbl; b.title="Casse";
+    b.onclick=()=>{ state.case=c; buildStyle(); apply(); };
+    host.appendChild(b);
+  }
+  const it=document.createElement("button");
+  it.className="italic-btn"+(state.italic?" on":""); it.textContent="Italique";
+  it.onclick=()=>{ state.italic=!state.italic; buildStyle(); apply(); };
+  host.appendChild(it);
+  const sp=document.createElement("span"); sp.className="spacer"; host.appendChild(sp);
+  const rs=document.createElement("button");
+  rs.textContent="⟲ reset"; rs.title="Ramène le vecteur BAAM à l'état médian — typé mais pas trop";
+  rs.onclick=resetVector; host.appendChild(rs);
+}
+// Couleur du logo : swatches rapides + pipette personnalisée.
+function buildColor(){
+  const host=$("#rowColor"); host.innerHTML="";
+  const lbl=document.createElement("span"); lbl.className="lbl"; lbl.textContent="Couleur"; host.appendChild(lbl);
+  for (const c of SWATCHES){
+    const b=document.createElement("button"); b.className="swatch"+(state.color.toLowerCase()===c?" on":"");
+    b.style.background=c; b.title=c; b.onclick=()=>{ state.color=c; buildColor(); apply(); };
+    host.appendChild(b);
+  }
+  const pick=document.createElement("input"); pick.type="color"; pick.className="color-pick";
+  pick.value=normColor(state.color); pick.title="Couleur personnalisée";
+  pick.oninput=()=>{ state.color=pick.value; buildColor(); apply(); };
+  host.appendChild(pick);
+}
+
+// Reset : vecteur BAAM médian (axes à 0.5 => l'opérateur retombe sur sa base, typé sans excès).
+function resetVector(){
+  MACRO_ORDER.forEach(k=>state.macro[k]=0.5);
+  state.expert=false; state.manual=null;
+  syncLock(); buildMacro(); buildAdvTools(); apply();
+}
+
+// Affiche les 10 BAAM dépliés. Lecture seule (mode axes) OU sliders éditables (mode expert).
+function renderBaam(baam){
+  const host=$("#baamGrid"); host.innerHTML="";
+  for (const k of BAAM_ORDER){
+    const d=document.createElement("div"); d.className="baam";
+    const v=baam[k];
+    if (state.expert){
+      d.innerHTML='<span class="bk">'+k+'</span><span class="bv" id="bv_'+k+'">'+v.toFixed(2)+
+        '</span><input type="range" min="0" max="1" step="0.01" value="'+v+'" id="b_'+k+'">';
+      host.appendChild(d);
+      d.querySelector("input").addEventListener("input", e=>{
+        state.manual[k]=parseFloat(e.target.value);
+        $("#bv_"+k).textContent=state.manual[k].toFixed(2);
+        apply();
+      });
+    } else {
+      d.innerHTML='<span class="bk">'+k+'</span><span class="bv">'+v.toFixed(2)+
+        '</span><div class="bar"><i style="width:'+(v*100).toFixed(0)+'%"></i></div>';
+      host.appendChild(d);
+    }
+  }
+}
+
+// Barre d'outils du mode expert (prendre le contrôle des 10).
+function buildAdvTools(){
+  const host=$("#advTools"); host.innerHTML="";
+  const toggle=document.createElement("button");
+  toggle.className="op"+(state.expert?" on":"");
+  toggle.textContent = state.expert ? "✦ contrôle des 10 — actif" : "✦ prendre le contrôle des 10";
+  toggle.onclick=()=>{
+    state.expert=!state.expert;
+    if (state.expert && !state.manual) state.manual = macroToBaam(state.macro);
+    syncLock(); buildAdvTools(); apply();
+  };
+  host.appendChild(toggle);
+  if (state.expert){
+    const fromAxes=document.createElement("button");
+    fromAxes.textContent="⟲ depuis les axes";
+    fromAxes.onclick=()=>{ state.manual=macroToBaam(state.macro); apply(); };
+    host.appendChild(fromAxes);
+    const neutral=document.createElement("button");
+    neutral.textContent="tout à 0.5";
+    neutral.title="Pour isoler un seul paramètre : mets tout à 0.5 puis pousse-en un seul";
+    neutral.onclick=()=>{ BAAM_ORDER.forEach(k=>state.manual[k]=0.5); apply(); };
+    host.appendChild(neutral);
+  }
+}
+// Verrouille visuellement les axes macro quand les 10 prennent le contrôle.
+function syncLock(){ $("#macro").classList.toggle("locked", state.expert); }
+
+// Runtime courant (recalculé à chaque changement, pas à chaque frame).
+let RT = null;
+function apply(){
+  fieldEl.textContent = caseText(state.text || " ", state.case);
+  fieldEl.style.fontFamily = fontCss(state.font);
+  fieldEl.style.fontStyle = state.italic ? "italic" : "normal";
+  fieldEl.style.fill = state.color;
+  fitText();
+  const baam = (state.expert && state.manual) ? state.manual : macroToBaam(state.macro);
+  renderBaam(baam);
+  RT = resolveRuntime(OPERATORS[state.op], baam);
+  // Attributs statiques du filtre (la frequence + le detail + la region).
+  turb.setAttribute("numOctaves", RT.noiseDetail);
+  const pad = Math.round(25 + RT.effectExtent*75); // region du filtre selon effectExtent
+  filt.setAttribute("x","-"+pad+"%"); filt.setAttribute("y","-"+pad+"%");
+  filt.setAttribute("width",(100+2*pad)+"%"); filt.setAttribute("height",(100+2*pad)+"%");
+  writeHash();
+}
+
+// Ajuste la taille de police pour que le texte tienne dans le cadre.
+function fitText(){
+  let size=170; fieldEl.setAttribute("font-size",size);
+  const maxW=920;
+  try{
+    let w=fieldEl.getComputedTextLength();
+    if (w>maxW){ size=Math.max(28, Math.floor(size*maxW/w)); fieldEl.setAttribute("font-size",size); }
+  }catch(_){}
+}
+
+/* ── Boucle runtime : l'opérateur module le SVG en temps réel ───────────── */
+let t0=performance.now(), seedPhase=0, lastSeed=-1;
+function loop(now){
+  const t=(now-t0)/1000;
+  if (RT && OPERATORS[state.op] && OPERATORS[state.op].drive) OPERATORS[state.op].drive(RT, t);
+  requestAnimationFrame(loop);
+}
+
+/* ── Partage : état encodé dans l'URL (chaque création = un lien) ────────── */
+function writeHash(){
+  const payload={ t:state.text, o:state.op, f:state.font, c:state.case, i:state.italic?1:0, col:state.color, m:MACRO_ORDER.map(k=>+state.macro[k].toFixed(2)) };
+  if (state.expert && state.manual){ payload.x=1; payload.b=BAAM_ORDER.map(k=>+state.manual[k].toFixed(2)); }
+  try{ history.replaceState(null,"","#"+btoa(encodeURIComponent(JSON.stringify(payload)))); }catch(_){}
+}
+function readHash(){
+  if (!location.hash || location.hash.length<2) return;
+  try{
+    const p=JSON.parse(decodeURIComponent(atob(location.hash.slice(1))));
+    if (p.t!=null) state.text=p.t;
+    if (p.o && OPERATORS[p.o]) state.op=p.o;
+    if (p.f && FONTS.some(f=>f.id===p.f)) state.font=p.f;
+    if (p.c && ["upper","lower","normal"].includes(p.c)) state.case=p.c;
+    if (p.i!=null) state.italic=!!p.i;
+    if (p.col && /^#[0-9a-f]{6}$/i.test(p.col)) state.color=p.col;
+    if (Array.isArray(p.m)) MACRO_ORDER.forEach((k,i)=>{ if (p.m[i]!=null) state.macro[k]=clamp01(+p.m[i]); });
+    if (p.x && Array.isArray(p.b)){ state.expert=true; state.manual={}; BAAM_ORDER.forEach((k,i)=>state.manual[k]=clamp01(+p.b[i])); }
+  }catch(_){}
+}
+
+$("#copy").onclick=async()=>{
+  writeHash();
+  try{ await navigator.clipboard.writeText(location.href); flash("#copy","Lien copié ✓"); }
+  catch(_){ flash("#copy","Copie…"); }
+};
+function flash(sel,msg){ const b=$(sel), old=b.textContent; b.textContent=msg; b.classList.add("on"); setTimeout(()=>{b.textContent=old;b.classList.remove("on");},1400); }
+
+/* ── Export FIDÈLE : logo SVG animé autonome, fond transparent ───────────────
+   SMIL par opérateur (même caractère que le live) + police embarquée (woff2 base64)
+   => rend dans la bonne fonte partout, sans dépendance, prêt à poser sur n'importe quel fond. */
+$("#export").onclick=async()=>{
+  if (!RT) return;
+  const btn=$("#export"); btn.textContent="Export…"; btn.classList.add("on");
+  const w=1000,h=420, R=RT, op=state.op, f=n=>Number(n).toFixed(2);
+  const pad=Math.round(25+R.effectExtent*75);
+  const size=fieldEl.getAttribute("font-size");
+  const txt=caseText(state.text||"BAAM", state.case).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  const lo=f(R.displacementFloor), hi=f(R.displacementPeak);
+  const seedMax=Math.max(1,Math.round(R.temporalVariation/12));
+  const faceCss=await embedFont(state.font); // "" si indisponible (repli système)
+
+  let turbAttrs, turbKids="", dispAnim, blurEl="", textAnim="";
+  if (op==="souffle"){
+    const bf=f(0.006+0.012*clamp01(R.noiseFrequency/0.1)), cyc=f(Math.max(R.cycleDuration,2.2)), A=f(R.displacementPeak*0.75), Ah=f(R.displacementPeak*0.375);
+    turbAttrs=`baseFrequency="${bf}" numOctaves="1" seed="1"`;
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
+    textAnim=`<animateTransform attributeName="transform" type="translate" additive="sum" values="-${A} -${Ah};${A} ${Ah};-${A} -${Ah}" dur="4s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`
+      +`<animateTransform attributeName="transform" type="skewX" additive="sum" values="-2.4;2.4;-2.4" dur="4.8s" repeatCount="indefinite"/>`;
+  } else if (op==="mirage"){
+    const fx=f(R.noiseFrequency*1.1), fy=f(R.noiseFrequency*0.8), cyc=f(R.cycleDuration*1.2);
+    turbAttrs=`baseFrequency="${fx} ${fy}" numOctaves="${Math.max(2,R.noiseDetail)}" seed="1"`;
+    turbKids=R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${f(Math.max(R.cycleDuration,1))}s" repeatCount="indefinite"/>`:"";
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
+    blurEl=`<feGaussianBlur in="dsp" stdDeviation="0.6"><animate attributeName="stdDeviation" values="0.6;2;0.6" dur="2.4s" repeatCount="indefinite"/></feGaussianBlur>`;
+  } else { // fulguration
+    const bf=f(R.noiseFrequency), bfHi=f(R.noiseFrequency*4), cyc=f(Math.max(R.cycleDuration,0.8)), oct=Math.min(6,R.noiseDetail+1);
+    turbAttrs=`baseFrequency="${bf}" numOctaves="${oct}" seed="1"`;
+    turbKids=`<animate attributeName="baseFrequency" values="${bf};${bfHi};${bf}" keyTimes="0;0.08;1" dur="${cyc}s" repeatCount="indefinite"/>`
+      +(R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${cyc}s" repeatCount="indefinite"/>`:"");
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" keyTimes="0;0.08;1" dur="${cyc}s" calcMode="spline" keySplines="0.2 0 0 1;0.5 0 0.9 1" repeatCount="indefinite"/>`;
+  }
+  const dispResult = blurEl ? ` result="dsp"` : ``;
+  const out=
+`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+  <defs>
+    ${faceCss?`<style>${faceCss}</style>`:``}
+    <filter id="op" x="-${pad}%" y="-${pad}%" width="${100+2*pad}%" height="${100+2*pad}%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" ${turbAttrs} result="noise">${turbKids}</feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${lo}"${dispResult}>${dispAnim}</feDisplacementMap>
+      ${blurEl}
+    </filter>
+  </defs>
+  <text x="500" y="232" text-anchor="middle" dominant-baseline="middle" filter="url(#op)" font-size="${size}" fill="${state.color}" font-family="${fontCss(state.font)}" font-weight="${FONT_WEIGHT[state.font]||400}" font-style="${state.italic?'italic':'normal'}" letter-spacing="-0.01em">${txt}${textAnim}</text>
+</svg>`;
+  const blob=new Blob([out],{type:"image/svg+xml"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="baam-"+(state.text||"logo").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,24)+".svg";
+  a.click(); URL.revokeObjectURL(a.href);
+  btn.classList.remove("on");
+  btn.textContent = faceCss ? "Logo exporté ✓" : "Exporté (police système)";
+  setTimeout(()=>{ btn.textContent="Exporter SVG"; }, 1800);
+};
+
+/* ── Init ───────────────────────────────────────────────────────────────── */
+$("#text").addEventListener("input", e=>{ state.text=e.target.value; apply(); });
+readHash();
+$("#text").value=state.text;
+buildOps(); buildFonts(); buildStyle(); buildColor(); buildMacro(); buildAdvTools(); syncLock(); apply();
+requestAnimationFrame(loop);
+// Re-mesure la taille du texte une fois les polices chargées (métriques exactes).
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ fieldEl.style.fontFamily=fontCss(state.font); fitText(); });
+</script>
+</body>
+</html>

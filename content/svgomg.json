@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "svgomg",
+  "title": "SVGOMG",
+  "eyebrow": "Ressource externe",
+  "summary": "Une interface web pour alléger un SVG avec SVGO et observer immédiatement l’effet de chaque option.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["svg", "performance", "web"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/svgomg/",
+  "externalUrl": "https://jakearchibald.github.io/svgomg/",
+  "sourceUrl": "https://github.com/jakearchibald/svgomg",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Open source", "Optimisation SVG"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "03",
+    "glyph": "↗"
+  },
+  "notes": [
+    "Comparer visuellement avant et après optimisation.",
+    "Activer les options une par une sur les SVG complexes.",
+    "Conserver une source non optimisée lorsqu’un fichier doit encore être édité."
+  ],
+  "relations": []
+}

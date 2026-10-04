@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "baam-tools",
+  "title": "BAAM.TOOLS",
+  "summary": "Des outils concrets, des guides copiables et une sélection de ressources externes pour fabriquer sans détour.",
+  "type": "territory",
+  "status": "public",
+  "territories": [
+    "tools"
+  ],
+  "url": "https://tools.baam.pro/",
+  "updatedAt": "2026-10-04",
+  "tags": [
+    "tools",
+    "guides",
+    "resources",
+    "portal"
+  ],
+  "relations": [
+    {
+      "type": "has-part",
+      "target": "operateur-texte"
+    },
+    {
+      "type": "has-part",
+      "target": "guide-mot-signe-vivant"
+    },
+    {
+      "type": "has-part",
+      "target": "svgomg"
+    }
+  ]
+}

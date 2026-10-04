@@ -1,0 +1,12 @@
+{
+  "name": "baam-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-portal.js",
+    "check": "node scripts/build-portal.js --check",
+    "test": "node scripts/test-content-contract.js && node scripts/test-output.js",
+    "serve": "node server.js"
+  }
+}

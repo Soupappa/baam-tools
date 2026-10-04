@@ -1,0 +1,57 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "baam": "https://baam.pro/ns#",
+    "relationType": "baam:relationType"
+  },
+  "@graph": [
+    {
+      "@id": "https://tools.baam.pro/baam-tools/operateur-texte/",
+      "@type": "SoftwareApplication",
+      "name": "Opérateur Texte",
+      "description": "Écrire un mot, lui appliquer un comportement vivant et exporter un SVG animé autonome — sans appel IA.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/guides/mot-signe-vivant/",
+      "@type": "HowTo",
+      "name": "Créer un mot-signe vivant",
+      "description": "Une méthode courte pour passer d’un mot brut à un SVG animé lisible, partageable et réutilisable.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "svg",
+        "méthode"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/svgomg/",
+      "@type": "WebSite",
+      "name": "SVGOMG",
+      "description": "Une interface web pour alléger un SVG avec SVGO et observer immédiatement l’effet de chaque option.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "svg",
+        "performance",
+        "web"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    }
+  ]
+}
