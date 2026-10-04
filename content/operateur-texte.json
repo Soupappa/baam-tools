@@ -10,6 +10,7 @@
   "updatedAt": "2026-10-04",
   "path": "/baam-tools/operateur-texte/",
   "sourceDir": "tools-src/operateur-texte",
+  "toolShell": "native",
   "cta": "Ouvrir l’outil",
   "meta": ["Gratuit", "Navigateur", "Export SVG"],
   "preview": {

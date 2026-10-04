@@ -52,7 +52,7 @@ function inputField(label, id, value = "", options = {}) {
 
 function setSpecificFields() {
   if (typeInput.value === "free-webtool") {
-    specificHost.innerHTML = `<label for="source-dir">Source de l’outil</label><select id="source-dir"><option value="">Chargement des sources…</option></select><div class="source-actions"><button type="button" class="mini-button" id="scaffold-tool">Créer depuis le patron BAAM</button><button type="button" class="mini-button" id="refresh-sources">Rafraîchir</button></div><p class="field-help">HTML autonomes détectés à la racine et dossiers complets dans <code>tools-src/</code>.</p>`;
+    specificHost.innerHTML = `<label for="source-dir">Source de l’outil</label><select id="source-dir"><option value="">Chargement des sources…</option></select><label for="tool-shell" class="inline-label">Habillage</label><select id="tool-shell"><option value="frame">Coque BAAM autour de la source</option><option value="native">La source contient déjà sa coque</option></select><div class="source-actions"><button type="button" class="mini-button" id="scaffold-tool">Créer depuis le patron BAAM</button><button type="button" class="mini-button" id="refresh-sources">Rafraîchir</button></div><p class="field-help">HTML autonomes détectés à la racine et dossiers complets dans <code>tools-src/</code>. La coque encadre une source nue sans modifier son code.</p>`;
     renderToolSources();
   } else if (typeInput.value === "resource") {
     specificHost.innerHTML = '<label for="external-url">Lien externe</label><input id="external-url" type="url" placeholder="https://…"><label for="source-url" class="inline-label">Lien source · optionnel</label><input id="source-url" type="url" placeholder="https://…">';
@@ -177,6 +177,7 @@ function buildItem() {
     const selectedSource = toolSources.find((source) => source.value === document.querySelector("#source-dir")?.value);
     if (selectedSource?.kind === "directory") item.sourceDir = selectedSource.sourceDir;
     else if (selectedSource?.kind === "file") item.sourceFile = selectedSource.sourceFile;
+    item.toolShell = document.querySelector("#tool-shell")?.value || "frame";
   }
   if (type === "tutorial") item.blocks = structuredClone(blocks);
   if (type === "resource") {
@@ -223,6 +224,7 @@ specificHost.addEventListener("click", async (event) => {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
       await loadToolSources(result.sourceValue);
+      document.querySelector("#tool-shell").value = "native";
       statusHost.textContent = `Dossier ${result.sourceDir} créé et sélectionné. Édite maintenant index.html, style.css et app.js.`;
       update();
     } catch (error) {
@@ -231,6 +233,14 @@ specificHost.addEventListener("click", async (event) => {
       event.target.disabled = false;
     }
   }
+});
+
+specificHost.addEventListener("change", (event) => {
+  if (event.target.id !== "source-dir") return;
+  const selectedSource = toolSources.find((source) => source.value === event.target.value);
+  const shellSelect = document.querySelector("#tool-shell");
+  if (selectedSource && shellSelect) shellSelect.value = selectedSource.kind === "file" ? "frame" : "native";
+  update();
 });
 
 document.querySelector("#add-block").addEventListener("click", () => {

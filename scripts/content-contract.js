@@ -81,6 +81,7 @@ export function validateContent(item) {
     if (!item.sourceDir && !item.sourceFile) errors.push("un BAAM Tool requiert sourceDir ou sourceFile");
     if (item.sourceDir && !sourceDirPattern.test(item.sourceDir)) errors.push("sourceDir doit suivre tools-src/identifiant");
     if (item.sourceFile && !sourceFilePattern.test(item.sourceFile)) errors.push("sourceFile doit être un chemin HTML relatif sans ..");
+    if (item.toolShell != null && !["frame", "native"].includes(item.toolShell)) errors.push("toolShell doit valoir frame ou native");
   }
   if (item.type === "tutorial") {
     const hasLegacyGuide = Array.isArray(item.steps) && item.steps.length > 0 && Array.isArray(item.copyBlocks);

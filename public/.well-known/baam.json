@@ -23,6 +23,10 @@
     },
     {
       "type": "has-part",
+      "target": "color-picker"
+    },
+    {
+      "type": "has-part",
       "target": "guide-motion-claude"
     },
     {

@@ -8,10 +8,11 @@ const registry = JSON.parse(await readFile(join(publicDir, "data", "registry.jso
 const portal = JSON.parse(await readFile(join(publicDir, ".well-known", "baam.json"), "utf8"));
 
 assert.equal(registry.meta.territory, "tools");
-assert.equal(registry.meta.count, 4);
+assert.equal(registry.meta.count, registry.assets.length);
+assert.ok(registry.assets.length >= 5);
 assert.deepEqual(new Set(registry.assets.map((asset) => asset.type)), new Set(["free-webtool", "tutorial", "resource"]));
 assert.equal(portal.id, "baam-tools");
-assert.equal(portal.relations.length, 4);
+assert.equal(portal.relations.length, registry.assets.length);
 assert.ok(registry.assets.every((asset) => asset.cardPreview));
 
 for (const asset of registry.assets) {
@@ -25,6 +26,10 @@ assert.match(home, /id="theme-filters"/);
 await access(join(publicDir, "builder", "index.html"));
 await access(join(publicDir, "tool-shell.css"));
 await access(join(publicDir, "baam-tools", "operateur-texte", "index.html"));
+await access(join(publicDir, "baam-tools", "color-picker", "_tool", "index.html"));
+const colorPicker = await readFile(join(publicDir, "baam-tools", "color-picker", "index.html"), "utf8");
+assert.match(colorPicker, /tool-frame-shell/);
+assert.match(colorPicker, /\.\/_tool\//);
 const guide = await readFile(join(publicDir, "guides", "motion-par-claude", "index.html"), "utf8");
 assert.equal((guide.match(/Copier le prompt/g) || []).length, 5);
 assert.match(guide, /Le pipeline en neuf passages/);

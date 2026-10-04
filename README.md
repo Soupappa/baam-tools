@@ -46,6 +46,11 @@ tokens, contrôles et responsive — puis laisse libres la scène et la logique.
 copie récursivement tout le dossier vers `public/baam-tools/<identifiant>/`, y compris
 CSS, JavaScript, images, polices ou vidéos locales.
 
+Pour une source HTML nue, le mode **Coque BAAM autour de la source** produit une page
+encadrante et isole l'outil dans une iframe locale. Le hash de l'outil est synchronisé
+avec l'URL publique pour conserver les liens partageables. Le mode **source déjà
+habillée** publie la source directement, utile pour les outils créés depuis le patron.
+
 L'Opérateur Texte utilise déjà ce format dans `tools-src/operateur-texte/`.
 
 ## Commandes

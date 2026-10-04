@@ -22,6 +22,22 @@
       }
     },
     {
+      "@id": "https://tools.baam.pro/baam-tools/color-picker/",
+      "@type": "SoftwareApplication",
+      "name": "Color Picker",
+      "description": "Configurer ses couleurs, comprendre les palettes binaires, ternaires ou complémentaires, et les visualiser en temps réel sur le cercle chromatique.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "méthode",
+        "couleur"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
       "@id": "https://tools.baam.pro/guides/motion-par-claude/",
       "@type": "HowTo",
       "name": "Le guide BAAM du motion par Claude",

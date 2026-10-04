@@ -29,5 +29,9 @@ assert.throws(
   () => validateContent({ ...items.find((item) => item.type === "free-webtool"), sourceDir: "../ailleurs", sourceFile: undefined }),
   /sourceDir/
 );
+assert.throws(
+  () => validateContent({ ...items.find((item) => item.type === "free-webtool"), toolShell: "inconnu" }),
+  /toolShell/
+);
 
 console.log(`Tests réussis : ${items.length} contenus valides, trois gabarits couverts.`);

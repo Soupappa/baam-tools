@@ -210,6 +210,46 @@ function renderGuideBlock(block, index) {
   return "";
 }
 
+function toolFramePage(item) {
+  return `<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(item.title)} · BAAM.TOOLS</title>
+  <meta name="description" content="${escapeHtml(item.summary)}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/tool-shell.css">
+</head>
+<body class="baam-tool tool-frame-page" style="--tool-accent:${escapeHtml(item.presentation.accent)}">
+  <header class="tool-shell-header">
+    <a class="tool-wordmark" href="/"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="tool-back" href="/">← Bibliothèque</a>
+  </header>
+  <main class="tool-frame-main">
+    <section class="tool-frame-info">
+      <div><span>BAAM Tool</span><h1>${escapeHtml(item.title)}</h1></div>
+      <p>${escapeHtml(item.summary)}</p>
+    </section>
+    <div class="tool-frame-shell"><iframe id="tool-frame" title="${escapeHtml(item.title)}" allow="clipboard-write; fullscreen"></iframe></div>
+  </main>
+  <script>
+    const frame = document.querySelector("#tool-frame");
+    const outerPath = location.pathname;
+    const loadInnerState = () => { frame.src = "./_tool/" + location.hash; };
+    loadInnerState();
+    window.addEventListener("hashchange", loadInnerState);
+    setInterval(() => {
+      try {
+        const innerHash = frame.contentWindow.location.hash;
+        if (innerHash !== location.hash) history.replaceState(null, "", outerPath + innerHash);
+      } catch (_) {}
+    }, 250);
+  </script>
+</body>
+</html>`;
+}
+
 function tutorialPage(item) {
   const blocks = Array.isArray(item.blocks)
     ? item.blocks.map(renderGuideBlock).join("")
@@ -248,7 +288,14 @@ for (const item of visible) {
   const destination = join(publicDir, item.path);
   await mkdir(destination, { recursive: true });
   if (item.type === "free-webtool") {
-    if (item.sourceDir) await cp(resolve(root, item.sourceDir), destination, { recursive: true, force: true });
+    const shellMode = item.toolShell || (item.sourceFile ? "frame" : "native");
+    if (shellMode === "frame") {
+      const toolDestination = join(destination, "_tool");
+      await mkdir(toolDestination, { recursive: true });
+      if (item.sourceDir) await cp(resolve(root, item.sourceDir), toolDestination, { recursive: true, force: true });
+      else await copyFile(resolve(root, item.sourceFile), join(toolDestination, "index.html"));
+      await writeFile(join(destination, "index.html"), toolFramePage(item));
+    } else if (item.sourceDir) await cp(resolve(root, item.sourceDir), destination, { recursive: true, force: true });
     else await copyFile(resolve(root, item.sourceFile), join(destination, "index.html"));
   } else if (item.type === "tutorial") {
     await writeFile(join(destination, "index.html"), tutorialPage(item));

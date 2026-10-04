@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "color-picker",
+  "title": "Color Picker",
+  "eyebrow": "Palette interactive",
+  "summary": "Configurer ses couleurs, comprendre les palettes binaires, ternaires ou complémentaires, et les visualiser en temps réel sur le cercle chromatique.",
+  "type": "free-webtool",
+  "status": "preview",
+  "themes": [
+    "design",
+    "méthode",
+    "couleur"
+  ],
+  "updatedAt": "2026-10-04",
+  "path": "/baam-tools/color-picker/",
+  "cta": "Ouvrir l’outil",
+  "meta": [
+    "Gratuit",
+    "Palette",
+    "Sans IA"
+  ],
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/color-picker/",
+    "alt": "Le Color Picker BAAM en mouvement"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "02",
+    "glyph": "◉"
+  },
+  "relations": [],
+  "sourceFile": "color-picker.html",
+  "toolShell": "frame"
+}

@@ -29,6 +29,31 @@
       }
     },
     {
+      "id": "color-picker",
+      "title": "Color Picker",
+      "summary": "Configurer ses couleurs, comprendre les palettes binaires, ternaires ou complémentaires, et les visualiser en temps réel sur le cercle chromatique.",
+      "type": "free-webtool",
+      "status": "preview",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/color-picker/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "méthode",
+        "couleur"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "02",
+        "glyph": "◉"
+      }
+    },
+    {
       "id": "guide-motion-claude",
       "title": "Le guide BAAM du motion par Claude",
       "summary": "Transformer une matière réelle en motion codé, dirigé et réutilisable — sans confondre génération spectaculaire et direction artistique.",
@@ -50,7 +75,7 @@
       },
       "presentation": {
         "accent": "#ff8a34",
-        "index": "02",
+        "index": "03",
         "glyph": "▶"
       }
     },
@@ -76,7 +101,7 @@
       },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "03",
+        "index": "04",
         "glyph": "◫"
       }
     },
@@ -101,7 +126,7 @@
       },
       "presentation": {
         "accent": "#5b45ff",
-        "index": "04",
+        "index": "05",
         "glyph": "↗"
       }
     }
