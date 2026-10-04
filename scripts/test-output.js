@@ -9,7 +9,7 @@ const portal = JSON.parse(await readFile(join(publicDir, ".well-known", "baam.js
 
 assert.equal(registry.meta.territory, "tools");
 assert.equal(registry.meta.count, registry.assets.length);
-assert.ok(registry.assets.length >= 6);
+assert.equal(registry.assets.length, 12);
 assert.deepEqual(new Set(registry.assets.map((asset) => asset.type)), new Set(["free-webtool", "tutorial", "resource"]));
 assert.equal(portal.id, "baam-tools");
 assert.equal(portal.relations.length, registry.assets.length);
@@ -54,5 +54,13 @@ assert.match(colorPickerTool, /src="\/leads-config\.js"/);
 const guide = await readFile(join(publicDir, "guides", "motion-par-claude", "index.html"), "utf8");
 assert.equal((guide.match(/Copier le prompt/g) || []).length, 5);
 assert.match(guide, /Le pipeline en neuf passages/);
+const briefGuide = await readFile(join(publicDir, "guides", "brief-visuel-actionnable", "index.html"), "utf8");
+assert.match(briefGuide, /Mindmap Récursive/);
+assert.match(briefGuide, /Aller au premier bloc copiable/);
+const landingGuide = await readFile(join(publicDir, "guides", "landing-page-qui-tranche", "index.html"), "utf8");
+assert.match(landingGuide, /Color Picker/);
+for (const resource of ["excalidraw", "penpot", "squoosh", "haikei"]) {
+  await access(join(publicDir, "externes", resource, "index.html"));
+}
 
 console.log("Tests réussis : sorties publiques, routes et manifest territorial cohérents.");

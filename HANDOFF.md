@@ -11,8 +11,9 @@ Livré localement :
 - filtres combinables et URL-adressables par **type** et **thème** ;
 - redistribution animée des cartes, avec respect de `prefers-reduced-motion` ;
 - contrat JSON et générateur pour `free-webtool`, `tutorial` et `resource` ;
-- quatre contenus réels : Opérateur Texte, guide BAAM du motion par Claude,
-  fiche Skillry Opus 5.5 Videos et fiche SVGOMG ;
+- douze contenus publics : trois BAAM Tools, trois guides complets et six ressources
+  externes ; ajout des guides du brief visuel et de la landing page, puis des fiches
+  Excalidraw, Penpot, Squoosh et Haikei ;
 - previews de cartes flexibles : texte animé, SVG/image, MP4 et iframe locale ;
 - aide condensée intégrée à l'Opérateur Texte ;
 - page builder locale avec guides par blocs, enregistrement validé et reconstruction ;
@@ -34,7 +35,8 @@ Commandes validées : `npm test`, `npm run check`, `npm run build`.
 ## Reste à faire
 
 1. Faire valider la direction visuelle et les libellés par Antoine.
-2. Ajouter les prochains contenus réels depuis le builder et affiner le guide modèle.
+2. Intégrer les prochains BAAM Tools produits en parallèle et continuer la sélection
+   éditoriale depuis le builder.
 3. Créer le dépôt GitHub distant sans pousser avant le lot de publication choisi.
 4. Créer le site Netlify, ajouter `tools.baam.pro` et son CNAME Namecheap.
 5. Ajouter Tools à `data/territory.sources.json` dans BAAM.pro, puis configurer la

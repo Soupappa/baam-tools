@@ -102,6 +102,108 @@
         "@id": "https://tools.baam.pro/",
         "name": "BAAM.TOOLS"
       }
+    },
+    {
+      "@id": "https://tools.baam.pro/guides/brief-visuel-actionnable/",
+      "@type": "HowTo",
+      "name": "Le guide BAAM du brief visuel qui produit",
+      "description": "Transformer une intention floue en décisions visuelles, critères vérifiables et matière directement exploitable par un humain ou une IA.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "méthode",
+        "direction artistique",
+        "claude"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/guides/landing-page-qui-tranche/",
+      "@type": "HowTo",
+      "name": "Le guide BAAM de la landing page qui tranche",
+      "description": "Passer d’une promesse floue à une page rapide, lisible et convaincante, construite autour d’une preuve et d’une action plutôt que d’un empilement de sections.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "web",
+        "design",
+        "méthode",
+        "conversion"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/excalidraw/",
+      "@type": "WebSite",
+      "name": "Excalidraw",
+      "description": "Un tableau blanc au dessin volontairement brut pour cadrer une idée, construire un diagramme ou partager rapidement un wireframe.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "cartographie",
+        "collaboration",
+        "wireframe",
+        "open source"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/penpot/",
+      "@type": "WebSite",
+      "name": "Penpot",
+      "description": "Une plateforme open source de design d’interface et de prototypage qui rapproche composants, design tokens, CSS, SVG et collaboration produit.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "design",
+        "prototype",
+        "open source",
+        "collaboration"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/squoosh/",
+      "@type": "WebSite",
+      "name": "Squoosh",
+      "description": "Comparer visuellement codecs, dimensions et niveaux de compression afin de réduire le poids d’une image directement dans le navigateur.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "image",
+        "performance",
+        "web",
+        "open source"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/externes/haikei/",
+      "@type": "WebSite",
+      "name": "Haikei",
+      "description": "Un ensemble de générateurs visuels pour composer vagues, blobs, grilles, gradients et motifs puis les exporter en SVG ou en PNG.",
+      "dateModified": "2026-10-04",
+      "keywords": [
+        "svg",
+        "design",
+        "génératif",
+        "web"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
     }
   ]
 }

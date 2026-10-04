@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "guide-brief-visuel",
+  "title": "Le guide BAAM du brief visuel qui produit",
+  "eyebrow": "Guide complet · direction",
+  "summary": "Transformer une intention floue en décisions visuelles, critères vérifiables et matière directement exploitable par un humain ou une IA.",
+  "type": "tutorial",
+  "status": "public",
+  "themes": ["design", "méthode", "direction artistique", "claude"],
+  "updatedAt": "2026-10-04",
+  "path": "/guides/brief-visuel-actionnable/",
+  "cta": "Construire un vrai brief",
+  "meta": ["Guide BAAM", "8 passages", "4 blocs copiables"],
+  "presentation": {
+    "accent": "#ff8a34",
+    "index": "07",
+    "glyph": "⌁"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "INTENTION → RÈGLES → PREUVES → LIVRABLE",
+    "caption": "Un brief utile réduit les interprétations sans tuer les possibilités."
+  },
+  "companion": {
+    "label": "Structurer la matière",
+    "title": "Mindmap Récursive",
+    "body": "Déplier les objectifs, publics, contraintes et preuves avant de les condenser en une page.",
+    "url": "/baam-tools/mindmap-recursive/",
+    "cta": "Cartographier le brief"
+  },
+  "blocks": [
+    {
+      "type": "lead",
+      "text": "Un brief visuel n’est pas une liste d’adjectifs. C’est une interface de décision entre une ambition, une matière disponible, des contraintes réelles et un résultat observable. Plus il nomme clairement ce qui doit être compris, conservé et évité, plus le designer — humain ou agent — peut proposer quelque chose de juste sans tourner en rond."
+    },
+    {
+      "type": "section",
+      "title": "1. Séparer les faits, la direction et les questions",
+      "body": "Commencer par trois colonnes. Les faits ne se négocient pas : offre, public, formats, délais, contenus validés. La direction décrit l’effet recherché : hiérarchie, tension, ton, niveau de rupture. Les questions regroupent tout ce qui manque encore. Mélanger ces trois niveaux produit des briefs qui présentent une intuition comme une obligation ou une hypothèse comme un fait."
+    },
+    {
+      "type": "callout",
+      "title": "Principe BAAM",
+      "body": "Chaque adjectif doit devenir une différence visible. « Premium » ne dit rien. « Peu de couleurs, beaucoup d’espace, typographie précise, aucun effet décoratif sans fonction » commence à diriger."
+    },
+    {
+      "type": "checklist",
+      "title": "La matière minimale avant de commencer",
+      "items": [
+        "Une phrase qui décrit l’offre sans langage publicitaire.",
+        "Un public principal et la situation dans laquelle il découvre le projet.",
+        "Une action ou une compréhension attendue après exposition.",
+        "Les contenus disponibles, validés et encore manquants.",
+        "Les formats, supports, contraintes techniques et date réelle de livraison.",
+        "Trois références commentées et trois repoussoirs expliqués.",
+        "Une personne clairement responsable du dernier arbitrage."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Diagnostiquer la matière reçue",
+      "text": "Analyse la matière ci-dessous avant toute proposition visuelle. Range chaque information dans quatre catégories : FAIT VALIDÉ, DIRECTION SOUHAITÉE, HYPOTHÈSE À TESTER, INFORMATION MANQUANTE.\n\n{COLLER LE BRIEF, LES NOTES ET LES LIENS}\n\nSignale les contradictions. Pose ensuite au maximum sept questions, classées selon leur capacité à changer réellement le résultat. Ne propose encore ni style, ni palette, ni maquette."
+    },
+    {
+      "type": "steps",
+      "title": "2. Le brief en huit passages",
+      "items": [
+        { "title": "Nommer le problème", "body": "Décrire la situation à changer plutôt que le livrable imaginé. Une nouvelle identité n’est pas un problème ; l’impossibilité d’être reconnu entre deux offres concurrentes en est un." },
+        { "title": "Choisir un public prioritaire", "body": "Un projet peut parler à plusieurs groupes, mais chaque support doit savoir pour qui il tranche en premier." },
+        { "title": "Formuler la transformation", "body": "Écrire ce que le public doit comprendre, ressentir ou pouvoir faire entre le premier contact et la sortie." },
+        { "title": "Inventorier la matière", "body": "Lister textes, images, données, preuves, témoignages et éléments de marque réellement utilisables." },
+        { "title": "Fixer les contraintes", "body": "Formats, budget, délais, accessibilité, performance, droits, outils et chaîne de validation définissent le terrain de jeu." },
+        { "title": "Ouvrir trois territoires", "body": "Construire trois directions assez distinctes pour produire un vrai choix, mais toutes compatibles avec le même problème." },
+        { "title": "Écrire les critères", "body": "Définir avant la maquette les signes d’une réponse réussie et les défauts qui provoqueront un refus." },
+        { "title": "Condenser en une page", "body": "Le brief final doit être relisible pendant la production. Les annexes documentent ; la page principale dirige." }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "3. Produire trois territoires, pas trois décorations",
+      "body": "Un territoire ne se résume pas à une palette. Il combine une promesse, une logique de composition, une relation au texte, une matière, un comportement iconographique et un rythme. Deux directions qui ne diffèrent que par leur couleur ne donnent pas un choix stratégique ; elles déplacent seulement la décoration."
+    },
+    {
+      "type": "prompt",
+      "title": "Ouvrir trois directions utiles",
+      "text": "À partir du diagnostic validé, propose trois territoires visuels vraiment distincts. Pour chacun, donne :\n- une idée directrice en une phrase ;\n- ce qu’il rend immédiatement perceptible ;\n- ses règles de composition, typographie, couleur, image et mouvement ;\n- deux références de mécanique, sans imitation stylistique ;\n- son principal risque ;\n- les trois écrans ou objets à prototyper pour le tester.\n\nInterdis les adjectifs non traduits en décisions visibles."
+    },
+    {
+      "type": "section",
+      "title": "4. Lire les références comme des systèmes",
+      "body": "Une référence utile répond à une question précise. On peut aimer sa densité, sa manière de cadrer une image, son rapport entre titre et preuve ou son usage du silence. Extraire cette mécanique évite la copie superficielle et permet de recomposer une solution cohérente avec la matière du projet."
+    },
+    {
+      "type": "prompt",
+      "title": "Décoder une référence",
+      "text": "Analyse cette référence comme un système de décisions. Décris séparément : grille, hiérarchie, densité, contraste, typographie, traitement de l’image, rythme, mouvement et comportement responsive. Pour chaque observation, précise la fonction remplie. Termine par : À CONSERVER COMME MÉCANIQUE, À RETRADUIRE, À NE PAS COPIER.\n\nRéférence : {URL OU CAPTURE}"
+    },
+    {
+      "type": "checklist",
+      "title": "5. Critères d’un brief transmissible",
+      "items": [
+        "Le problème existe indépendamment de la solution pressentie.",
+        "Le public prioritaire et son contexte sont nommés.",
+        "Les contenus validés sont séparés des contenus à produire.",
+        "Chaque référence est accompagnée d’une raison précise.",
+        "Les mots de direction sont traduits en comportements visibles.",
+        "Les contraintes techniques sont présentes dès le départ.",
+        "Les critères de réussite peuvent être contrôlés sur un prototype.",
+        "Les questions non résolues restent visibles au lieu d’être inventées."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Compiler le brief final",
+      "text": "Compile notre travail en un brief visuel d’une page avec exactement ces rubriques : PROBLÈME, PUBLIC PRIORITAIRE, TRANSFORMATION ATTENDUE, MATIÈRE DISPONIBLE, CONTRAINTES, DIRECTION RETENUE, RÈGLES VISUELLES, LIVRABLES, CRITÈRES DE RÉUSSITE, INTERDITS, QUESTIONS OUVERTES, ARBITRE FINAL.\n\nÉcris des phrases courtes. Ne masque aucune incertitude. Place les détails secondaires en annexe et termine par une checklist de validation avant production."
+    },
+    {
+      "type": "callout",
+      "title": "Le cap",
+      "body": "Un bon brief ne garantit pas une bonne création. Il garantit mieux : que l’on saura pourquoi une proposition est juste, où elle dévie et quelle décision prendre ensuite."
+    },
+    {
+      "type": "links",
+      "title": "Prolonger le travail",
+      "items": [
+        { "label": "Mindmap Récursive — BAAM Tool", "url": "/baam-tools/mindmap-recursive/" },
+        { "label": "Color Picker — BAAM Tool", "url": "/baam-tools/color-picker/" },
+        { "label": "Excalidraw — terrain de cadrage", "url": "https://excalidraw.com/" }
+      ]
+    }
+  ],
+  "relations": [
+    { "type": "related-to", "target": "mindmap-recursive" },
+    { "type": "related-to", "target": "color-picker" },
+    { "type": "related-to", "target": "excalidraw" },
+    { "type": "related-to", "target": "penpot" }
+  ]
+}

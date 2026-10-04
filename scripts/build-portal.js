@@ -268,14 +268,24 @@ function toolFramePage(item) {
 }
 
 function tutorialPage(item) {
-  const blocks = Array.isArray(item.blocks)
-    ? item.blocks.map(renderGuideBlock).join("")
+  const blockList = Array.isArray(item.blocks)
+    ? item.blocks
     : [
         { type: "lead", text: item.intro },
         { type: "steps", title: "Étapes", items: item.steps },
         ...(item.copyBlocks || []).map((block) => ({ type: "prompt", title: block.label, text: block.value }))
-      ].map(renderGuideBlock).join("");
-  const aside = `<aside class="detail-aside"><span>Terrain d’essai</span><strong>Opérateur Texte</strong><p>Un outil simple pour éprouver les notions de matière, tension, continuité et texture.</p><a class="action-link" href="/baam-tools/operateur-texte/">Ouvrir l’outil ↗</a><a class="subtle-link" href="#copy-block-7">Aller au patron MOTION.md</a></aside>`;
+      ];
+  const blocks = blockList.map(renderGuideBlock).join("");
+  const firstPrompt = blockList.findIndex((block) => block.type === "prompt");
+  const companion = item.companion || {
+    label: "Terrain d’essai",
+    title: "Opérateur Texte",
+    body: "Un outil simple pour éprouver les notions de matière, tension, continuité et texture.",
+    url: "/baam-tools/operateur-texte/",
+    cta: "Ouvrir l’outil"
+  };
+  const promptLink = firstPrompt >= 0 ? `<a class="subtle-link" href="#copy-block-${firstPrompt}">Aller au premier bloc copiable</a>` : "";
+  const aside = `<aside class="detail-aside"><span>${escapeHtml(companion.label || "Terrain d’essai")}</span><strong>${escapeHtml(companion.title)}</strong><p>${escapeHtml(companion.body)}</p><a class="action-link" href="${escapeHtml(companion.url)}">${escapeHtml(companion.cta)} ↗</a>${promptLink}</aside>`;
   return pageShell(item, blocks, aside);
 }
 

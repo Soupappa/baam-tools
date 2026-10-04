@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "squoosh",
+  "title": "Squoosh",
+  "eyebrow": "Ressource externe",
+  "summary": "Comparer visuellement codecs, dimensions et niveaux de compression afin de réduire le poids d’une image directement dans le navigateur.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["image", "performance", "web", "open source"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/squoosh/",
+  "externalUrl": "https://squoosh.app/",
+  "sourceUrl": "https://github.com/GoogleChromeLabs/squoosh",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Traitement local", "Compression image"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "11",
+    "glyph": "⇲"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "AVANT ⇄ APRÈS · POIDS ↓",
+    "caption": "Choisir la différence que l’œil accepte et le réseau apprécie."
+  },
+  "notes": [
+    "Comparer l’original et la sortie avec la vue séparée avant de télécharger.",
+    "Tester dimensions et codec séparément pour comprendre le gain apporté par chaque décision.",
+    "Le traitement de l’image s’effectue localement dans le navigateur ; le projet documente séparément ses mesures d’usage."
+  ],
+  "relations": []
+}

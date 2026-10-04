@@ -40,6 +40,30 @@
     {
       "type": "has-part",
       "target": "svgomg"
+    },
+    {
+      "type": "has-part",
+      "target": "guide-brief-visuel"
+    },
+    {
+      "type": "has-part",
+      "target": "guide-landing-page"
+    },
+    {
+      "type": "has-part",
+      "target": "excalidraw"
+    },
+    {
+      "type": "has-part",
+      "target": "penpot"
+    },
+    {
+      "type": "has-part",
+      "target": "squoosh"
+    },
+    {
+      "type": "has-part",
+      "target": "haikei"
     }
   ]
 }

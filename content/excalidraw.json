@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "excalidraw",
+  "title": "Excalidraw",
+  "eyebrow": "Ressource externe",
+  "summary": "Un tableau blanc au dessin volontairement brut pour cadrer une idée, construire un diagramme ou partager rapidement un wireframe.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["cartographie", "collaboration", "wireframe", "open source"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/excalidraw/",
+  "externalUrl": "https://excalidraw.com/",
+  "sourceUrl": "https://github.com/excalidraw/excalidraw",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Open source", "Sans compte"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "09",
+    "glyph": "✎"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "IDÉE → SCHÉMA → LIEN PARTAGEABLE",
+    "caption": "Dessiner assez vite pour continuer à penser."
+  },
+  "notes": [
+    "Utiliser le canevas libre pour cadrer un parcours, une architecture ou une réunion sans polir trop tôt.",
+    "Partager un lien pour travailler à plusieurs ou transmettre une scène en lecture seule.",
+    "Exporter le schéma utile et conserver le fichier source pour les itérations."
+  ],
+  "relations": []
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "haikei",
+  "title": "Haikei",
+  "eyebrow": "Ressource externe",
+  "summary": "Un ensemble de générateurs visuels pour composer vagues, blobs, grilles, gradients et motifs puis les exporter en SVG ou en PNG.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["svg", "design", "génératif", "web"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/haikei/",
+  "externalUrl": "https://app.haikei.app/",
+  "sourceUrl": "https://haikei.app/",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Sans inscription", "SVG et PNG"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "12",
+    "glyph": "≈"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "WAVES · BLOBS · GRIDS · GRADIENTS",
+    "caption": "Générer une matière, puis la reprendre dans le système du projet."
+  },
+  "notes": [
+    "Partir des couleurs et dimensions réelles du projet avant de lancer les variations.",
+    "Utiliser l’aléatoire comme exploration, puis fixer les paramètres de la variante retenue.",
+    "Préférer le SVG lorsqu’une retouche, une animation ou une intégration web reste prévue."
+  ],
+  "relations": []
+}

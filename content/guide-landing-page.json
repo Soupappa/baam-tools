@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "id": "guide-landing-page",
+  "title": "Le guide BAAM de la landing page qui tranche",
+  "eyebrow": "Guide complet · conversion",
+  "summary": "Passer d’une promesse floue à une page rapide, lisible et convaincante, construite autour d’une preuve et d’une action plutôt que d’un empilement de sections.",
+  "type": "tutorial",
+  "status": "public",
+  "themes": ["web", "design", "méthode", "conversion"],
+  "updatedAt": "2026-10-04",
+  "path": "/guides/landing-page-qui-tranche/",
+  "cta": "Construire la page",
+  "meta": ["Guide BAAM", "8 passages", "4 blocs copiables"],
+  "presentation": {
+    "accent": "#ff8a34",
+    "index": "08",
+    "glyph": "↘"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "PROMESSE → PREUVE → OBJECTION → ACTION",
+    "caption": "Une page n’a pas besoin de tout dire. Elle doit faire avancer."
+  },
+  "companion": {
+    "label": "Fixer le système",
+    "title": "Color Picker",
+    "body": "Construire une palette courte, vérifiable et directement traduisible en tokens pour la page.",
+    "url": "/baam-tools/color-picker/",
+    "cta": "Préparer la palette"
+  },
+  "blocks": [
+    {
+      "type": "lead",
+      "text": "Une landing page efficace n’est pas une brochure réduite à un écran. C’est un parcours de décision. Elle attire la bonne personne, formule une promesse compréhensible, apporte assez de preuves pour rendre cette promesse crédible, traite les objections principales et propose une action proportionnée à l’engagement demandé."
+    },
+    {
+      "type": "section",
+      "title": "1. Commencer avant l’interface",
+      "body": "Avant les composants, écrire quatre phrases : pour qui est la page, quel problème elle reconnaît, quelle transformation elle promet et quelle action elle attend. Si ces phrases ne tiennent pas, le design ne pourra que déplacer l’ambiguïté. Une page précise peut être courte ; une page confuse devient toujours longue."
+    },
+    {
+      "type": "callout",
+      "title": "Le premier écran",
+      "body": "Le visiteur doit pouvoir identifier en quelques secondes : ce qui est proposé, pour qui, pourquoi c’est différent et ce qu’il peut faire maintenant. Le reste de la page sert à prouver cette première lecture."
+    },
+    {
+      "type": "checklist",
+      "title": "La matière nécessaire",
+      "items": [
+        "Une offre nommée sans jargon interne.",
+        "Un public prioritaire et son niveau de connaissance.",
+        "Une promesse que le produit ou le service peut réellement tenir.",
+        "Des preuves disponibles : démonstration, chiffres, méthode, clients ou exemples.",
+        "Les trois objections les plus probables.",
+        "Une action principale et une action de repli éventuelle.",
+        "Les contraintes mobile, accessibilité, performance et mesure."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Extraire l’architecture de décision",
+      "text": "Voici mon offre et ma matière :\n{COLLER LES INFORMATIONS VALIDÉES}\n\nConstruis l’architecture d’une landing page comme un parcours de décision. Pour chaque section, indique : question du visiteur, réponse apportée, preuve utilisée, objection traitée et action possible. Supprime toute section qui ne modifie ni compréhension, ni confiance, ni passage à l’action. N’écris pas encore les textes finaux."
+    },
+    {
+      "type": "steps",
+      "title": "2. Le pipeline en huit passages",
+      "items": [
+        { "title": "Accrocher la bonne personne", "body": "Le titre doit permettre au public prioritaire de se reconnaître, pas chercher à séduire tout le monde." },
+        { "title": "Nommer la transformation", "body": "Dire le résultat ou le changement produit avant de détailler le mécanisme." },
+        { "title": "Montrer tôt", "body": "Une capture, une démonstration ou un exemple réel explique souvent mieux que trois paragraphes." },
+        { "title": "Installer la preuve", "body": "Associer chaque affirmation importante à un fait, une méthode, un cas ou un élément vérifiable." },
+        { "title": "Traiter les objections", "body": "Temps, prix, complexité, risque, compatibilité ou crédibilité : répondre aux vraies résistances sans créer une FAQ défensive." },
+        { "title": "Hiérarchiser l’action", "body": "Un CTA principal stable, des rappels au bon moment et une alternative moins engageante seulement si elle sert le parcours." },
+        { "title": "Construire mobile d’abord", "body": "Vérifier la lecture, la taille des cibles, la longueur des lignes et l’ordre des preuves sur un écran étroit." },
+        { "title": "Mesurer sans polluer", "body": "Choisir quelques événements utiles : exposition au CTA, clic, début et réussite du formulaire, sans transformer la page en laboratoire opaque." }
+      ]
+    },
+    {
+      "type": "section",
+      "title": "3. Écrire par niveaux de lecture",
+      "body": "La page doit fonctionner pour trois vitesses : le balayage des titres, la lecture des résumés et l’examen des détails. Un titre porte une idée, un paragraphe la développe, une preuve la rend crédible. Répéter la même promesse avec des synonymes ajoute de la longueur mais aucune information."
+    },
+    {
+      "type": "prompt",
+      "title": "Écrire la matrice de contenu",
+      "text": "Rédige trois versions du contenu de cette page : DIRECTE, ÉDITORIALE et TECHNIQUE. Conserve exactement la même architecture et les mêmes faits. Pour chaque section, fournis un titre, un paragraphe de 35 mots maximum, la preuve associée et le CTA éventuel. Interdis les superlatifs invérifiables, les faux chiffres et les témoignages inventés. Termine par les informations qui manquent encore."
+    },
+    {
+      "type": "section",
+      "title": "4. Construire un système visuel court",
+      "body": "Une landing page gagne à limiter ses variables : une grille, une échelle typographique, quelques espacements, une couleur d’action et des composants répétés. La singularité vient davantage du rapport entre matière, rythme et composition que d’une accumulation d’effets. Les images doivent être dimensionnées et compressées avant la mise en ligne."
+    },
+    {
+      "type": "prompt",
+      "title": "Passer de l’architecture au wireframe",
+      "text": "Transforme l’architecture validée en wireframe responsive. Décris chaque section pour mobile puis desktop : ordre, largeur, grille, composant, contenu visible, comportement du CTA et média nécessaire. Utilise une échelle d’espacement limitée et des composants réutilisables. Signale tout élément qui risque de dégrader lisibilité, accessibilité ou performance. Attends validation avant de produire le HTML et le CSS."
+    },
+    {
+      "type": "checklist",
+      "title": "5. Contrôle avant publication",
+      "items": [
+        "Le titre principal reste compréhensible sans le menu ni le logo.",
+        "La promesse ne dépend d’aucun fait inventé.",
+        "Une preuve concrète apparaît avant le deuxième grand défilement.",
+        "Le CTA principal conserve le même verbe sur toute la page.",
+        "Les états clavier, focus, erreur et succès sont visibles.",
+        "La page reste claire sur mobile et avec les animations réduites.",
+        "Les images ont les bonnes dimensions et un format adapté.",
+        "Les scripts tiers et mesures servent une décision identifiable.",
+        "La page possède un titre, une description et une image de partage cohérents."
+      ]
+    },
+    {
+      "type": "prompt",
+      "title": "Faire la passe de critique finale",
+      "text": "Audite cette landing page selon cinq axes : COMPRÉHENSION, CONFIANCE, HIÉRARCHIE, ACCESSIBILITÉ, PERFORMANCE. Pour chaque défaut, indique ce qui est observable, son impact probable, la correction minimale et ce qui doit rester inchangé. Classe les corrections en BLOQUANT, IMPORTANT et FINITION. Ne propose aucune refonte générale si une correction locale suffit."
+    },
+    {
+      "type": "callout",
+      "title": "Le cap",
+      "body": "La meilleure landing page n’est pas celle qui semble la plus complète. C’est celle dont chaque section rend la décision suivante plus simple, sans faire payer sa complexité au visiteur."
+    },
+    {
+      "type": "links",
+      "title": "Boîte à outils",
+      "items": [
+        { "label": "Color Picker — BAAM Tool", "url": "/baam-tools/color-picker/" },
+        { "label": "Squoosh — compresser les images", "url": "https://squoosh.app/" },
+        { "label": "Penpot — designer et prototyper", "url": "https://design.penpot.app/" },
+        { "label": "Haikei — générer une matière SVG", "url": "https://app.haikei.app/" }
+      ]
+    }
+  ],
+  "relations": [
+    { "type": "related-to", "target": "color-picker" },
+    { "type": "related-to", "target": "penpot" },
+    { "type": "related-to", "target": "squoosh" },
+    { "type": "related-to", "target": "haikei" }
+  ]
+}

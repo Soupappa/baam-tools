@@ -87,6 +87,15 @@ export function validateContent(item) {
     const hasLegacyGuide = Array.isArray(item.steps) && item.steps.length > 0 && Array.isArray(item.copyBlocks);
     const hasBlockGuide = Array.isArray(item.blocks) && item.blocks.length > 0;
     if (!hasLegacyGuide && !hasBlockGuide) errors.push("un guide requiert des blocs ou des étapes");
+    if (item.companion != null) {
+      if (typeof item.companion !== "object" || Array.isArray(item.companion)) errors.push("companion doit être un objet");
+      else {
+        for (const field of ["title", "body", "url", "cta"]) {
+          if (typeof item.companion[field] !== "string" || !item.companion[field].trim()) errors.push(`companion.${field} est requis`);
+        }
+        if (!isAssetUrl(item.companion.url)) errors.push("companion.url doit être une URL ou un chemin racine");
+      }
+    }
   }
   if (item.type === "resource" && !isHttpUrl(item.externalUrl)) errors.push("une ressource externe requiert externalUrl");
 

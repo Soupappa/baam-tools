@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "penpot",
+  "title": "Penpot",
+  "eyebrow": "Ressource externe",
+  "summary": "Une plateforme open source de design d’interface et de prototypage qui rapproche composants, design tokens, CSS, SVG et collaboration produit.",
+  "type": "resource",
+  "status": "public",
+  "themes": ["design", "prototype", "open source", "collaboration"],
+  "updatedAt": "2026-10-04",
+  "path": "/externes/penpot/",
+  "externalUrl": "https://design.penpot.app/",
+  "sourceUrl": "https://penpot.app/",
+  "cta": "Voir la fiche",
+  "meta": ["Externe", "Open source", "Design × code"],
+  "presentation": {
+    "accent": "#5b45ff",
+    "index": "10",
+    "glyph": "▦"
+  },
+  "cardPreview": {
+    "type": "text",
+    "headline": "DESIGN TOKENS · FLEX · GRID · SVG",
+    "caption": "Prototyper dans un vocabulaire plus proche du produit final."
+  },
+  "notes": [
+    "Construire des interfaces responsive avec des logiques proches de Flexbox et CSS Grid.",
+    "Centraliser composants, variantes, bibliothèques partagées et design tokens.",
+    "Inspecter les sorties SVG, CSS et HTML pour fluidifier le passage du design au développement."
+  ],
+  "relations": []
+}

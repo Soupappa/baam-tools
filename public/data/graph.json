@@ -154,6 +154,162 @@
         "index": "06",
         "glyph": "↗"
       }
+    },
+    {
+      "id": "guide-brief-visuel",
+      "title": "Le guide BAAM du brief visuel qui produit",
+      "summary": "Transformer une intention floue en décisions visuelles, critères vérifiables et matière directement exploitable par un humain ou une IA.",
+      "type": "tutorial",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/brief-visuel-actionnable/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "méthode",
+        "direction artistique",
+        "claude"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "07",
+        "glyph": "⌁"
+      }
+    },
+    {
+      "id": "guide-landing-page",
+      "title": "Le guide BAAM de la landing page qui tranche",
+      "summary": "Passer d’une promesse floue à une page rapide, lisible et convaincante, construite autour d’une preuve et d’une action plutôt que d’un empilement de sections.",
+      "type": "tutorial",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/landing-page-qui-tranche/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "web",
+        "design",
+        "méthode",
+        "conversion"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "08",
+        "glyph": "↘"
+      }
+    },
+    {
+      "id": "excalidraw",
+      "title": "Excalidraw",
+      "summary": "Un tableau blanc au dessin volontairement brut pour cadrer une idée, construire un diagramme ou partager rapidement un wireframe.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/excalidraw/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "cartographie",
+        "collaboration",
+        "wireframe",
+        "open source"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "09",
+        "glyph": "✎"
+      }
+    },
+    {
+      "id": "penpot",
+      "title": "Penpot",
+      "summary": "Une plateforme open source de design d’interface et de prototypage qui rapproche composants, design tokens, CSS, SVG et collaboration produit.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/penpot/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "prototype",
+        "open source",
+        "collaboration"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "10",
+        "glyph": "▦"
+      }
+    },
+    {
+      "id": "squoosh",
+      "title": "Squoosh",
+      "summary": "Comparer visuellement codecs, dimensions et niveaux de compression afin de réduire le poids d’une image directement dans le navigateur.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/squoosh/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "image",
+        "performance",
+        "web",
+        "open source"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "11",
+        "glyph": "⇲"
+      }
+    },
+    {
+      "id": "haikei",
+      "title": "Haikei",
+      "summary": "Un ensemble de générateurs visuels pour composer vagues, blobs, grilles, gradients et motifs puis les exporter en SVG ou en PNG.",
+      "type": "resource",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/haikei/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "svg",
+        "design",
+        "génératif",
+        "web"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "12",
+        "glyph": "≈"
+      }
     }
   ],
   "edges": [
@@ -162,6 +318,24 @@
       "target": "guide-motion-claude",
       "type": "related-to",
       "generated": false
+    },
+    {
+      "source": "color-picker",
+      "target": "guide-brief-visuel",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "color-picker",
+      "target": "guide-landing-page",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "mindmap-recursive",
+      "target": "guide-brief-visuel",
+      "type": "related-to",
+      "generated": true
     },
     {
       "source": "guide-motion-claude",
@@ -180,6 +354,84 @@
       "target": "guide-motion-claude",
       "type": "related-to",
       "generated": false
+    },
+    {
+      "source": "guide-brief-visuel",
+      "target": "mindmap-recursive",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-brief-visuel",
+      "target": "color-picker",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-brief-visuel",
+      "target": "excalidraw",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-brief-visuel",
+      "target": "penpot",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-landing-page",
+      "target": "color-picker",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-landing-page",
+      "target": "penpot",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-landing-page",
+      "target": "squoosh",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "guide-landing-page",
+      "target": "haikei",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "excalidraw",
+      "target": "guide-brief-visuel",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "penpot",
+      "target": "guide-brief-visuel",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "penpot",
+      "target": "guide-landing-page",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "squoosh",
+      "target": "guide-landing-page",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "haikei",
+      "target": "guide-landing-page",
+      "type": "related-to",
+      "generated": true
     }
   ]
 }

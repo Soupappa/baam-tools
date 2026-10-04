@@ -2,9 +2,9 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "86eb9b44aa0ebb9883dc278ba11848b2c8fa329efdac0ca3c60543f09ad10824",
+    "sourceHash": "5e0bad950a9af058d31c433f07087755098afc5384177bde75b5664c05f4f154",
     "compiledAt": "2026-10-04",
-    "count": 6,
+    "count": 12,
     "contentTypes": {
       "free-webtool": "BAAM Tool",
       "tutorial": "Guide",
@@ -132,7 +132,18 @@
         "index": "02",
         "glyph": "◉"
       },
-      "relations": [],
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-brief-visuel",
+          "generated": true
+        },
+        {
+          "type": "related-to",
+          "target": "guide-landing-page",
+          "generated": true
+        }
+      ],
       "sourceOrigin": "file"
     },
     {
@@ -180,7 +191,13 @@
         "index": "03",
         "glyph": "⌘"
       },
-      "relations": [],
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-brief-visuel",
+          "generated": true
+        }
+      ],
       "sourceOrigin": "file"
     },
     {
@@ -343,6 +360,369 @@
         "glyph": "↗"
       },
       "relations": [],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "guide-brief-visuel",
+      "title": "Le guide BAAM du brief visuel qui produit",
+      "eyebrow": "Guide complet · direction",
+      "summary": "Transformer une intention floue en décisions visuelles, critères vérifiables et matière directement exploitable par un humain ou une IA.",
+      "type": "tutorial",
+      "typeLabel": "Guide",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/brief-visuel-actionnable/",
+      "path": "/guides/brief-visuel-actionnable/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "méthode",
+        "direction artistique",
+        "claude"
+      ],
+      "themes": [
+        "design",
+        "méthode",
+        "direction artistique",
+        "claude"
+      ],
+      "meta": [
+        "Guide BAAM",
+        "8 passages",
+        "4 blocs copiables"
+      ],
+      "cta": "Construire un vrai brief",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "INTENTION → RÈGLES → PREUVES → LIVRABLE",
+        "caption": "Un brief utile réduit les interprétations sans tuer les possibilités."
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "07",
+        "glyph": "⌁"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "mindmap-recursive"
+        },
+        {
+          "type": "related-to",
+          "target": "color-picker"
+        },
+        {
+          "type": "related-to",
+          "target": "excalidraw"
+        },
+        {
+          "type": "related-to",
+          "target": "penpot"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "guide-landing-page",
+      "title": "Le guide BAAM de la landing page qui tranche",
+      "eyebrow": "Guide complet · conversion",
+      "summary": "Passer d’une promesse floue à une page rapide, lisible et convaincante, construite autour d’une preuve et d’une action plutôt que d’un empilement de sections.",
+      "type": "tutorial",
+      "typeLabel": "Guide",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/guides/landing-page-qui-tranche/",
+      "path": "/guides/landing-page-qui-tranche/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "web",
+        "design",
+        "méthode",
+        "conversion"
+      ],
+      "themes": [
+        "web",
+        "design",
+        "méthode",
+        "conversion"
+      ],
+      "meta": [
+        "Guide BAAM",
+        "8 passages",
+        "4 blocs copiables"
+      ],
+      "cta": "Construire la page",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "PROMESSE → PREUVE → OBJECTION → ACTION",
+        "caption": "Une page n’a pas besoin de tout dire. Elle doit faire avancer."
+      },
+      "presentation": {
+        "accent": "#ff8a34",
+        "index": "08",
+        "glyph": "↘"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "color-picker"
+        },
+        {
+          "type": "related-to",
+          "target": "penpot"
+        },
+        {
+          "type": "related-to",
+          "target": "squoosh"
+        },
+        {
+          "type": "related-to",
+          "target": "haikei"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "excalidraw",
+      "title": "Excalidraw",
+      "eyebrow": "Ressource externe",
+      "summary": "Un tableau blanc au dessin volontairement brut pour cadrer une idée, construire un diagramme ou partager rapidement un wireframe.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/excalidraw/",
+      "path": "/externes/excalidraw/",
+      "externalUrl": "https://excalidraw.com/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "cartographie",
+        "collaboration",
+        "wireframe",
+        "open source"
+      ],
+      "themes": [
+        "cartographie",
+        "collaboration",
+        "wireframe",
+        "open source"
+      ],
+      "meta": [
+        "Externe",
+        "Open source",
+        "Sans compte"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "IDÉE → SCHÉMA → LIEN PARTAGEABLE",
+        "caption": "Dessiner assez vite pour continuer à penser."
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "09",
+        "glyph": "✎"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-brief-visuel",
+          "generated": true
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "penpot",
+      "title": "Penpot",
+      "eyebrow": "Ressource externe",
+      "summary": "Une plateforme open source de design d’interface et de prototypage qui rapproche composants, design tokens, CSS, SVG et collaboration produit.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/penpot/",
+      "path": "/externes/penpot/",
+      "externalUrl": "https://design.penpot.app/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "design",
+        "prototype",
+        "open source",
+        "collaboration"
+      ],
+      "themes": [
+        "design",
+        "prototype",
+        "open source",
+        "collaboration"
+      ],
+      "meta": [
+        "Externe",
+        "Open source",
+        "Design × code"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "DESIGN TOKENS · FLEX · GRID · SVG",
+        "caption": "Prototyper dans un vocabulaire plus proche du produit final."
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "10",
+        "glyph": "▦"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-brief-visuel",
+          "generated": true
+        },
+        {
+          "type": "related-to",
+          "target": "guide-landing-page",
+          "generated": true
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "squoosh",
+      "title": "Squoosh",
+      "eyebrow": "Ressource externe",
+      "summary": "Comparer visuellement codecs, dimensions et niveaux de compression afin de réduire le poids d’une image directement dans le navigateur.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/squoosh/",
+      "path": "/externes/squoosh/",
+      "externalUrl": "https://squoosh.app/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "image",
+        "performance",
+        "web",
+        "open source"
+      ],
+      "themes": [
+        "image",
+        "performance",
+        "web",
+        "open source"
+      ],
+      "meta": [
+        "Externe",
+        "Traitement local",
+        "Compression image"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "AVANT ⇄ APRÈS · POIDS ↓",
+        "caption": "Choisir la différence que l’œil accepte et le réseau apprécie."
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "11",
+        "glyph": "⇲"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-landing-page",
+          "generated": true
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "haikei",
+      "title": "Haikei",
+      "eyebrow": "Ressource externe",
+      "summary": "Un ensemble de générateurs visuels pour composer vagues, blobs, grilles, gradients et motifs puis les exporter en SVG ou en PNG.",
+      "type": "resource",
+      "typeLabel": "Externe",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/externes/haikei/",
+      "path": "/externes/haikei/",
+      "externalUrl": "https://app.haikei.app/",
+      "updatedAt": "2026-10-04",
+      "tags": [
+        "svg",
+        "design",
+        "génératif",
+        "web"
+      ],
+      "themes": [
+        "svg",
+        "design",
+        "génératif",
+        "web"
+      ],
+      "meta": [
+        "Externe",
+        "Sans inscription",
+        "SVG et PNG"
+      ],
+      "cta": "Voir la fiche",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "text",
+        "headline": "WAVES · BLOBS · GRIDS · GRADIENTS",
+        "caption": "Générer une matière, puis la reprendre dans le système du projet."
+      },
+      "presentation": {
+        "accent": "#5b45ff",
+        "index": "12",
+        "glyph": "≈"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "guide-landing-page",
+          "generated": true
+        }
+      ],
       "sourceOrigin": "file"
     }
   ]
