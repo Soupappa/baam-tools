@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BAAM · Fonds vivants</title>
+<meta name="description" content="Une trame — grille, points, ondes, hexagones… — animée par un opérateur BAAM. Fonds vivants pour sites, slides et visios : SVG animé, PNG, CSS. Sans IA." />
+<style>
+  :root{
+    --bg:#f1efe9; --ink:#17150f; --muted:#8a867c; --line:#ddd8cd; --panel:#ffffff; --accent:#00a847;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --ui:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--mono); font-size:13px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  main{max-width:1180px; margin:0 auto; padding:18px 22px 40px;}
+  button{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:7px; padding:8px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  button:hover{border-color:var(--muted);}
+  button.on{border-color:var(--accent); color:var(--accent);}
+  button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
+  button.primary:hover{background:var(--accent); border-color:var(--accent);}
+  button:disabled{opacity:.38; cursor:default;}
+  .tag{font-size:9px; letter-spacing:.08em; background:var(--accent); color:#fff; border-radius:20px; padding:1px 7px;}
+
+  /* ── Aperçu ── */
+  .stage-wrap{display:flex; justify-content:center; align-items:center; height:56vh; min-height:300px; border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    background-color:#fff; background-image:linear-gradient(45deg,#ece8de 25%,transparent 25%),linear-gradient(-45deg,#ece8de 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ece8de 75%),linear-gradient(-45deg,transparent 75%,#ece8de 75%); background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0;}
+  .stage{box-shadow:0 10px 30px -18px rgba(0,0,0,.45); flex:0 0 auto;}
+  .stage svg{width:100%; height:100%; display:block;}
+
+  /* ── Actions ── */
+  .actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:14px 0 6px;}
+
+  /* ── Réglages ── */
+  .controls{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px 18px; margin-top:6px;}
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .row + .row, .row + .grid2, .grid2 + .row, .row + .ops, .ops + .row, .row + .macro{margin-top:14px;}
+  .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); min-width:74px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:720px){ .grid2{grid-template-columns:1fr;} }
+  .axis label{display:flex; justify-content:space-between; font-size:10px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:7px;}
+  .axis label b{color:var(--ink); font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%; -webkit-appearance:none; appearance:none; height:3px; background:var(--line); border-radius:2px; outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff;}
+  .pick{width:34px; height:28px; padding:0; border:1px solid var(--line); border-radius:6px; background:var(--panel); cursor:pointer;}
+  .preset{padding:4px 8px 4px 4px; text-transform:none; letter-spacing:0; font-size:11px;}
+  .preset i{display:inline-block; width:22px; height:18px; border-radius:4px; border:1px solid var(--line);}
+  .ops{display:flex; gap:8px; flex-wrap:wrap;}
+  .op{flex-direction:column; align-items:flex-start;}
+  .op .op-sub{display:block; font-size:9px; color:var(--muted); letter-spacing:.03em; text-transform:none; margin-top:2px;}
+  .macro{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  @media (max-width:720px){ .macro{grid-template-columns:repeat(2,1fr);} }
+  .macro.locked{opacity:.35; pointer-events:none; filter:grayscale(1);}
+  .spacer{flex:1;}
+  .adv{margin-top:18px; border-top:1px dashed var(--line); padding-top:14px;}
+  .adv summary{cursor:pointer; font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); list-style:none;}
+  .adv summary::-webkit-details-marker{display:none;}
+  .adv summary::before{content:"▸ "; color:var(--accent);}
+  .adv[open] summary::before{content:"▾ ";}
+  .adv-tools{display:flex; gap:8px; margin:12px 0 2px; flex-wrap:wrap;}
+  .baam-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px 14px; margin-top:12px;}
+  @media (max-width:720px){ .baam-grid{grid-template-columns:repeat(3,1fr);} }
+  .baam{font-size:10px;}
+  .baam .bk{color:var(--muted); text-transform:uppercase; letter-spacing:.06em; display:block;}
+  .baam .bv{color:var(--ink); font-variant-numeric:tabular-nums;}
+  .bar{height:3px; background:var(--line); border-radius:2px; margin-top:3px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--accent);}
+  .baam input[type=range]{margin-top:5px;}
+
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; font-size:12px; padding:9px 16px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:2000;}
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast b{color:var(--accent);}
+</style>
+  <script src="/leads-config.js"></script>
+</head>
+<body>
+<main>
+  <div class="stage-wrap"><div class="stage" id="stage">
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="bfv-f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="1" result="noise"/>
+          <feDisplacementMap id="disp" in="SourceGraphic" in2="noise" result="dsp" scale="0" xChannelSelector="R" yChannelSelector="G"/>
+          <feGaussianBlur id="blur" in="dsp" stdDeviation="0"/>
+        </filter>
+      </defs>
+      <rect id="bgRect" x="0" y="0" width="100%" height="100%"/>
+      <g id="wrap"><g id="move"><g id="motifG"></g></g></g>
+    </svg>
+  </div></div>
+
+  <div class="actions">
+    <button id="exportSvg" class="primary" title="Gratuit : SVG animé autonome">Exporter le SVG animé</button>
+    <button id="exportPng" title="Gratuit : image Full HD">PNG Full HD</button>
+    <button id="copyCss" title="Le fond vivant en background-image, à coller dans une feuille de style">Copier le CSS</button>
+    <button id="bonusBtn" title="Bonus : vidéo en boucle parfaite et pack fonds d'écran">Vidéo + fonds d'écran <span class="tag">bonus</span></button>
+  </div>
+
+  <div class="controls">
+    <div class="row"><span class="lbl">Trame</span><span class="row" id="patterns"></span></div>
+    <div class="grid2">
+      <div class="axis"><label>Densité <b id="densV"></b></label><input type="range" id="dens" min="0" max="1" step="0.01" /></div>
+      <div class="axis" id="weightBox"><label>Épaisseur <b id="weightV"></b></label><input type="range" id="weight" min="0" max="1" step="0.01" /></div>
+    </div>
+    <div class="row">
+      <span class="lbl">Couleurs</span>
+      <span class="readout" style="font-size:11px;color:var(--muted)">motif</span><input type="color" class="pick" id="ink" title="Couleur du motif" />
+      <span class="readout" style="font-size:11px;color:var(--muted)">fond</span><input type="color" class="pick" id="paper" title="Couleur du fond" />
+      <button id="transp" title="Fond transparent, pour poser le motif sur autre chose">fond transparent</button>
+      <span class="row" id="presets"></span>
+    </div>
+    <div class="row"><span class="lbl">Format</span><span class="row" id="aspects"></span></div>
+    <div class="row"><span class="lbl">Opérateur</span></div>
+    <div class="ops" id="ops"></div>
+    <div class="row"><span class="spacer"></span><button id="reset" title="Ramène l'animation à l'état médian — typé mais pas trop">⟲ reset</button></div>
+    <div class="macro" id="macro"></div>
+    <details class="adv">
+      <summary>sous le capot — le dépliage 4 axes → 10 paramètres BAAM</summary>
+      <div class="adv-tools" id="advTools"></div>
+      <div class="baam-grid" id="baamGrid"></div>
+    </details>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+   BAAM · Fonds vivants — une trame (grille, points, ondes…) générée en SVG, puis
+   animée par un opérateur BAAM (4 axes -> 10 BAAM -> runtime, frame(rt,t) pure).
+   Mode « boucle parfaite » : chaque mouvement est calé sur la durée de la vidéo.
+   Opt-in et vidéo : bloc commun BAAM-OPTIN v1 (shared/baam-optin.js).
+============================================================================ */
+const $=s=>document.querySelector(s);
+/* ═══ BAAM-OPTIN v1 ══════════════════════════════════════════════════════════
+   Bloc partagé par tous les BAAM Tools. Source canonique : shared/baam-optin.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (shared/inject-optin.js) ;
+   à servir un jour comme fichier commun côté portail.
+
+   Principe : l'outil reste gratuit, sans compte. Un BONUS se débloque contre un
+   e-mail, proposé APRÈS l'usage (carte discrète), jamais avant. Un CTA mène vers
+   l'univers BAAM concerné (studio.baam.pro, agence.baam.pro…).
+
+   Leads — rien n'est envoyé tant qu'aucune destination n'est configurée :
+     window.BAAM_LEADS = { endpoint:"https://…", privacyUrl:"https://…" }   // POST JSON
+     window.BAAM_LEADS = { netlifyForm:"bonus", privacyUrl:"https://…" }    // Netlify Forms
+   Lu dans la page OU dans la page parente (tool encadré en iframe).
+   Corps envoyé : { email, newsletter, tool, bonus, page, at }.
+   Le bonus se débloque même si l'envoi échoue. Un déblocage vaut pour tous les tools.
+═══════════════════════════════════════════════════════════════════════════════ */
+const BaamOptin=(()=>{
+  const KEY="baam.tools.bonus-unlocked";
+  let o=null, session=false, dismissed=false, busy=false;
+  const el={};
+  const conf=()=>{ let p={}; try{ if(window.parent && window.parent!==window && window.parent.BAAM_LEADS) p=window.parent.BAAM_LEADS; }catch(_){}
+    return Object.assign({ endpoint:null, netlifyForm:null, privacyUrl:"https://tools.baam.pro/confidentialite/" }, p, window.BAAM_LEADS||{}); };
+  const unlocked=()=>{ if(session) return true; try{ return localStorage.getItem(KEY)==="1"; }catch(_){ return false; } };
+  const mk=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
+  const UI='system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+  const INK='var(--ink,#17150f)', LINE='var(--line,#ddd8cd)', MUTED='var(--muted,#8a867c)', ACC='var(--accent,#00a847)', MONO='var(--mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace)';
+  const CSS=`
+.bo-card,.bo-modal,.bo-studio{--bo-ui:${UI};}
+.bo-card[hidden],.bo-modal[hidden],.bo-gate[hidden],.bo-bonus[hidden],.bo-host[hidden],.bo-progress[hidden],.bo-done[hidden]{display:none!important;}
+.bo-card{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid ${LINE};border-left:3px solid ${ACC};border-radius:10px;padding:12px 14px;margin:8px auto 0;max-width:760px;font-family:${MONO};color:${INK};animation:bo-rise .25s ease;box-sizing:border-box;}
+@keyframes bo-rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.bo-body p{margin:0;font-family:var(--bo-ui);font-size:13.5px;line-height:1.45;}
+.bo-ok{color:${ACC};font-weight:700;}
+.bo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.bo-btn{font-family:${MONO};font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#fff;color:${INK};border:1px solid ${LINE};border-radius:7px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;line-height:1.2;}
+.bo-btn:hover{border-color:${MUTED};}
+.bo-btn.on{border-color:${ACC};color:${ACC};}
+.bo-primary{background:${INK};color:#fff;border-color:${INK};}
+.bo-primary:hover{background:${ACC};border-color:${ACC};color:#fff;}
+.bo-btn:disabled{opacity:.45;cursor:default;}
+.bo-x{margin-left:auto;border:none;background:none;font-size:19px;color:${MUTED};cursor:pointer;line-height:1;padding:0 4px;}
+.bo-studio{text-align:center;font-family:var(--bo-ui);font-size:13px;color:${MUTED};margin:12px 0 18px;}
+.bo-studio a{color:${INK};font-weight:600;text-decoration:none;border-bottom:1.5px solid ${ACC};}
+.bo-studio a:hover{color:${ACC};}
+.bo-modal{position:fixed;inset:0;background:rgba(23,21,15,.42);display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000;}
+.bo-dialog{background:#fff;border-radius:14px;width:min(580px,100%);max-height:92vh;overflow:auto;padding:20px 22px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);font-family:${MONO};font-size:13px;color:${INK};box-sizing:border-box;}
+.bo-dialog h2{font-family:var(--bo-ui);font-size:20px;margin:0 0 6px;letter-spacing:-.01em;}
+.bo-lead{font-family:var(--bo-ui);font-size:14px;color:#4a473f;margin:0 0 14px;line-height:1.45;}
+.bo-f{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:${MUTED};margin:14px 0 6px;}
+.bo-f b{color:${INK};}
+.bo-dialog input[type=email],.bo-dialog input[type=text]{width:100%;box-sizing:border-box;font-family:var(--bo-ui);font-size:15px;border:1px solid ${LINE};border-radius:8px;padding:10px 12px;outline:none;}
+.bo-dialog input[type=email]:focus,.bo-dialog input[type=text]:focus{border-color:${ACC};}
+.bo-err{color:#c62828;font-family:var(--bo-ui);font-size:12.5px;margin-top:6px;min-height:1em;}
+.bo-choice{border:0;padding:0;margin:16px 0 0;min-width:0;}
+.bo-choice legend{font-family:${MONO};font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:${MUTED};padding:0;margin:0 0 7px;}
+.bo-choice-card{display:flex;gap:10px;align-items:flex-start;border:1px solid ${LINE};border-radius:9px;padding:11px 12px;margin-top:7px;cursor:pointer;font-family:var(--bo-ui);line-height:1.35;transition:border-color .16s,background .16s,transform .16s;}
+.bo-choice-card:hover{border-color:${MUTED};transform:translateY(-1px);}
+.bo-choice-card:has(input:checked){border-color:${ACC};background:color-mix(in srgb,${ACC} 7%,#fff);}
+.bo-choice-card input{margin:3px 0 0;accent-color:${ACC};flex:0 0 auto;}
+.bo-choice-card span{display:flex;flex-direction:column;gap:3px;}
+.bo-choice-card b{font-size:13.5px;color:${INK};}
+.bo-choice-card small{font-size:11.5px;color:${MUTED};}
+.bo-choice-yes{border-left:3px solid ${ACC};}
+.bo-choice-badge{display:inline-flex!important;width:max-content;font-family:${MONO};font-size:9px!important;text-transform:uppercase;letter-spacing:.08em;color:${ACC}!important;}
+.bo-legal{font-family:var(--bo-ui);font-size:11.5px;color:${MUTED};margin:12px 0 0;line-height:1.5;}
+.bo-legal a{color:inherit;}
+.bo-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.bo-range{width:100%;accent-color:${ACC};}
+.bo-progress{height:6px;background:${LINE};border-radius:3px;overflow:hidden;margin-top:14px;}
+.bo-progress i{display:block;height:100%;width:0;background:${ACC};transition:width .15s linear;}
+.bo-host{margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid ${LINE};background:#f6f4ef;display:flex;justify-content:center;}
+.bo-host canvas{max-width:100%;max-height:260px;display:block;}
+.bo-done{font-family:var(--bo-ui);font-size:14px;margin-top:12px;line-height:1.5;}
+.bo-done b{color:${ACC};}
+.bo-done a{color:${INK};}
+.bo-code{width:100%;box-sizing:border-box;min-height:200px;font-family:${MONO};font-size:12px;line-height:1.5;border:1px solid ${LINE};border-radius:8px;padding:10px 12px;background:#fbfaf7;resize:vertical;outline:none;color:${INK};}
+.bo-note{font-family:var(--bo-ui);font-size:12px;color:${MUTED};margin:8px 0 0;line-height:1.45;}
+`;
+  const api={ close:()=>close(), setBusy:v=>{ busy=!!v; }, studioUrl:()=>o.studio.url, studioPitch:()=>o.studio.pitch||o.studio.label };
+
+  function init(opts){
+    o=opts;
+    const st=mk("style"); st.textContent=CSS; document.head.appendChild(st);
+    el.card=mk("div","bo-card"); el.card.hidden=true;
+    el.card.innerHTML=`<div class="bo-body"><p><span class="bo-ok">✓ ${o.okLabel||"C'est prêt."}</span> <span class="bo-txt"></span></p>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary bo-get">${o.getLabel}</button>`+
+      `<a class="bo-btn" target="_blank" rel="noopener" href="${o.studio.url}">${o.studio.cardLabel}</a></div></div>`+
+      `<button type="button" class="bo-x" aria-label="Fermer">×</button>`;
+    o.anchor.after(el.card);
+    el.studio=mk("p","bo-studio",`${o.studio.line} <a target="_blank" rel="noopener" href="${o.studio.url}">${o.studio.label}</a>`);
+    (o.studioAnchor||el.card).after(el.studio);
+    el.card.querySelector(".bo-get").onclick=open;
+    el.card.querySelector(".bo-x").onclick=()=>{ el.card.hidden=true; dismissed=true; };
+    el.modal=mk("div","bo-modal"); el.modal.hidden=true;
+    el.modal.innerHTML=`<div class="bo-dialog" role="dialog" aria-modal="true" aria-label="${o.bonusTitle}">`+
+      `<section class="bo-gate"><h2>${o.bonusTitle}</h2><p class="bo-lead">${o.bonusPitch}</p>`+
+      `<form novalidate><label class="bo-f" for="bo-email">Ton e-mail</label>`+
+      `<input type="email" id="bo-email" autocomplete="email" placeholder="toi@exemple.com" required><div class="bo-err"></div>`+
+      `<fieldset class="bo-choice"><legend>Et pour la suite ?</legend>`+
+      `<label class="bo-choice-card bo-choice-yes"><input type="radio" name="bo-news-choice" value="yes"> <span><i class="bo-choice-badge">Le meilleur de BAAM</i><b>Oui — je veux les nouveaux tools, guides et bonus</b><small>Avant-premières · 1 à 2 e-mails par mois · désinscription en un clic</small></span></label>`+
+      `<label class="bo-choice-card"><input type="radio" name="bo-news-choice" value="no"> <span><b>Non — je veux seulement ce bonus</b><small>Aucun e-mail éditorial ne sera envoyé</small></span></label></fieldset>`+
+      `<div class="bo-err bo-choice-err"></div>`+
+      `<p class="bo-legal">Ton e-mail débloque les bonus BAAM Tools sur cet appareil. Ton choix newsletter est enregistré séparément. <a class="bo-priv" target="_blank" rel="noopener">Confidentialité</a></p>`+
+      `<div class="bo-row"><button type="submit" class="bo-btn bo-primary bo-submit">${o.unlockLabel}</button><button type="button" class="bo-btn bo-close">Annuler</button></div></form></section>`+
+      `<section class="bo-bonus" hidden></section></div>`;
+    document.body.appendChild(el.modal);
+    el.modal.addEventListener("click",e=>{ if(e.target===el.modal || e.target.closest(".bo-close")) close(); });
+    window.addEventListener("keydown",e=>{ if(e.key==="Escape" && !el.modal.hidden) close(); });
+    el.modal.querySelector("form").addEventListener("submit",submit);
+  }
+  function after(){ if(dismissed || !o) return; el.card.querySelector(".bo-txt").textContent = unlocked() ? (o.doneUnlocked||"") : (o.doneLocked||""); el.card.hidden=false; }
+  function open(){
+    el.modal.querySelector(".bo-priv").href=conf().privacyUrl;
+    el.modal.hidden=false;
+    const u=unlocked(); el.modal.querySelector(".bo-gate").hidden=u; el.modal.querySelector(".bo-bonus").hidden=!u;
+    if(u) renderBonus(); else setTimeout(()=>{ const i=el.modal.querySelector("#bo-email"); if(i) i.focus(); },30);
+  }
+  function renderBonus(){ const b=el.modal.querySelector(".bo-bonus"); b.innerHTML=""; o.renderBonus(b,api); }
+  function close(){ if(busy) return; el.modal.hidden=true; }
+  async function submit(e){
+    e.preventDefault();
+    const f=e.target, input=f.querySelector("#bo-email"), email=input.value.trim(), err=f.querySelector(".bo-err"), choiceErr=f.querySelector(".bo-choice-err"), choice=f.querySelector('input[name="bo-news-choice"]:checked'), btn=f.querySelector(".bo-submit");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ err.textContent="Cette adresse ne semble pas valide."; input.focus(); return; }
+    err.textContent="";
+    if(!choice){ choiceErr.textContent="Choisis l'une des deux options pour continuer."; f.querySelector('input[name="bo-news-choice"]').focus(); return; }
+    choiceErr.textContent=""; btn.disabled=true; const label=btn.textContent; btn.textContent="Un instant…";
+    await send(email, choice.value==="yes");
+    session=true; try{ localStorage.setItem(KEY,"1"); }catch(_){}
+    btn.disabled=false; btn.textContent=label;
+    el.modal.querySelector(".bo-gate").hidden=true; el.modal.querySelector(".bo-bonus").hidden=false; renderBonus();
+  }
+  async function send(email,newsletter){
+    const c=conf(), body={ email, newsletter, tool:o.tool, bonus:o.bonusId, page:location.href.split("#")[0], at:new Date().toISOString() };
+    try{
+      if(c.endpoint){ await fetch(c.endpoint,{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }); return true; }
+      if(c.netlifyForm){ await fetch("/",{ method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:new URLSearchParams({ "form-name":c.netlifyForm, "bot-field":"", email, newsletter:newsletter?"oui":"non", tool:o.tool, bonus:o.bonusId, page:body.page }).toString() }); return true; }
+      console.info("[BAAM Tools] Aucune destination de leads configurée — e-mail non envoyé.", body); return false;
+    }catch(_){ return false; }
+  }
+  return { init, after, open, unlocked, api };
+})();
+
+/* Vidéo : rendu image par image d'un SVG fourni par le tool, enregistré en MP4
+   (ou WebM selon le navigateur). Le temps de l'animation suit l'horloge réelle,
+   donc la vitesse est juste quelle que soit la cadence obtenue. */
+const BaamVideo=(()=>{
+  const FORMATS=[["1080x1080","Carré 1080"],["1920x1080","Paysage 1920×1080"],["1080x1350","Portrait 1080×1350"]];
+  const BGS=[["#ffffff","blanc"],["#f1efe9","crème"],["#17150f","noir"]];
+  function mime(){ for(const m of ["video/mp4;codecs=avc1.42E01E","video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]){
+    try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }catch(_){} } return null; }
+  function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); }
+  async function record(v, svgAt, onProgress, host){
+    const m=mime(); if(!m) throw new Error("unsupported");
+    const w=v.w, h=v.h, k=Math.min(w*v.scale/v.box.w, h*v.scale/v.box.h);
+    const dw=Math.round(v.view.w*k), dh=Math.round(v.view.h*k), dx=Math.round((w-dw)/2), dy=Math.round((h-dh)/2);
+    const c=document.createElement("canvas"); c.width=w; c.height=h; if(host){ host.innerHTML=""; host.appendChild(c); host.hidden=false; }
+    const ctx=c.getContext("2d");
+    const rec=new MediaRecorder(c.captureStream(30),{ mimeType:m, videoBitsPerSecond:Math.round(Math.min(16e6,w*h*6)) });
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data && e.data.size) chunks.push(e.data); };
+    const stopped=new Promise(r=>rec.onstop=r);
+    const drawAt=async t=>{ const url=URL.createObjectURL(new Blob([svgAt(t,dw,dh)],{type:"image/svg+xml"})), img=new Image();
+      try{ await new Promise((ok,ko)=>{ img.onload=ok; img.onerror=ko; img.src=url; }); ctx.fillStyle=v.bg; ctx.fillRect(0,0,w,h); ctx.drawImage(img,dx,dy,dw,dh); }
+      finally{ URL.revokeObjectURL(url); } };
+    await drawAt(0); rec.start(250);
+    const start=performance.now();
+    for(;;){ const t=(performance.now()-start)/1000; if(t>=v.seconds) break; await drawAt(t); if(onProgress) onProgress(t/v.seconds); }
+    if(onProgress) onProgress(1); rec.stop(); await stopped;
+    return { blob:new Blob(chunks,{type:m.split(";")[0]}), ext:m.includes("mp4")?"mp4":"webm" };
+  }
+  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep,D), prepare(), fileBase(), bg }
+  // D = durée de la vidéo (s) : un moteur qui cale ses mouvements dessus boucle sans couture.
+  function panel(host, api, cfg){
+    const v={ w:1080, h:1080, bg:cfg.bg||"#ffffff", seconds:6, scale:cfg.scale||0.62 };
+    host.innerHTML=`<h2>Ta vidéo</h2><p class="bo-lead">Elle reprend exactement l'animation de l'aperçu.</p>`+
+      `<label class="bo-f">Format</label><div class="bo-chips bo-fmt"></div>`+
+      `<label class="bo-f">Fond</label><div class="bo-chips bo-bg"></div>`+
+      `<label class="bo-f">Durée</label><div class="bo-chips bo-dur"></div>`+
+      `<label class="bo-f">Taille ${cfg.subject||"du sujet"} <b class="bo-sv"></b></label><input type="range" class="bo-range" min="0.35" max="0.95" step="0.01">`+
+      `<div class="bo-host" hidden></div><div class="bo-progress" hidden><i></i></div><div class="bo-done" hidden></div>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary bo-go">Générer la vidéo</button><button type="button" class="bo-btn bo-close">Fermer</button></div>`;
+    const q=s=>host.querySelector(s);
+    const chips=(sel,items,isOn,set)=>{ const box=q(sel); box.innerHTML="";
+      items.forEach(([val,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="bo-btn"+(isOn(val)?" on":""); b.innerHTML=label; b.onclick=()=>{ set(val); draw(); }; box.appendChild(b); });
+      return box; };
+    function draw(){
+      chips(".bo-fmt",FORMATS,f=>f===`${v.w}x${v.h}`,f=>{ const p=f.split("x").map(Number); v.w=p[0]; v.h=p[1]; });
+      const bg=chips(".bo-bg",BGS.map(([c,n])=>[c,`<span style="width:12px;height:12px;border-radius:3px;border:1px solid #ccc;background:${c};display:inline-block"></span>${n}`]),c=>c===v.bg,c=>{ v.bg=c; });
+      const p=document.createElement("input"); p.type="color"; p.value=v.bg; p.title="Fond personnalisé";
+      p.style.cssText="width:34px;height:28px;padding:0;border:1px solid #ddd8cd;border-radius:6px;cursor:pointer;background:#fff";
+      p.oninput=()=>{ v.bg=p.value; }; p.onchange=draw; bg.appendChild(p);
+      chips(".bo-dur",[[4,"4 s"],[6,"6 s"],[10,"10 s"]],d=>d===v.seconds,d=>{ v.seconds=d; });
+      q(".bo-range").value=v.scale; q(".bo-sv").textContent=Math.round(v.scale*100)+" %";
+    }
+    draw();
+    q(".bo-range").addEventListener("input",e=>{ v.scale=parseFloat(e.target.value); q(".bo-sv").textContent=Math.round(v.scale*100)+" %"; });
+    q(".bo-go").onclick=async()=>{
+      const done=q(".bo-done"), go=q(".bo-go");
+      if(!mime()){ done.hidden=false; done.textContent="Ton navigateur ne sait pas enregistrer de vidéo. Essaie Chrome, Edge ou Firefox — l'export SVG reste disponible."; return; }
+      api.setBusy(true); go.disabled=true; go.textContent="Enregistrement…"; done.hidden=true;
+      const prog=q(".bo-progress"), bar=prog.querySelector("i"); prog.hidden=false; bar.style.width="0%";
+      try{
+        const prep=cfg.prepare ? await cfg.prepare() : null;
+        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep,v.seconds), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
+        download(res.blob,`${cfg.fileBase()}-baam-${v.w}x${v.h}.${res.ext}`);
+        done.hidden=false;
+        done.innerHTML=`<b>✓ Vidéo prête</b> (${res.ext.toUpperCase()}, ${v.w}×${v.h}, ${v.seconds} s).`+
+          (res.ext==="webm" ? " Ton navigateur l'a encodée en WebM : la plupart des réseaux l'acceptent, sinon un convertisseur la passe en MP4." : "")+
+          `<br>Envie d'aller plus loin ? <a href="${api.studioUrl()}" target="_blank" rel="noopener">${api.studioPitch()}</a>`;
+      }catch(_){ done.hidden=false; done.textContent="L'enregistrement a échoué — réessaie, ou utilise l'export SVG."; }
+      finally{ api.setBusy(false); go.disabled=false; go.textContent="Générer à nouveau"; }
+    };
+  }
+  return { mime, record, panel, download };
+})();
+/* ═══ fin BAAM-OPTIN v1 ═══ */
+/* ═══ BAAM-LINK v1 ═══════════════════════════════════════════════════════════
+   La passerelle entre BAAM Tools. Source canonique : shared/baam-link.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (node shared/inject.js).
+
+   Contrat de module — chaque tool se déclare :
+     BaamLink.init({
+       id: "fonds-vivants",                       // = son id de page (/baam-tools/<id>/)
+       anchor: élément sous lequel poser la rangée « Continuer avec »,
+       offers:  { palette: ()=>({ colors, base }), svg: { to:["convertisseur"], get: async ()=>({ svg, name }) } },
+       accepts: { palette: data=>{…}, svg: data=>{…} }
+     });
+   Une offre est une fonction, ou { get, to:[ids] } pour limiter les destinations proposées.
+   Un tool OFFRE un résultat ; la rangée propose les tools qui l'ACCEPTENT. Le clic
+   dépose le résultat dans le navigateur (localStorage, même domaine) et ouvre l'autre
+   tool, qui le consomme au chargement (valable 15 min, une seule fois).
+
+   Types de résultat :
+     palette — { colors:["#rrggbb", …], base:"#rrggbb" }
+     svg     — { svg:"<svg…>", name:"fichier.svg" }   (statique ou animé)
+
+   Adresses : /baam-tools/<id>/ par défaut ; en local (file://), les fichiers voisins.
+   Surcharge possible : window.BAAM_LINKS = { urls:{ "<id>":"…" } } (page ou page parente).
+═══════════════════════════════════════════════════════════════════════════════ */
+const BaamLink=(()=>{
+  const KEY="baam.tools.handoff", TTL=15*60*1000;
+  // Ce que chaque tool sait recevoir : c'est ce qui décide des destinations proposées.
+  const CATALOG={
+    "color-picker":    { label:"Color Picker",      accepts:[] },
+    "operateur-texte": { label:"Opérateur Texte",   accepts:["palette"] },
+    "animateur-logo":  { label:"Animateur de logo", accepts:["palette","svg"] },
+    "fonds-vivants":   { label:"Fonds vivants",     accepts:["palette"] },
+    "convertisseur":   { label:"Convertisseur",     accepts:["svg"] },
+    "mindmap":         { label:"Mindmap",           accepts:[] }
+  };
+  const SENT={ palette:"la palette", svg:"le visuel" };
+  const GOT={ palette:"Palette reçue", svg:"Visuel reçu" };
+  // Pourquoi aller là-bas, en quelques mots (affiché au survol).
+  const WHY={ "palette>operateur-texte":"colorer ton mot", "palette>animateur-logo":"teinter ton logo", "palette>fonds-vivants":"habiller une trame",
+    "svg>convertisseur":"en GIF, MP4, PNG, favicon…", "svg>animateur-logo":"l'animer avec un opérateur BAAM" };
+  const FILES={ "operateur-texte":"tools-src/operateur-texte/index.html" };
+  let self=null;
+
+  const conf=()=>{ let p={}; try{ if(window.parent && window.parent!==window && window.parent.BAAM_LINKS) p=window.parent.BAAM_LINKS; }catch(_){}
+    return Object.assign({ urls:{} }, p, window.BAAM_LINKS||{}); };
+  function urlOf(id){
+    const u=conf().urls||{}; if(u[id]) return u[id];
+    if(location.protocol==="file:"){ const up=/\/tools-src\//.test(location.pathname) ? "../../" : ""; return up+(FILES[id]||id+".html"); }
+    return `/baam-tools/${id}/`;
+  }
+  // Le tool peut être encadré (iframe du portail, même domaine) : on change la page entière.
+  function go(url){ try{ if(window.top!==window){ window.top.location.href=new URL(url,location.href).href; return; } }catch(_){} location.href=url; }
+
+  const CSS=`
+.bl-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:10px auto 0;max-width:760px;font-family:var(--mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);}
+.bl-row[hidden]{display:none!important;}
+.bl-k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#8a867c);margin-right:2px;}
+.bl-go{font-family:inherit;font-size:11px;letter-spacing:.03em;background:transparent;color:var(--ink,#17150f);border:1px dashed var(--line,#ddd8cd);border-radius:7px;padding:6px 10px;cursor:pointer;line-height:1.2;}
+.bl-go:hover{border-style:solid;border-color:var(--accent,#00a847);color:var(--accent,#00a847);}
+.bl-go:disabled{opacity:.45;cursor:default;}
+.bl-note{position:fixed;left:50%;top:14px;transform:translate(-50%,-8px);opacity:0;background:var(--ink,#17150f);color:#fff;border-radius:8px;padding:9px 14px;font:12px/1.3 var(--mono,ui-monospace,Menlo,Consolas,monospace);z-index:1001;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);}
+.bl-note.on{opacity:1;transform:translate(-50%,0);}
+.bl-note b{color:var(--accent-live,#00f058);}`;
+  function style(){ if(document.getElementById("bl-style")) return; const s=document.createElement("style"); s.id="bl-style"; s.textContent=CSS; document.head.appendChild(s); }
+  let noteT=null;
+  function note(html){ style(); let n=document.querySelector(".bl-note"); if(!n){ n=document.createElement("div"); n.className="bl-note"; n.setAttribute("role","status"); document.body.appendChild(n); }
+    n.innerHTML=html; requestAnimationFrame(()=>n.classList.add("on")); clearTimeout(noteT); noteT=setTimeout(()=>n.classList.remove("on"),3200); }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  // Les destinations possibles pour ce tool : [kind, id] pour chaque résultat offert.
+  const getter=o=>typeof o==="function" ? o : o.get;
+  function targets(){ const out=[]; for(const [kind,o] of Object.entries(self.offers||{})){ const only=typeof o==="object" && o.to;
+    for(const [id,t] of Object.entries(CATALOG)) if(id!==self.id && t.accepts.includes(kind) && (!only || only.includes(id))) out.push([kind,id]); } return out; }
+
+  // Deux couleurs lisibles ensemble, tirées d'une palette : la base en encre, la plus contrastée en fond
+  // (contraste WCAG) ; si rien ne contraste assez, un fond crème ou nuit selon la base.
+  function lum(hex){ const n=parseInt(hex.slice(1),16), ch=v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); };
+    return 0.2126*ch(n>>16&255)+0.7152*ch(n>>8&255)+0.0722*ch(n&255); }
+  const contrast=(a,b)=>{ const x=lum(a), y=lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); };
+  function pair(d){ const ok=c=>/^#[0-9a-f]{6}$/i.test(c||""), cs=(d.colors||[]).filter(ok).map(c=>c.toLowerCase());
+    const ink=ok(d.base)?d.base.toLowerCase():(cs[0]||"#17150f"); let paper=null, best=0;
+    for(const c of cs){ const k=contrast(ink,c); if(c!==ink && k>best){ best=k; paper=c; } }
+    if(!paper || best<3) paper=lum(ink)>0.35 ? "#17150f" : "#f1efe9";
+    return { ink, paper }; }
+
+  async function send(kind,to,btn){
+    if(btn) btn.disabled=true;
+    try{
+      const data=await getter(self.offers[kind])();
+      if(!data){ note("Rien à envoyer pour l'instant."); return; }
+      try{ localStorage.setItem(KEY,JSON.stringify({ v:1, kind, from:self.id, to, at:Date.now(), data })); }
+      catch(_){ note("Envoi impossible : ton navigateur bloque le stockage local (navigation privée ?)."); return; }
+      go(urlOf(to));
+    } catch(_){ note("L'envoi a échoué — réessaie."); }
+    finally{ if(btn) btn.disabled=false; }
+  }
+  function take(){
+    let h=null; try{ h=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(_){ return; }
+    if(!h || h.v!==1 || h.to!==self.id) return;
+    try{ localStorage.removeItem(KEY); }catch(_){}
+    if(Date.now()-h.at>TTL || !self.accepts || !self.accepts[h.kind]) return;
+    try{ self.accepts[h.kind](h.data,h); note(`${GOT[h.kind]||"Reçu"} depuis <b>${esc((CATALOG[h.from]||{}).label||h.from)}</b>`); }
+    catch(_){ note("Le contenu reçu n'a pas pu être chargé."); }
+  }
+  function row(){
+    const list=targets(); if(!list.length || !self.anchor) return;
+    style();
+    const r=document.createElement("div"); r.className="bl-row"; r.innerHTML=`<span class="bl-k">Continuer avec</span>`;
+    for(const [kind,id] of list){ const b=document.createElement("button"); b.type="button"; b.className="bl-go";
+      b.textContent=CATALOG[id].label+" →"; b.title=`Envoyer ${SENT[kind]} vers ${CATALOG[id].label}`+(WHY[kind+">"+id]?` — ${WHY[kind+">"+id]}`:"");
+      b.onclick=()=>send(kind,id,b); r.appendChild(b); }
+    self.anchor.after(r);
+  }
+  function init(o){ self=o; take(); row(); }
+  return { init, send, urlOf, pair, catalog:()=>CATALOG };
+})();
+/* ═══ fin BAAM-LINK v1 ═══ */
+const NS="http://www.w3.org/2000/svg";
+
+/* ═══ BAAM-ENGINE v1 ══════════════════════════════════════════════════════════
+   Moteur BAAM partagé par les tools animés. Source canonique : shared/baam-engine.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (node shared/inject.js) ;
+   ne pas modifier une copie : modifier la source puis relancer le script.
+   Chaîne : 4 axes macro → 10 paramètres BAAM → R = B + SPAN·(M·U) → runtime (8)
+   → image à l'instant t (frame) → filtre SVG (feTurbulence / feDisplacementMap / flou).
+   Tout est pur et déterministe, sans IA ni DOM (sauf baamApplier, qui pose une image sur le DOM).
+══════════════════════════════════════════════════════════════════════════════ */
+// Ordres vectoriels de référence (NE JAMAIS changer).
+const BAAM_ORDER=["alive","tension","flow","grain","clarity","impulse","persistence","spread","jitter","hysteresis"];
+const RT_ORDER=["noiseFrequency","noiseDetail","displacementPeak","cycleDuration","displacementFloor","temporalVariation","effectExtent","returnBias"];
+// Sensibilité de chaque param runtime : les poids matriciels [-1..1] y sont multipliés.
+const SPAN=[0.25,3,46,6,22,220,0.5,0.45];
+const MACRO_ORDER=["energy","constraint","continuity","texture"];
+const MACRO_LABEL={energy:"Énergie",constraint:"Contrainte",continuity:"Continuité",texture:"Texture"};
+// 4 axes → 10 BAAM, en déviation signée : macro à 0.5 partout ⇒ BAAM à 0.5 partout (neutralité).
+const PROJECTION={ alive:[0.7,0,0.2,0.1], tension:[0.2,0.8,0,0], flow:[0,-0.3,0.7,0], grain:[0.2,0,0,0.8], clarity:[0,0.3,0.2,-0.5],
+  impulse:[0.7,0,0,0.2], persistence:[0,0.3,0.5,0], spread:[0.4,0,0.3,0.2], jitter:[0.3,0.2,0,0.6], hysteresis:[0,0.4,0.5,0] };
+const clamp=(v,a,b)=> v<a?a : v>b?b : v, clamp01=v=>clamp(v,0,1);
+function macroToBaam(m){ const ms=MACRO_ORDER.map(k=>2*m[k]-1), b={}; for(const p of BAAM_ORDER){ const w=PROJECTION[p]; let s=0; for(let i=0;i<4;i++) s+=w[i]*ms[i]; b[p]=clamp01(0.5+0.5*s); } return b; }
+// Matrice générique 10×8 (lignes = BAAM_ORDER, colonnes = RT_ORDER), mise à l'échelle par les opérateurs doux.
+const G=[[0.05,0,0.10,0.10,0.30,0.25,0,0],[0.05,0.10,0.70,-0.20,0.05,0.10,0,0.10],[-0.10,-0.20,0,0.60,0.05,-0.10,0.10,0],[0.60,0.50,0.10,-0.10,0,0.10,0,0],
+  [-0.20,-0.40,-0.50,0.10,0,-0.20,0,-0.05],[0.05,0,0.60,-0.50,-0.10,0.30,0,0.15],[-0.05,0,0.10,0.50,0.40,-0.05,0.05,0.20],[0,0,0.10,0,0.05,0,0.90,0],[0.40,0.20,0.15,-0.30,0,0.70,0,0.10],[0,0,0.05,0.20,0.30,-0.10,0,0.85]];
+const scaleM=(m,k)=>m.map(r=>r.map(v=>v*k));
+// Matrice officielle de « fulguration » (SPECS_OPERATEUR_BAAM.md §11).
+const M_FULGURATION=[[0.20,0.10,0.10,-0.20,0,0.90,0,0.10],[0.10,0,0.95,-0.10,0.10,0.10,0,0.20],[-0.10,0,0.10,0.80,0,-0.10,0.10,0],[0.95,0.40,0.10,-0.10,0,0.20,0,0],
+  [-0.30,-0.80,-0.35,0.10,0,-0.20,0,-0.10],[0,0,0.80,-0.75,-0.20,0.20,0,0.20],[-0.10,0,0.10,0.45,0.85,0.10,0.10,0.20],[0,0,0.10,0,0,0,1,0],[0.80,0.20,0.15,-0.85,0,0.95,0,0.15],[0,0,0.10,0.10,0.30,0,0,0.95]];
+const TWO_PI=Math.PI*2;
+// Angle d'un mouvement : libre (D absent) ou calé sur une boucle de D secondes (nombre entier de tours).
+const ang=(om,t,D)=> D ? TWO_PI*Math.max(1,Math.round(om*D/TWO_PI))*t/D : om*t;
+const lt=(t,D)=> D ? ((t%D)+D)%D : t;
+// Opérateurs : base (runtime neutre) + matrice + frame(rt,t,D) → l'image à l'instant t.
+// D (secondes) cale tous les mouvements sur une boucle parfaite (vidéo) ; sans D, mouvement libre (aperçu).
+const OPERATORS={
+  souffle:{ label:"Souffle", sub:"flotte — de la brise à la tempête", base:[0.010,1,24,5.0,6,20,0.5,0.50], matrix:scaleM(G,0.8),
+    // Grandes ondes (1 octave, basse fréquence) : ça déforme sans plier ; translation et cisaillement lents : ça flotte.
+    frame(rt,t,D){ const cyc=Math.max(rt.cycleDuration,2.2), br=0.45+0.55*Math.sin(ang(TWO_PI/cyc,t,D)), A=rt.displacementPeak*0.75;
+      return { oct:1, bf:(0.006+0.012*clamp01(rt.noiseFrequency/0.1)).toFixed(4), scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*br, blur:0,
+        transform:`translate(${(A*Math.sin(ang(0.5,t,D))).toFixed(1)} ${(A*0.5*Math.sin(ang(0.37,t,D)+1.3)).toFixed(1)}) skewX(${(2.4*Math.sin(ang(0.43,t,D))).toFixed(2)})`, seed:Math.floor(lt(t,D)*0.9) }; } },
+  mirage:{ label:"Mirage", sub:"la matière se brouille, des ondes la déforment", base:[0.050,2,30,2.4,10,170,0.6,0.50], matrix:scaleM(G,1.0),
+    // Déformation interne : des ondes qui dérivent gonflent la matière, un flou respirant la brouille.
+    frame(rt,t,D){ const b=rt.noiseFrequency;
+      return { oct:Math.max(2,rt.noiseDetail), bf:`${(b*(1.1+0.25*Math.sin(ang(0.5,t,D)))).toFixed(4)} ${(b*(0.8+0.25*Math.cos(ang(0.4,t,D)))).toFixed(4)}`,
+        scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*(0.55+0.45*Math.sin(ang(1.3,t,D))), blur:0.6+1.4*(0.5+0.5*Math.sin(ang(1.1,t,D))), transform:null,
+        seed:Math.floor(lt(t,D)*rt.temporalVariation*0.0137) }; } },
+  fulguration:{ label:"Fulguration", sub:"matière fulgurée, puis détente", base:[0.08,4,48,1.2,1,150,0.6,0.22], matrix:M_FULGURATION,
+    // Calme, frappe sèche (8 % du cycle) avec crépitement, puis détente exponentielle (returnBias règle le relâchement).
+    frame(rt,t,D){ let cyc=Math.max(rt.cycleDuration,0.6); if(D) cyc=D/Math.max(1,Math.round(D/cyc));
+      const ph=(lt(t,D)%cyc)/cyc, spike=0.08; let env; if(ph<spike) env=ph/spike; else { const k=3+(1-rt.returnBias)*7; env=Math.exp(-((ph-spike)/(1-spike))*k); }
+      const j=rt.displacementPeak*0.12;
+      return { oct:Math.min(6,rt.noiseDetail+(env>0.4?2:0)), bf:(rt.noiseFrequency*(1+3.5*env)).toFixed(4), scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*env, blur:0,
+        transform: env>0.6 ? `translate(${((Math.random()-0.5)*j).toFixed(1)} ${((Math.random()-0.5)*j).toFixed(1)})` : null, seed:Math.floor(lt(t,D)*rt.temporalVariation*0.012) }; } }
+};
+// Bornes runtime (SPECS §8.2).
+function clampRuntime(raw){ const r={ noiseFrequency:clamp(raw[0],0.001,1.2), noiseDetail:Math.round(clamp(raw[1],1,6)), displacementPeak:clamp(raw[2],0,80),
+  cycleDuration:clamp(raw[3],0.2,20), displacementFloor:clamp(raw[4],0,40), temporalVariation:clamp(raw[5],0,500), effectExtent:clamp(raw[6],0,1), returnBias:clamp(raw[7],0,1) };
+  if(r.displacementFloor>r.displacementPeak) r.displacementFloor=r.displacementPeak; return r; }
+// R = B + SPAN·(M × U_signed), U = les 10 BAAM recentrés en [-1..1].
+function resolveRuntime(op,baam){ const U=BAAM_ORDER.map(k=>2*baam[k]-1), out=op.base.slice();
+  for(let c=0;c<RT_ORDER.length;c++){ let d=0; for(let r=0;r<U.length;r++) d+=op.matrix[r][c]*U[r]; out[c]+=SPAN[c]*d; } return clampRuntime(out); }
+// Marge de la région du filtre (en %), selon effectExtent.
+const baamPad=R=>Math.round(25+R.effectExtent*75);
+// Une image figée : les primitives du filtre pour l'image p = frame(rt,t,D). src = entrée du déplacement.
+function baamFilterPrims(p,src){
+  return `<feTurbulence type="fractalNoise" baseFrequency="${p.bf}" numOctaves="${p.oct}" seed="${p.seed}" result="noise"/>`+
+    `<feDisplacementMap in="${src||"SourceGraphic"}" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${p.scale.toFixed(2)}" result="dsp"/>`+
+    (p.blur>0?`<feGaussianBlur in="dsp" stdDeviation="${p.blur.toFixed(2)}"/>`:"");
+}
+// Durée de boucle naturelle de chaque opérateur (s) : sert quand un visuel doit boucler sans couture.
+const BAAM_LOOP={ souffle:12, mirage:6, fulguration:6 };
+// Le même opérateur joué par le navigateur, sans script (SMIL) : durées calées sur l'aperçu vivant.
+// Avec D (s), chaque durée devient un diviseur exact de D, au centième près : l'animation entière
+// boucle en D secondes (c'est ce que le convertisseur détecte pour un GIF ou des sprites sans saut).
+// → { prims : primitives du filtre, move : animations à placer dans le groupe qui porte le sujet }.
+function baamSmil(opId,R,src,D){
+  const f=n=>Number(n).toFixed(2), lo=f(R.displacementFloor), hi=f(R.displacementPeak), seedMax=Math.max(1,Math.round(R.temporalVariation/12));
+  const C=D?Math.round(D*100):0;
+  const dur=d=>{ if(!C) return f(d); const want=Math.max(1,Math.round(D/d)); let n=1;
+    for(let k=1;k<=C;k++) if(C%k===0 && Math.abs(k-want)<Math.abs(n-want)) n=k; return f(C/n/100); };
+  let turbAttrs, turbKids="", dispAnim, blurEl="", move="";
+  if(opId==="souffle"){
+    const cyc=dur(Math.max(R.cycleDuration,2.2)), A=f(R.displacementPeak*0.75), Ah=f(R.displacementPeak*0.375);
+    turbAttrs=`baseFrequency="${(0.006+0.012*clamp01(R.noiseFrequency/0.1)).toFixed(4)}" numOctaves="1" seed="1"`;
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
+    move=`<animateTransform attributeName="transform" type="translate" additive="sum" values="-${A} -${Ah};${A} ${Ah};-${A} -${Ah}" dur="${dur(12.6)}s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`+
+      `<animateTransform attributeName="transform" type="skewX" additive="sum" values="-2.4;2.4;-2.4" dur="${dur(14.6)}s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`;
+  } else if(opId==="mirage"){
+    turbAttrs=`baseFrequency="${(R.noiseFrequency*1.1).toFixed(4)} ${(R.noiseFrequency*0.8).toFixed(4)}" numOctaves="${Math.max(2,R.noiseDetail)}" seed="1"`;
+    turbKids=R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${dur(Math.max(R.cycleDuration,1))}s" repeatCount="indefinite"/>`:"";
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${dur(4.8)}s" repeatCount="indefinite"/>`;
+    blurEl=`<feGaussianBlur in="dsp" stdDeviation="0.6"><animate attributeName="stdDeviation" values="0.6;2;0.6" dur="${dur(5.7)}s" repeatCount="indefinite"/></feGaussianBlur>`;
+  } else {
+    const bf=R.noiseFrequency.toFixed(4), bfHi=(R.noiseFrequency*4).toFixed(4), cyc=dur(Math.max(R.cycleDuration,0.6)), oct=Math.min(6,R.noiseDetail+1);
+    turbAttrs=`baseFrequency="${bf}" numOctaves="${oct}" seed="1"`;
+    turbKids=`<animate attributeName="baseFrequency" values="${bf};${bfHi};${bf}" keyTimes="0;0.08;1" dur="${cyc}s" repeatCount="indefinite"/>`+(R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${cyc}s" repeatCount="indefinite"/>`:"");
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" keyTimes="0;0.08;1" dur="${cyc}s" calcMode="spline" keySplines="0.2 0 0 1;0.5 0 0.9 1" repeatCount="indefinite"/>`;
+  }
+  const prims=`<feTurbulence type="fractalNoise" ${turbAttrs} result="noise">${turbKids}</feTurbulence>`+
+    `<feDisplacementMap in="${src||"SourceGraphic"}" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${lo}"${blurEl?' result="dsp"':""}>${dispAnim}</feDisplacementMap>${blurEl}`;
+  return { prims, move };
+}
+// Pose une image sur le filtre vivant de l'aperçu. els = { turb, disp, blur, move } (move porte la transformation).
+function baamApplier(els){
+  let lastSeed=-1;
+  return p=>{
+    els.turb.setAttribute("numOctaves",p.oct); els.turb.setAttribute("baseFrequency",p.bf);
+    els.disp.setAttribute("scale",p.scale.toFixed(2)); els.blur.setAttribute("stdDeviation",p.blur.toFixed(2));
+    if(p.transform) els.move.setAttribute("transform",p.transform); else els.move.removeAttribute("transform");
+    if(p.seed!==lastSeed){ els.turb.setAttribute("seed",p.seed); lastSeed=p.seed; }
+  };
+}
+/* ═══ fin BAAM-ENGINE v1 ═══ */
+// Les opérateurs proposés ici : le moteur commun, précédé de « Aucun » (la trame seule, immobile).
+const OPS={ none:{ label:"Aucun", sub:"la trame, immobile" }, ...OPERATORS };
+
+/* ── Trames : géométrie SVG sur une zone élargie (la déformation ne découvre jamais de bord vide) ── */
+const PATTERNS=[
+  {id:"grid",label:"Grille",mode:"stroke"}, {id:"dots",label:"Points",mode:"fill"}, {id:"checker",label:"Damier",mode:"fill",noWeight:true},
+  {id:"rings",label:"Radiale",mode:"stroke"}, {id:"rays",label:"Rayons",mode:"stroke"}, {id:"lines",label:"Lignes",mode:"stroke"},
+  {id:"diamonds",label:"Losanges",mode:"stroke"}, {id:"triangles",label:"Triangles",mode:"stroke"}, {id:"hex",label:"Hexagones",mode:"stroke"}, {id:"waves",label:"Ondes",mode:"stroke"}
+];
+const ASPECTS=[["16:9",16/9],["1:1",1],["4:5",4/5],["9:16",9/16],["4:1",4]];
+const PRESETS=[["encre / crème","#17150f","#f1efe9"],["vert BAAM / nuit","#00f058","#0b0b0a"],["crème / encre","#f1efe9","#17150f"],["bleu / marine","#8ab4ff","#0d1b3d"],["corail / rosé","#e2342d","#fff4ef"],["sable / lin","#b08d57","#f6efe2"]];
+const VW=1600, viewH=a=>Math.round(VW/a);
+const marginOf=(w,h)=>Math.round(Math.max(w,h)*0.12+60);
+const cellOf=(dens,pid)=>{ const s=140*Math.pow(12/140,dens), min={dots:12,hex:30,waves:14,checker:10}; return Math.max(min[pid]||10,s); };
+const f1=n=>Math.round(n*10)/10;
+function geometry(pid,dens,weight,W,H){
+  const s=cellOf(dens,pid), M=marginOf(W,H), x0=-M, y0=-M, x1=W+M, y1=H+M, cx=W/2, cy=H/2, R=Math.hypot(W,H)/2+M, d=[];
+  const sw=Math.max(0.6,s*(0.02+weight*0.28));
+  const snap=v=>Math.floor(v/s)*s;
+  if(pid==="grid"||pid==="lines"){ for(let y=snap(y0);y<=y1;y+=s) d.push(`M${x0} ${f1(y)}H${x1}`); if(pid==="grid") for(let x=snap(x0);x<=x1;x+=s) d.push(`M${f1(x)} ${y0}V${y1}`); }
+  // Points et damier : une seule tuile répétée (<pattern>), légère quelle que soit la densité.
+  else if(pid==="dots"){ const r=f1(s*(0.06+weight*0.38)); return { kind:"pattern", tw:f1(s), th:f1(s), tile:`<circle cx="${f1(s/2)}" cy="${f1(s/2)}" r="${r}" fill="${state.ink}"/>`, mode:"fill", s, M }; }
+  else if(pid==="checker"){ return { kind:"pattern", tw:f1(2*s), th:f1(2*s), tile:`<rect width="${f1(s)}" height="${f1(s)}" fill="${state.ink}"/><rect x="${f1(s)}" y="${f1(s)}" width="${f1(s)}" height="${f1(s)}" fill="${state.ink}"/>`, mode:"fill", s, M }; }
+  else if(pid==="rings"){ for(let r=s;r<=R;r+=s) d.push(`M${f1(cx-r)} ${f1(cy)}a${f1(r)} ${f1(r)} 0 1 0 ${f1(2*r)} 0a${f1(r)} ${f1(r)} 0 1 0 ${f1(-2*r)} 0`); }
+  else if(pid==="rays"){ const n=clamp(Math.round(TWO_PI*(Math.min(W,H)/2)/(s*1.6)),12,240); for(let i=0;i<n;i++){ const a=i*TWO_PI/n; d.push(`M${f1(cx+Math.cos(a)*s*0.6)} ${f1(cy+Math.sin(a)*s*0.6)}L${f1(cx+Math.cos(a)*R)} ${f1(cy+Math.sin(a)*R)}`); } }
+  else if(pid==="diamonds"||pid==="triangles"){ const L=(x1-x0)+(y1-y0), fam=pid==="diamonds"?[45,135]:[0,60,120];
+    for(const deg of fam){ const a=deg*Math.PI/180, ux=Math.cos(a), uy=Math.sin(a), nx=-uy, ny=ux, step=pid==="diamonds"?s/Math.SQRT2*1.4:s*Math.sqrt(3)/2, span=Math.hypot(x1-x0,y1-y0);
+      for(let k=-span;k<=span;k+=step){ const px=cx+nx*k, py=cy+ny*k; d.push(`M${f1(px-ux*L)} ${f1(py-uy*L)}L${f1(px+ux*L)} ${f1(py+uy*L)}`); } } }
+  else if(pid==="hex"){ const r=s/2, w=Math.sqrt(3)*r, c=f1(w/2), h=f1(r/2), rr=f1(r);
+    // Tracé relatif : chaque hexagone = la même courte séquence, deux fois plus compacte qu'en absolu.
+    const cell=`v${rr}l-${c} ${h}l-${c} -${h}v-${rr}l${c} -${h}z`;
+    for(let row=0,y=y0;y<=y1+r;row++,y+=1.5*r){ for(let x=x0+((row%2)?w/2:0);x<=x1+w;x+=w) d.push(`M${f1(x+w/2)} ${f1(y-r/2)}${cell}`); } }
+  else if(pid==="waves"){ const a=s*0.32, lam=s*3; for(let y=snap(y0);y<=y1;y+=s){ let p=`M${x0} ${f1(y)}Q${f1(x0+lam/4)} ${f1(y-2*a)} ${f1(x0+lam/2)} ${f1(y)}`; for(let x=x0+lam;x<=x1+lam;x+=lam/2) p+=`T${f1(x)} ${f1(y)}`; d.push(p); } }
+  return { kind:"path", d:d.join(""), mode:(PATTERNS.find(p=>p.id===pid)||{}).mode||"stroke", sw:f1(sw), s, M };
+}
+// Le motif en SVG : un tracé, ou une tuile répétée qui remplit la zone élargie.
+function motifMarkup(g,W,H){
+  if(g.kind==="pattern") return `<pattern id="bfv-p" patternUnits="userSpaceOnUse" width="${g.tw}" height="${g.th}">${g.tile}</pattern><rect x="${-g.M}" y="${-g.M}" width="${W+2*g.M}" height="${H+2*g.M}" fill="url(#bfv-p)"/>`;
+  return `<path d="${g.d}" ${motifAttrs(g)}/>`;
+}
+
+/* ── État ── */
+const state={ pat:"grid", dens:0.45, weight:0.18, ink:"#17150f", paper:"#f1efe9", transparent:false, aspect:"16:9", op:"souffle",
+  macro:{energy:0.5,constraint:0.5,continuity:0.5,texture:0.5}, expert:false, manual:null };
+let RT=null, geo=null;
+const svg=$("#svg"), turb=$("#turb"), disp=$("#disp"), blur=$("#blur"), filt=$("#bfv-f"), wrapG=$("#wrap"), moveG=$("#move"), motifG=$("#motifG"), bgRect=$("#bgRect");
+const aspectVal=()=>(ASPECTS.find(a=>a[0]===state.aspect)||ASPECTS[0])[1];
+const VH=()=>viewH(aspectVal());
+const motifAttrs=g=> g.mode==="fill" ? `fill="${state.ink}" stroke="none"` : `fill="none" stroke="${state.ink}" stroke-width="${g.sw}" stroke-linecap="round" stroke-linejoin="round"`;
+
+/* ── Application ── */
+function apply(){
+  const H=VH();
+  geo=geometry(state.pat,state.dens,state.weight,VW,H);
+  svg.setAttribute("viewBox",`0 0 ${VW} ${H}`); fitStage();
+  motifG.innerHTML=motifMarkup(geo,VW,H);
+  bgRect.setAttribute("fill",state.transparent?"none":state.paper);
+  filt.setAttribute("x",-geo.M); filt.setAttribute("y",-geo.M); filt.setAttribute("width",VW+2*geo.M); filt.setAttribute("height",H+2*geo.M);
+  const baam=(state.expert && state.manual) ? state.manual : macroToBaam(state.macro);
+  renderBaam(baam);
+  if(state.op==="none"){ RT=null; wrapG.removeAttribute("filter"); moveG.removeAttribute("transform"); }
+  else { RT=resolveRuntime(OPERATORS[state.op],baam); wrapG.setAttribute("filter","url(#bfv-f)"); }
+  $("#macro").classList.toggle("locked", state.expert || state.op==="none");
+  scheduleHash();
+}
+// L'aperçu tient dans son cadre en gardant exactement le rapport du format choisi.
+function fitStage(){
+  const wrap=document.querySelector(".stage-wrap"), pad=24, cw=Math.max(40,wrap.clientWidth-pad), ch=Math.max(40,wrap.clientHeight-pad), a=VW/VH();
+  const w=cw/ch>a ? ch*a : cw, h=w/a; const st=$("#stage").style; st.width=Math.round(w)+"px"; st.height=Math.round(h)+"px";
+}
+window.addEventListener("resize",fitStage);
+const applyFrame=baamApplier({ turb, disp, blur, move:moveG });
+const t0=performance.now(); let liveT=0;
+function loop(now){ liveT=(now-t0)/1000; if(RT) applyFrame(OPERATORS[state.op].frame(RT,liveT,null)); requestAnimationFrame(loop); }
+
+/* ── Rendu d'une image (export PNG, pack, vidéo) — même calcul que l'aperçu ── */
+function frameSVG(W,H,t,D,outW,outH){
+  const g=geometry(state.pat,state.dens,state.weight,W,H), bg=state.transparent?"":`<rect width="100%" height="100%" fill="${state.paper}"/>`;
+  const path=motifMarkup(g,W,H);
+  if(state.op==="none" || !RT) return `<svg xmlns="${NS}" viewBox="0 0 ${W} ${H}" width="${outW}" height="${outH}" preserveAspectRatio="xMidYMid slice">${bg}${path}</svg>`;
+  const p=OPERATORS[state.op].frame(RT,t,D);
+  return `<svg xmlns="${NS}" viewBox="0 0 ${W} ${H}" width="${outW}" height="${outH}" preserveAspectRatio="xMidYMid slice"><defs><filter id="bfv-f" filterUnits="userSpaceOnUse" x="${-g.M}" y="${-g.M}" width="${W+2*g.M}" height="${H+2*g.M}" color-interpolation-filters="sRGB">`+
+    baamFilterPrims(p)+`</filter></defs>${bg}<g filter="url(#bfv-f)"><g${p.transform?` transform="${p.transform}"`:""}>${path}</g></g></svg>`;
+}
+async function renderCanvas(W,H,outW,outH,t){
+  const url=URL.createObjectURL(new Blob([frameSVG(W,H,t,null,outW,outH)],{type:"image/svg+xml"})), img=new Image();
+  try{ await new Promise((ok,ko)=>{ img.onload=ok; img.onerror=()=>ko(new Error("render")); img.src=url; }); }
+  finally{ setTimeout(()=>URL.revokeObjectURL(url),0); }
+  const c=document.createElement("canvas"); c.width=outW; c.height=outH; c.getContext("2d").drawImage(img,0,0,outW,outH); return c;
+}
+
+/* ── Export gratuit : SVG animé autonome (SMIL) ── */
+// D (s) : boucle calée (voir baamSmil) — pour un visuel que le convertisseur passera en GIF sans saut.
+function buildAnimatedSVG(D){
+  const H=VH(), g=geo, bg=state.transparent?"":`<rect width="100%" height="100%" fill="${state.paper}"/>`, path=motifMarkup(g,VW,H);
+  if(state.op==="none" || !RT) return `<svg xmlns="${NS}" viewBox="0 0 ${VW} ${H}" width="${VW}" height="${H}" preserveAspectRatio="xMidYMid slice">${bg}${path}</svg>`;
+  const s=baamSmil(state.op,RT,null,D);
+  return `<svg xmlns="${NS}" viewBox="0 0 ${VW} ${H}" width="${VW}" height="${H}" preserveAspectRatio="xMidYMid slice"><defs><filter id="bfv-f" filterUnits="userSpaceOnUse" x="${-g.M}" y="${-g.M}" width="${VW+2*g.M}" height="${H+2*g.M}" color-interpolation-filters="sRGB">`+
+    `${s.prims}</filter></defs>${bg}<g filter="url(#bfv-f)"><g>${path}${s.move}</g></g></svg>`;
+}
+const fileBase=()=>`fond-${state.pat}-${state.op}`;
+function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); }
+const kb=b=>b>=1048576?(b/1048576).toFixed(1).replace(".",",")+" Mo":Math.max(1,Math.round(b/1024))+" Ko";
+$("#exportSvg").onclick=()=>{ const s=buildAnimatedSVG(); download(new Blob([s],{type:"image/svg+xml"}),`${fileBase()}.svg`); toast(`SVG animé exporté — <b>${kb(s.length)}</b>`); BaamOptin.after(); };
+$("#exportPng").onclick=async()=>{
+  const H=VH(), long=1920, outW=VW>=H?long:Math.round(long*VW/H), outH=VW>=H?Math.round(long*H/VW):long;
+  try{ const c=await renderCanvas(VW,H,outW,outH,liveT); c.toBlob(b=>{ download(b,`${fileBase()}-${outW}x${outH}.png`); toast(`PNG exporté — <b>${outW} × ${outH}</b>`); BaamOptin.after(); },"image/png"); }
+  catch(_){ toast("Export PNG impossible dans ce navigateur."); }
+};
+$("#copyCss").onclick=async()=>{
+  const s=buildAnimatedSVG(), uri="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s).replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29");
+  const css=`/* BAAM · Fond vivant — ${state.pat}, ${OPS[state.op].label} */\n.fond-baam{\n  background-color:${state.transparent?"transparent":state.paper};\n  background-image:url("${uri}");\n  background-size:cover;\n  background-position:center;\n}\n`;
+  try{ await navigator.clipboard.writeText(css); toast(`CSS copié — <b>${kb(css.length)}</b>${css.length>300000?" · gros fichier : baisse la densité":""}`); }
+  catch(_){ toast("Copie impossible — exporte le SVG à la place."); }
+  BaamOptin.after();
+};
+
+/* ── Bonus : vidéo en boucle parfaite + pack fonds d'écran ── */
+const CRC=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+const crc32=b=>{ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c=CRC[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+function zipBlob(files){
+  const enc=new TextEncoder(), parts=[], central=[], now=new Date();
+  const dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate(), tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+  let off=0;
+  for(const f of files){ const name=enc.encode(f.name), data=f.data, crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30)); lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(10,tm,true); lh.setUint16(12,dt,true);
+    lh.setUint32(14,crc,true); lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true); lh.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(lh.buffer),name,data);
+    const ch=new DataView(new ArrayBuffer(46)); ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(12,tm,true); ch.setUint16(14,dt,true);
+    ch.setUint32(16,crc,true); ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true); ch.setUint16(28,name.length,true); ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),name); off+=30+name.length+data.length; }
+  const cd=central.reduce((s,a)=>s+a.length,0), end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true); end.setUint32(12,cd,true); end.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:"application/zip"});
+}
+const WALLPAPERS=[["bureau-4k",3840,2160,"Bureau 4K"],["visio",1920,1080,"Fond de visio"],["mobile",1170,2532,"Mobile"],["story",1080,1920,"Story"],["linkedin",1584,396,"Bannière LinkedIn"],["carre",2048,2048,"Carré"]];
+async function wallpaperPack(onP){
+  const files=[], t=liveT;
+  for(let i=0;i<WALLPAPERS.length;i++){ const [id,w,h]=WALLPAPERS[i], H=Math.round(VW*h/w);
+    const c=await renderCanvas(VW,H,w,h,t); const b=await new Promise(ok=>c.toBlob(ok,"image/png"));
+    files.push({ name:`${fileBase()}-${id}-${w}x${h}.png`, data:new Uint8Array(await b.arrayBuffer()) }); if(onP) onP((i+1)/WALLPAPERS.length); }
+  return zipBlob(files);
+}
+
+BaamOptin.init({
+  tool:"fonds-vivants", bonusId:"video-wallpapers", anchor:document.querySelector(".actions"),
+  okLabel:"Fond exporté.",
+  doneLocked:"Il est autonome : pose-le sur un site, une slide, un mail. En bonus : sa vidéo en boucle parfaite et le pack de fonds d'écran.",
+  doneUnlocked:"Tes bonus sont débloqués sur cet appareil — vidéo en boucle parfaite et pack de fonds d'écran.",
+  getLabel:"Obtenir la vidéo et les fonds d'écran",
+  bonusTitle:"Vidéo en boucle + fonds d'écran",
+  bonusPitch:"Ton fond vivant en vidéo qui boucle sans couture — pour une visio, un écran, un site — et en fonds d'écran prêts pour ton bureau, ton mobile et LinkedIn.",
+  unlockLabel:"Débloquer les bonus",
+  studio:{ url:"https://studio.baam.pro/", line:"Une identité visuelle vivante, sur-mesure ?", label:"Aller plus loin avec BAAM Studio ↗", cardLabel:"Identité vivante — BAAM Studio ↗", pitch:"BAAM Studio anime des identités entières ↗" },
+  renderBonus:(host,api)=>{
+    const v={ res:1080, seconds:10 };
+    host.innerHTML=`<h2>Tes bonus</h2><p class="bo-lead">Générés dans ton navigateur, avec exactement la trame et l'opérateur de l'aperçu.</p>`+
+      `<label class="bo-f">Vidéo en boucle parfaite — format ${state.aspect}</label>`+
+      `<div class="bo-chips vid-res"></div><div class="bo-chips vid-dur" style="margin-top:8px"></div>`+
+      `<p class="bo-note vid-note"></p>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary vid-go">Générer la vidéo</button></div>`+
+      `<label class="bo-f">Pack fonds d'écran — ${WALLPAPERS.map(w=>w[3]).join(", ")}</label>`+
+      `<div class="bo-row" style="margin-top:0"><button type="button" class="bo-btn wp-go">Télécharger le pack (.zip)</button></div>`+
+      `<div class="bo-host" hidden></div><div class="bo-progress" hidden><i></i></div><div class="bo-done" hidden></div>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-close">Fermer</button></div>`;
+    const q=s=>host.querySelector(s), done=q(".bo-done"), prog=q(".bo-progress"), bar=prog.querySelector("i");
+    const dimsFor=res=>{ const a=aspectVal(); let w,h; if(a>=1){ h=res; w=Math.round(res*a); } else { w=res; h=Math.round(res/a); } return { w:w+w%2, h:h+h%2 }; };
+    const draw=()=>{
+      const rb=q(".vid-res"); rb.innerHTML='<span style="font-size:11px;color:#8a867c">Définition</span>';
+      [[1080,"1080p"],[1440,"1440p"],[2160,"4K"]].forEach(([r,l])=>{ const b=document.createElement("button"); b.type="button"; b.className="bo-btn"+(v.res===r?" on":""); b.textContent=l; b.onclick=()=>{ v.res=r; draw(); }; rb.appendChild(b); });
+      const db=q(".vid-dur"); db.innerHTML='<span style="font-size:11px;color:#8a867c">Boucle</span>';
+      [6,10,20].forEach(s=>{ const b=document.createElement("button"); b.type="button"; b.className="bo-btn"+(v.seconds===s?" on":""); b.textContent=s+" s"; b.onclick=()=>{ v.seconds=s; draw(); }; db.appendChild(b); });
+      const d=dimsFor(v.res);
+      q(".vid-note").textContent=`${d.w} × ${d.h} · ${v.seconds} s en boucle sans couture · l'enregistrement se fait en temps réel`+(v.res===2160?" · la 4K demande une machine puissante, sinon la vidéo peut saccader":"")+(state.op==="none"?" · choisis un opérateur pour animer le fond":"");
+      q(".vid-go").disabled=state.op==="none";
+    };
+    draw();
+    q(".vid-go").onclick=async()=>{
+      if(!BaamVideo.mime()){ done.hidden=false; done.textContent="Ton navigateur ne sait pas enregistrer de vidéo. Essaie Chrome, Edge ou Firefox."; return; }
+      api.setBusy(true); q(".vid-go").disabled=true; q(".wp-go").disabled=true; done.hidden=true; prog.hidden=false; bar.style.width="0%";
+      const d=dimsFor(v.res), H=VH(), D=v.seconds;
+      try{
+        const res=await BaamVideo.record({ w:d.w, h:d.h, bg:state.transparent?"#000000":state.paper, seconds:D, scale:1, view:{w:VW,h:H}, box:{w:VW,h:H} },
+          (t,dw,dh)=>frameSVG(VW,H,t,D,dw,dh), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
+        download(res.blob,`${fileBase()}-${d.w}x${d.h}-boucle-${D}s.${res.ext}`);
+        done.hidden=false; done.innerHTML=`<b>✓ Vidéo prête</b> (${res.ext.toUpperCase()}, ${d.w}×${d.h}, ${D} s). Mets-la en lecture en boucle : la jonction est invisible.`+(res.ext==="webm"?" Encodée en WebM par ton navigateur.":"")+`<br>Envie d'aller plus loin ? <a href="https://studio.baam.pro/" target="_blank" rel="noopener">BAAM Studio anime des identités entières ↗</a>`;
+      }catch(_){ done.hidden=false; done.textContent="L'enregistrement a échoué — réessaie, ou baisse la définition."; }
+      finally{ api.setBusy(false); q(".vid-go").disabled=state.op==="none"; q(".wp-go").disabled=false; prog.hidden=true; }
+    };
+    q(".wp-go").onclick=async()=>{
+      api.setBusy(true); q(".wp-go").disabled=true; q(".vid-go").disabled=true; done.hidden=true; prog.hidden=false; bar.style.width="0%";
+      try{ download(await wallpaperPack(p=>{ bar.style.width=Math.round(p*100)+"%"; }),`${fileBase()}-fonds-ecran.zip`); done.hidden=false; done.innerHTML=`<b>✓ Pack prêt</b> — ${WALLPAPERS.length} fonds d'écran, l'instant présent de ton fond vivant.`; }
+      catch(_){ done.hidden=false; done.textContent="La génération a échoué — réessaie."; }
+      finally{ api.setBusy(false); q(".wp-go").disabled=false; q(".vid-go").disabled=state.op==="none"; prog.hidden=true; }
+    };
+  }
+});
+$("#bonusBtn").onclick=()=>BaamOptin.open();
+
+/* ── Interface ── */
+function chips(host,items,isOn,onPick){ const h=$(host); h.innerHTML=""; items.forEach(([val,label,title])=>{ const b=document.createElement("button"); b.innerHTML=label; b.className=isOn(val)?"on":""; if(title) b.title=title; b.onclick=()=>onPick(val); h.appendChild(b); }); }
+function buildUI(){
+  chips("#patterns",PATTERNS.map(p=>[p.id,p.label]),v=>v===state.pat,v=>{ state.pat=v; buildUI(); apply(); });
+  chips("#aspects",ASPECTS.map(a=>[a[0],a[0]]),v=>v===state.aspect,v=>{ state.aspect=v; buildUI(); apply(); });
+  const h=$("#presets"); h.innerHTML="";
+  PRESETS.forEach(([n,ink,paper])=>{ const b=document.createElement("button"); b.className="preset"+(state.ink===ink && state.paper===paper && !state.transparent?" on":""); b.title=n;
+    b.innerHTML=`<i style="background:linear-gradient(135deg,${paper} 50%,${ink} 50%)"></i>${n}`; b.onclick=()=>{ state.ink=ink; state.paper=paper; state.transparent=false; buildUI(); apply(); }; h.appendChild(b); });
+  $("#ink").value=state.ink; $("#paper").value=state.paper; $("#transp").className=state.transparent?"on":"";
+  $("#dens").value=state.dens; $("#weight").value=state.weight;
+  $("#densV").textContent=Math.round(state.dens*100)+" %"; $("#weightV").textContent=Math.round(state.weight*100)+" %";
+  $("#weightBox").style.opacity=(PATTERNS.find(p=>p.id===state.pat)||{}).noWeight?0.35:1;
+  const oh=$("#ops"); oh.innerHTML="";
+  Object.keys(OPS).forEach(id=>{ const b=document.createElement("button"); b.className="op"+(id===state.op?" on":""); b.innerHTML=OPS[id].label+'<span class="op-sub">'+OPS[id].sub+'</span>'; b.onclick=()=>{ state.op=id; buildUI(); apply(); }; oh.appendChild(b); });
+  buildMacro(); buildAdvTools();
+}
+function buildMacro(){ const h=$("#macro"); h.innerHTML="";
+  for(const k of MACRO_ORDER){ const w=document.createElement("div"); w.className="axis";
+    w.innerHTML=`<label>${MACRO_LABEL[k]} <b id="v_${k}">${state.macro[k].toFixed(2)}</b></label><input type="range" min="0" max="1" step="0.01" value="${state.macro[k]}">`;
+    h.appendChild(w); w.querySelector("input").addEventListener("input",e=>{ state.macro[k]=parseFloat(e.target.value); $("#v_"+k).textContent=state.macro[k].toFixed(2); apply(); }); } }
+function renderBaam(baam){ const h=$("#baamGrid"); h.innerHTML="";
+  for(const k of BAAM_ORDER){ const d=document.createElement("div"); d.className="baam"; const v=baam[k];
+    if(state.expert){ d.innerHTML=`<span class="bk">${k}</span><span class="bv" id="bv_${k}">${v.toFixed(2)}</span><input type="range" min="0" max="1" step="0.01" value="${v}">`;
+      h.appendChild(d); d.querySelector("input").addEventListener("input",e=>{ state.manual[k]=parseFloat(e.target.value); $("#bv_"+k).textContent=state.manual[k].toFixed(2); apply(); }); }
+    else { d.innerHTML=`<span class="bk">${k}</span><span class="bv">${v.toFixed(2)}</span><div class="bar"><i style="width:${(v*100).toFixed(0)}%"></i></div>`; h.appendChild(d); } } }
+function buildAdvTools(){ const h=$("#advTools"); h.innerHTML="";
+  const t=document.createElement("button"); t.className=state.expert?"on":""; t.textContent=state.expert?"✦ contrôle des 10 — actif":"✦ prendre le contrôle des 10";
+  t.onclick=()=>{ state.expert=!state.expert; if(state.expert && !state.manual) state.manual=macroToBaam(state.macro); buildAdvTools(); apply(); }; h.appendChild(t);
+  if(state.expert){ const a=document.createElement("button"); a.textContent="⟲ depuis les axes"; a.onclick=()=>{ state.manual=macroToBaam(state.macro); apply(); }; h.appendChild(a);
+    const n=document.createElement("button"); n.textContent="tout à 0.5"; n.title="Pour isoler un paramètre : tout à 0.5 puis pousse-en un seul"; n.onclick=()=>{ BAAM_ORDER.forEach(k=>state.manual[k]=0.5); apply(); }; h.appendChild(n); } }
+$("#dens").addEventListener("input",e=>{ state.dens=+e.target.value; $("#densV").textContent=Math.round(state.dens*100)+" %"; apply(); });
+$("#weight").addEventListener("input",e=>{ state.weight=+e.target.value; $("#weightV").textContent=Math.round(state.weight*100)+" %"; apply(); });
+$("#ink").addEventListener("input",e=>{ state.ink=e.target.value; apply(); }); $("#ink").addEventListener("change",buildUI);
+$("#paper").addEventListener("input",e=>{ state.paper=e.target.value; state.transparent=false; apply(); }); $("#paper").addEventListener("change",buildUI);
+$("#transp").onclick=()=>{ state.transparent=!state.transparent; buildUI(); apply(); };
+$("#reset").onclick=()=>{ MACRO_ORDER.forEach(k=>state.macro[k]=0.5); state.expert=false; state.manual=null; buildUI(); apply(); };
+
+/* ── Partage par lien ── */
+let hashT=null; function scheduleHash(){ clearTimeout(hashT); hashT=setTimeout(writeHash,250); }
+function writeHash(){ const p={ p:state.pat, d:+state.dens.toFixed(2), w:+state.weight.toFixed(2), i:state.ink, f:state.paper, t:state.transparent?1:0, a:state.aspect, o:state.op, m:MACRO_ORDER.map(k=>+state.macro[k].toFixed(2)) };
+  if(state.expert && state.manual){ p.x=1; p.b=BAAM_ORDER.map(k=>+state.manual[k].toFixed(2)); }
+  try{ history.replaceState(null,"","#"+btoa(JSON.stringify(p))); }catch(_){} }
+function readHash(){ if(location.hash.length<2) return; try{ const p=JSON.parse(atob(location.hash.slice(1))), hex=/^#[0-9a-f]{6}$/i;
+  if(PATTERNS.some(x=>x.id===p.p)) state.pat=p.p; if(p.d!=null) state.dens=clamp01(+p.d); if(p.w!=null) state.weight=clamp01(+p.w);
+  if(hex.test(p.i||"")) state.ink=p.i; if(hex.test(p.f||"")) state.paper=p.f; state.transparent=!!p.t;
+  if(ASPECTS.some(a=>a[0]===p.a)) state.aspect=p.a; if(OPS[p.o]) state.op=p.o;
+  if(Array.isArray(p.m)) MACRO_ORDER.forEach((k,i)=>{ if(p.m[i]!=null) state.macro[k]=clamp01(+p.m[i]); });
+  if(p.x && Array.isArray(p.b)){ state.expert=true; state.manual={}; BAAM_ORDER.forEach((k,i)=>state.manual[k]=clamp01(+p.b[i])); }
+}catch(_){} }
+
+let toastT=null; function toast(html){ const t=$("#toast"); t.innerHTML=html; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),1800); }
+
+readHash(); buildUI(); apply(); requestAnimationFrame(loop);
+
+/* ── Passerelle : reçoit une palette ; envoie le fond animé au convertisseur ── */
+BaamLink.init({ id:"fonds-vivants", anchor:document.querySelector(".actions"),
+  offers:{ svg:{ to:["convertisseur"], get:()=>({ svg:buildAnimatedSVG(BAAM_LOOP[state.op]||0), name:fileBase()+".svg" }) } },
+  accepts:{ palette:d=>{ const p=BaamLink.pair(d); state.ink=p.ink; state.paper=p.paper; state.transparent=false; buildUI(); apply(); } } });
+</script>
+</body>
+</html>

@@ -53,6 +53,15 @@ habillée** publie la source directement, utile pour les outils créés depuis l
 
 L'Opérateur Texte utilise déjà ce format dans `tools-src/operateur-texte/`.
 
+## Continuer avec un autre outil
+
+Les six BAAM Tools partagent aussi le contrat `BAAM-LINK` documenté dans
+`shared/README.md`. Une palette ou un SVG produit dans un outil peut être transmis au
+suivant par la rangée **Continuer avec** : le résultat reste dans le navigateur, n’est
+jamais envoyé à un serveur et expire après quinze minutes. Les routes publiques
+`/baam-tools/<identifiant>/` sont stables ; ne pas renommer leurs identifiants sans
+mettre à jour le catalogue partagé.
+
 ## Commandes
 
 ```text

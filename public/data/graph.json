@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-04T00:00:00.000Z",
+  "builtAt": "2026-10-05T00:00:00.000Z",
   "nodes": [
     {
       "id": "operateur-texte",
@@ -76,6 +76,81 @@
         "accent": "#00a86b",
         "index": "03",
         "glyph": "⌘"
+      }
+    },
+    {
+      "id": "animateur-logo",
+      "title": "Animateur de logo",
+      "summary": "Déposer un logo, lui appliquer un opérateur BAAM et exporter un SVG animé autonome, sans appel IA.",
+      "type": "free-webtool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/animateur-logo/",
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "04",
+        "glyph": "◒"
+      }
+    },
+    {
+      "id": "fonds-vivants",
+      "title": "Fonds vivants",
+      "summary": "Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.",
+      "type": "free-webtool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/fonds-vivants/",
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "animation",
+        "couleur"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "05",
+        "glyph": "≋"
+      }
+    },
+    {
+      "id": "convertisseur",
+      "title": "Convertisseur SVG",
+      "summary": "Convertir un SVG statique ou animé en PNG, JPG, WebP, GIF, vidéo, favicon ou planche de sprites, dans le navigateur.",
+      "type": "free-webtool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/convertisseur/",
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "svg",
+        "export"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "06",
+        "glyph": "↯"
       }
     },
     {
@@ -315,9 +390,27 @@
   "edges": [
     {
       "source": "operateur-texte",
+      "target": "convertisseur",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "operateur-texte",
       "target": "guide-motion-claude",
       "type": "related-to",
-      "generated": false
+      "generated": true
+    },
+    {
+      "source": "color-picker",
+      "target": "animateur-logo",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "color-picker",
+      "target": "fonds-vivants",
+      "type": "related-to",
+      "generated": true
     },
     {
       "source": "color-picker",
@@ -338,6 +431,48 @@
       "generated": true
     },
     {
+      "source": "animateur-logo",
+      "target": "color-picker",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "animateur-logo",
+      "target": "convertisseur",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "fonds-vivants",
+      "target": "color-picker",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "fonds-vivants",
+      "target": "convertisseur",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "convertisseur",
+      "target": "operateur-texte",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "convertisseur",
+      "target": "animateur-logo",
+      "type": "related-to",
+      "generated": true
+    },
+    {
+      "source": "convertisseur",
+      "target": "fonds-vivants",
+      "type": "related-to",
+      "generated": true
+    },
+    {
       "source": "guide-motion-claude",
       "target": "operateur-texte",
       "type": "related-to",
@@ -353,7 +488,7 @@
       "source": "opus-55-videos",
       "target": "guide-motion-claude",
       "type": "related-to",
-      "generated": false
+      "generated": true
     },
     {
       "source": "guide-brief-visuel",

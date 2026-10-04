@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fonds vivants · BAAM.TOOLS</title>
+  <meta name="description" content="Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/tool-shell.css">
+  <script src="/leads-config.js"></script>
+</head>
+<body class="baam-tool tool-frame-page" style="--tool-accent:#00a86b">
+  <header class="tool-shell-header">
+    <a class="tool-wordmark" href="/"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="tool-back" href="/">← Bibliothèque</a>
+  </header>
+  <main class="tool-frame-main">
+    <section class="tool-frame-info">
+      <div><span>BAAM Tool</span><h1>Fonds vivants</h1></div>
+      <p>Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.</p>
+    </section>
+    <div class="tool-frame-shell"><iframe id="tool-frame" title="Fonds vivants" allow="clipboard-write; fullscreen"></iframe></div>
+  </main>
+  <script>
+    const frame = document.querySelector("#tool-frame");
+    const outerPath = location.pathname;
+    const loadInnerState = () => { frame.src = "./_tool/" + location.hash; };
+    loadInnerState();
+    window.addEventListener("hashchange", loadInnerState);
+    setInterval(() => {
+      try {
+        const innerHash = frame.contentWindow.location.hash;
+        if (innerHash !== location.hash) history.replaceState(null, "", outerPath + innerHash);
+      } catch (_) {}
+    }, 250);
+  </script>
+</body>
+</html>

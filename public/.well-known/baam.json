@@ -9,7 +9,7 @@
     "tools"
   ],
   "url": "https://tools.baam.pro/",
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-10-05",
   "tags": [
     "tools",
     "guides",
@@ -28,6 +28,18 @@
     {
       "type": "has-part",
       "target": "mindmap-recursive"
+    },
+    {
+      "type": "has-part",
+      "target": "animateur-logo"
+    },
+    {
+      "type": "has-part",
+      "target": "fonds-vivants"
+    },
+    {
+      "type": "has-part",
+      "target": "convertisseur"
     },
     {
       "type": "has-part",

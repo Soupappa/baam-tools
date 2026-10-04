@@ -2,9 +2,9 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "5e0bad950a9af058d31c433f07087755098afc5384177bde75b5664c05f4f154",
-    "compiledAt": "2026-10-04",
-    "count": 12,
+    "sourceHash": "a6234d4471416152ebf77d7e747fa9a4b763bd8a7d6e9b623bc11d8f7c3cc14f",
+    "compiledAt": "2026-10-05",
+    "count": 15,
     "contentTypes": {
       "free-webtool": "BAAM Tool",
       "tutorial": "Guide",
@@ -82,7 +82,13 @@
       "relations": [
         {
           "type": "related-to",
-          "target": "guide-motion-claude"
+          "target": "convertisseur",
+          "generated": true
+        },
+        {
+          "type": "related-to",
+          "target": "guide-motion-claude",
+          "generated": true
         }
       ],
       "sourceOrigin": "file"
@@ -133,6 +139,16 @@
         "glyph": "◉"
       },
       "relations": [
+        {
+          "type": "related-to",
+          "target": "animateur-logo",
+          "generated": true
+        },
+        {
+          "type": "related-to",
+          "target": "fonds-vivants",
+          "generated": true
+        },
         {
           "type": "related-to",
           "target": "guide-brief-visuel",
@@ -195,6 +211,183 @@
         {
           "type": "related-to",
           "target": "guide-brief-visuel",
+          "generated": true
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "animateur-logo",
+      "title": "Animateur de logo",
+      "eyebrow": "Identité en mouvement",
+      "summary": "Déposer un logo, lui appliquer un opérateur BAAM et exporter un SVG animé autonome, sans appel IA.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/animateur-logo/",
+      "path": "/baam-tools/animateur-logo/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "themes": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "meta": [
+        "Gratuit",
+        "Export SVG",
+        "Sans IA"
+      ],
+      "cta": "Animer un logo",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/animateur-logo/",
+        "alt": "L’Animateur de logo BAAM en mouvement"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "04",
+        "glyph": "◒"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "color-picker"
+        },
+        {
+          "type": "related-to",
+          "target": "convertisseur"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "fonds-vivants",
+      "title": "Fonds vivants",
+      "eyebrow": "Trames animées",
+      "summary": "Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/fonds-vivants/",
+      "path": "/baam-tools/fonds-vivants/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "animation",
+        "couleur"
+      ],
+      "themes": [
+        "design",
+        "animation",
+        "couleur"
+      ],
+      "meta": [
+        "Gratuit",
+        "Boucle parfaite",
+        "Export SVG"
+      ],
+      "cta": "Créer un fond vivant",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/fonds-vivants/",
+        "alt": "Les Fonds vivants BAAM en mouvement"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "05",
+        "glyph": "≋"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "color-picker"
+        },
+        {
+          "type": "related-to",
+          "target": "convertisseur"
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "convertisseur",
+      "title": "Convertisseur SVG",
+      "eyebrow": "Exports prêts à publier",
+      "summary": "Convertir un SVG statique ou animé en PNG, JPG, WebP, GIF, vidéo, favicon ou planche de sprites, dans le navigateur.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/convertisseur/",
+      "path": "/baam-tools/convertisseur/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-05",
+      "tags": [
+        "design",
+        "svg",
+        "export"
+      ],
+      "themes": [
+        "design",
+        "svg",
+        "export"
+      ],
+      "meta": [
+        "Gratuit",
+        "GIF et vidéo",
+        "Traitement local"
+      ],
+      "cta": "Convertir un SVG",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/convertisseur/",
+        "alt": "Le Convertisseur SVG BAAM en action"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "06",
+        "glyph": "↯"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "operateur-texte"
+        },
+        {
+          "type": "related-to",
+          "target": "animateur-logo",
+          "generated": true
+        },
+        {
+          "type": "related-to",
+          "target": "fonds-vivants",
           "generated": true
         }
       ],
@@ -309,7 +502,8 @@
       "relations": [
         {
           "type": "related-to",
-          "target": "guide-motion-claude"
+          "target": "guide-motion-claude",
+          "generated": true
         }
       ],
       "sourceOrigin": "file"

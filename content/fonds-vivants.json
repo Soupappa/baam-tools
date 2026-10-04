@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "fonds-vivants",
+  "title": "Fonds vivants",
+  "eyebrow": "Trames animées",
+  "summary": "Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.",
+  "type": "free-webtool",
+  "status": "public",
+  "themes": [
+    "design",
+    "animation",
+    "couleur"
+  ],
+  "updatedAt": "2026-10-05",
+  "path": "/baam-tools/fonds-vivants/",
+  "cta": "Créer un fond vivant",
+  "meta": [
+    "Gratuit",
+    "Boucle parfaite",
+    "Export SVG"
+  ],
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/fonds-vivants/",
+    "alt": "Les Fonds vivants BAAM en mouvement"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "05",
+    "glyph": "≋"
+  },
+  "relations": [
+    { "type": "related-to", "target": "color-picker" },
+    { "type": "related-to", "target": "convertisseur" }
+  ],
+  "sourceFile": "fonds-vivants.html",
+  "toolShell": "frame"
+}

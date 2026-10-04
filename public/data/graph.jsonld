@@ -54,6 +54,54 @@
       }
     },
     {
+      "@id": "https://tools.baam.pro/baam-tools/animateur-logo/",
+      "@type": "SoftwareApplication",
+      "name": "Animateur de logo",
+      "description": "Déposer un logo, lui appliquer un opérateur BAAM et exporter un SVG animé autonome, sans appel IA.",
+      "dateModified": "2026-10-05",
+      "keywords": [
+        "design",
+        "svg",
+        "animation"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/baam-tools/fonds-vivants/",
+      "@type": "SoftwareApplication",
+      "name": "Fonds vivants",
+      "description": "Composer une trame vivante, régler ses couleurs et son mouvement, puis l’exporter en SVG, PNG ou CSS.",
+      "dateModified": "2026-10-05",
+      "keywords": [
+        "design",
+        "animation",
+        "couleur"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
+      "@id": "https://tools.baam.pro/baam-tools/convertisseur/",
+      "@type": "SoftwareApplication",
+      "name": "Convertisseur SVG",
+      "description": "Convertir un SVG statique ou animé en PNG, JPG, WebP, GIF, vidéo, favicon ou planche de sprites, dans le navigateur.",
+      "dateModified": "2026-10-05",
+      "keywords": [
+        "design",
+        "svg",
+        "export"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
       "@id": "https://tools.baam.pro/guides/motion-par-claude/",
       "@type": "HowTo",
       "name": "Le guide BAAM du motion par Claude",

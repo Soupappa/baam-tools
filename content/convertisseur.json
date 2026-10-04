@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "convertisseur",
+  "title": "Convertisseur SVG",
+  "eyebrow": "Exports prêts à publier",
+  "summary": "Convertir un SVG statique ou animé en PNG, JPG, WebP, GIF, vidéo, favicon ou planche de sprites, dans le navigateur.",
+  "type": "free-webtool",
+  "status": "public",
+  "themes": [
+    "design",
+    "svg",
+    "export"
+  ],
+  "updatedAt": "2026-10-05",
+  "path": "/baam-tools/convertisseur/",
+  "cta": "Convertir un SVG",
+  "meta": [
+    "Gratuit",
+    "GIF et vidéo",
+    "Traitement local"
+  ],
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/convertisseur/",
+    "alt": "Le Convertisseur SVG BAAM en action"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "06",
+    "glyph": "↯"
+  },
+  "relations": [
+    { "type": "related-to", "target": "operateur-texte" }
+  ],
+  "sourceFile": "convertisseur.html",
+  "toolShell": "frame"
+}

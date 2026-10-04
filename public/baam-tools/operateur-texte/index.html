@@ -181,15 +181,118 @@
    Chaîne : macro(4) -> BAAM(10) -> runtime(8) -> effet SVG, en temps réel, sans IA.
 ============================================================================ */
 
-// Ordre vectoriel de référence (NE JAMAIS changer).
-const BAAM_ORDER = ["alive","tension","flow","grain","clarity","impulse","persistence","spread","jitter","hysteresis"];
-const RT_ORDER   = ["noiseFrequency","noiseDetail","displacementPeak","cycleDuration","displacementFloor","temporalVariation","effectExtent","returnBias"];
-// SENSIBILITÉ par runtime param : les poids matriciels [-1..1] y sont multipliés.
-// Sans ça, un poids de 0.9 n'ajoutait que ~0.9 à un displacementPeak qui va jusqu'à 80
-// (effet invisible). Avec SPAN, chaque axe a enfin du muscle, à l'échelle de son param.
-const SPAN = [0.25, 3, 46, 6, 22, 220, 0.5, 0.45];
-const MACRO_ORDER= ["energy","constraint","continuity","texture"];
-const MACRO_LABEL= { energy:"Énergie", constraint:"Contrainte", continuity:"Continuité", texture:"Texture" };
+/* ═══ BAAM-ENGINE v1 ══════════════════════════════════════════════════════════
+   Moteur BAAM partagé par les tools animés. Source canonique : shared/baam-engine.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (node shared/inject.js) ;
+   ne pas modifier une copie : modifier la source puis relancer le script.
+   Chaîne : 4 axes macro → 10 paramètres BAAM → R = B + SPAN·(M·U) → runtime (8)
+   → image à l'instant t (frame) → filtre SVG (feTurbulence / feDisplacementMap / flou).
+   Tout est pur et déterministe, sans IA ni DOM (sauf baamApplier, qui pose une image sur le DOM).
+══════════════════════════════════════════════════════════════════════════════ */
+// Ordres vectoriels de référence (NE JAMAIS changer).
+const BAAM_ORDER=["alive","tension","flow","grain","clarity","impulse","persistence","spread","jitter","hysteresis"];
+const RT_ORDER=["noiseFrequency","noiseDetail","displacementPeak","cycleDuration","displacementFloor","temporalVariation","effectExtent","returnBias"];
+// Sensibilité de chaque param runtime : les poids matriciels [-1..1] y sont multipliés.
+const SPAN=[0.25,3,46,6,22,220,0.5,0.45];
+const MACRO_ORDER=["energy","constraint","continuity","texture"];
+const MACRO_LABEL={energy:"Énergie",constraint:"Contrainte",continuity:"Continuité",texture:"Texture"};
+// 4 axes → 10 BAAM, en déviation signée : macro à 0.5 partout ⇒ BAAM à 0.5 partout (neutralité).
+const PROJECTION={ alive:[0.7,0,0.2,0.1], tension:[0.2,0.8,0,0], flow:[0,-0.3,0.7,0], grain:[0.2,0,0,0.8], clarity:[0,0.3,0.2,-0.5],
+  impulse:[0.7,0,0,0.2], persistence:[0,0.3,0.5,0], spread:[0.4,0,0.3,0.2], jitter:[0.3,0.2,0,0.6], hysteresis:[0,0.4,0.5,0] };
+const clamp=(v,a,b)=> v<a?a : v>b?b : v, clamp01=v=>clamp(v,0,1);
+function macroToBaam(m){ const ms=MACRO_ORDER.map(k=>2*m[k]-1), b={}; for(const p of BAAM_ORDER){ const w=PROJECTION[p]; let s=0; for(let i=0;i<4;i++) s+=w[i]*ms[i]; b[p]=clamp01(0.5+0.5*s); } return b; }
+// Matrice générique 10×8 (lignes = BAAM_ORDER, colonnes = RT_ORDER), mise à l'échelle par les opérateurs doux.
+const G=[[0.05,0,0.10,0.10,0.30,0.25,0,0],[0.05,0.10,0.70,-0.20,0.05,0.10,0,0.10],[-0.10,-0.20,0,0.60,0.05,-0.10,0.10,0],[0.60,0.50,0.10,-0.10,0,0.10,0,0],
+  [-0.20,-0.40,-0.50,0.10,0,-0.20,0,-0.05],[0.05,0,0.60,-0.50,-0.10,0.30,0,0.15],[-0.05,0,0.10,0.50,0.40,-0.05,0.05,0.20],[0,0,0.10,0,0.05,0,0.90,0],[0.40,0.20,0.15,-0.30,0,0.70,0,0.10],[0,0,0.05,0.20,0.30,-0.10,0,0.85]];
+const scaleM=(m,k)=>m.map(r=>r.map(v=>v*k));
+// Matrice officielle de « fulguration » (SPECS_OPERATEUR_BAAM.md §11).
+const M_FULGURATION=[[0.20,0.10,0.10,-0.20,0,0.90,0,0.10],[0.10,0,0.95,-0.10,0.10,0.10,0,0.20],[-0.10,0,0.10,0.80,0,-0.10,0.10,0],[0.95,0.40,0.10,-0.10,0,0.20,0,0],
+  [-0.30,-0.80,-0.35,0.10,0,-0.20,0,-0.10],[0,0,0.80,-0.75,-0.20,0.20,0,0.20],[-0.10,0,0.10,0.45,0.85,0.10,0.10,0.20],[0,0,0.10,0,0,0,1,0],[0.80,0.20,0.15,-0.85,0,0.95,0,0.15],[0,0,0.10,0.10,0.30,0,0,0.95]];
+const TWO_PI=Math.PI*2;
+// Angle d'un mouvement : libre (D absent) ou calé sur une boucle de D secondes (nombre entier de tours).
+const ang=(om,t,D)=> D ? TWO_PI*Math.max(1,Math.round(om*D/TWO_PI))*t/D : om*t;
+const lt=(t,D)=> D ? ((t%D)+D)%D : t;
+// Opérateurs : base (runtime neutre) + matrice + frame(rt,t,D) → l'image à l'instant t.
+// D (secondes) cale tous les mouvements sur une boucle parfaite (vidéo) ; sans D, mouvement libre (aperçu).
+const OPERATORS={
+  souffle:{ label:"Souffle", sub:"flotte — de la brise à la tempête", base:[0.010,1,24,5.0,6,20,0.5,0.50], matrix:scaleM(G,0.8),
+    // Grandes ondes (1 octave, basse fréquence) : ça déforme sans plier ; translation et cisaillement lents : ça flotte.
+    frame(rt,t,D){ const cyc=Math.max(rt.cycleDuration,2.2), br=0.45+0.55*Math.sin(ang(TWO_PI/cyc,t,D)), A=rt.displacementPeak*0.75;
+      return { oct:1, bf:(0.006+0.012*clamp01(rt.noiseFrequency/0.1)).toFixed(4), scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*br, blur:0,
+        transform:`translate(${(A*Math.sin(ang(0.5,t,D))).toFixed(1)} ${(A*0.5*Math.sin(ang(0.37,t,D)+1.3)).toFixed(1)}) skewX(${(2.4*Math.sin(ang(0.43,t,D))).toFixed(2)})`, seed:Math.floor(lt(t,D)*0.9) }; } },
+  mirage:{ label:"Mirage", sub:"la matière se brouille, des ondes la déforment", base:[0.050,2,30,2.4,10,170,0.6,0.50], matrix:scaleM(G,1.0),
+    // Déformation interne : des ondes qui dérivent gonflent la matière, un flou respirant la brouille.
+    frame(rt,t,D){ const b=rt.noiseFrequency;
+      return { oct:Math.max(2,rt.noiseDetail), bf:`${(b*(1.1+0.25*Math.sin(ang(0.5,t,D)))).toFixed(4)} ${(b*(0.8+0.25*Math.cos(ang(0.4,t,D)))).toFixed(4)}`,
+        scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*(0.55+0.45*Math.sin(ang(1.3,t,D))), blur:0.6+1.4*(0.5+0.5*Math.sin(ang(1.1,t,D))), transform:null,
+        seed:Math.floor(lt(t,D)*rt.temporalVariation*0.0137) }; } },
+  fulguration:{ label:"Fulguration", sub:"matière fulgurée, puis détente", base:[0.08,4,48,1.2,1,150,0.6,0.22], matrix:M_FULGURATION,
+    // Calme, frappe sèche (8 % du cycle) avec crépitement, puis détente exponentielle (returnBias règle le relâchement).
+    frame(rt,t,D){ let cyc=Math.max(rt.cycleDuration,0.6); if(D) cyc=D/Math.max(1,Math.round(D/cyc));
+      const ph=(lt(t,D)%cyc)/cyc, spike=0.08; let env; if(ph<spike) env=ph/spike; else { const k=3+(1-rt.returnBias)*7; env=Math.exp(-((ph-spike)/(1-spike))*k); }
+      const j=rt.displacementPeak*0.12;
+      return { oct:Math.min(6,rt.noiseDetail+(env>0.4?2:0)), bf:(rt.noiseFrequency*(1+3.5*env)).toFixed(4), scale:rt.displacementFloor+(rt.displacementPeak-rt.displacementFloor)*env, blur:0,
+        transform: env>0.6 ? `translate(${((Math.random()-0.5)*j).toFixed(1)} ${((Math.random()-0.5)*j).toFixed(1)})` : null, seed:Math.floor(lt(t,D)*rt.temporalVariation*0.012) }; } }
+};
+// Bornes runtime (SPECS §8.2).
+function clampRuntime(raw){ const r={ noiseFrequency:clamp(raw[0],0.001,1.2), noiseDetail:Math.round(clamp(raw[1],1,6)), displacementPeak:clamp(raw[2],0,80),
+  cycleDuration:clamp(raw[3],0.2,20), displacementFloor:clamp(raw[4],0,40), temporalVariation:clamp(raw[5],0,500), effectExtent:clamp(raw[6],0,1), returnBias:clamp(raw[7],0,1) };
+  if(r.displacementFloor>r.displacementPeak) r.displacementFloor=r.displacementPeak; return r; }
+// R = B + SPAN·(M × U_signed), U = les 10 BAAM recentrés en [-1..1].
+function resolveRuntime(op,baam){ const U=BAAM_ORDER.map(k=>2*baam[k]-1), out=op.base.slice();
+  for(let c=0;c<RT_ORDER.length;c++){ let d=0; for(let r=0;r<U.length;r++) d+=op.matrix[r][c]*U[r]; out[c]+=SPAN[c]*d; } return clampRuntime(out); }
+// Marge de la région du filtre (en %), selon effectExtent.
+const baamPad=R=>Math.round(25+R.effectExtent*75);
+// Une image figée : les primitives du filtre pour l'image p = frame(rt,t,D). src = entrée du déplacement.
+function baamFilterPrims(p,src){
+  return `<feTurbulence type="fractalNoise" baseFrequency="${p.bf}" numOctaves="${p.oct}" seed="${p.seed}" result="noise"/>`+
+    `<feDisplacementMap in="${src||"SourceGraphic"}" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${p.scale.toFixed(2)}" result="dsp"/>`+
+    (p.blur>0?`<feGaussianBlur in="dsp" stdDeviation="${p.blur.toFixed(2)}"/>`:"");
+}
+// Durée de boucle naturelle de chaque opérateur (s) : sert quand un visuel doit boucler sans couture.
+const BAAM_LOOP={ souffle:12, mirage:6, fulguration:6 };
+// Le même opérateur joué par le navigateur, sans script (SMIL) : durées calées sur l'aperçu vivant.
+// Avec D (s), chaque durée devient un diviseur exact de D, au centième près : l'animation entière
+// boucle en D secondes (c'est ce que le convertisseur détecte pour un GIF ou des sprites sans saut).
+// → { prims : primitives du filtre, move : animations à placer dans le groupe qui porte le sujet }.
+function baamSmil(opId,R,src,D){
+  const f=n=>Number(n).toFixed(2), lo=f(R.displacementFloor), hi=f(R.displacementPeak), seedMax=Math.max(1,Math.round(R.temporalVariation/12));
+  const C=D?Math.round(D*100):0;
+  const dur=d=>{ if(!C) return f(d); const want=Math.max(1,Math.round(D/d)); let n=1;
+    for(let k=1;k<=C;k++) if(C%k===0 && Math.abs(k-want)<Math.abs(n-want)) n=k; return f(C/n/100); };
+  let turbAttrs, turbKids="", dispAnim, blurEl="", move="";
+  if(opId==="souffle"){
+    const cyc=dur(Math.max(R.cycleDuration,2.2)), A=f(R.displacementPeak*0.75), Ah=f(R.displacementPeak*0.375);
+    turbAttrs=`baseFrequency="${(0.006+0.012*clamp01(R.noiseFrequency/0.1)).toFixed(4)}" numOctaves="1" seed="1"`;
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
+    move=`<animateTransform attributeName="transform" type="translate" additive="sum" values="-${A} -${Ah};${A} ${Ah};-${A} -${Ah}" dur="${dur(12.6)}s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`+
+      `<animateTransform attributeName="transform" type="skewX" additive="sum" values="-2.4;2.4;-2.4" dur="${dur(14.6)}s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`;
+  } else if(opId==="mirage"){
+    turbAttrs=`baseFrequency="${(R.noiseFrequency*1.1).toFixed(4)} ${(R.noiseFrequency*0.8).toFixed(4)}" numOctaves="${Math.max(2,R.noiseDetail)}" seed="1"`;
+    turbKids=R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${dur(Math.max(R.cycleDuration,1))}s" repeatCount="indefinite"/>`:"";
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${dur(4.8)}s" repeatCount="indefinite"/>`;
+    blurEl=`<feGaussianBlur in="dsp" stdDeviation="0.6"><animate attributeName="stdDeviation" values="0.6;2;0.6" dur="${dur(5.7)}s" repeatCount="indefinite"/></feGaussianBlur>`;
+  } else {
+    const bf=R.noiseFrequency.toFixed(4), bfHi=(R.noiseFrequency*4).toFixed(4), cyc=dur(Math.max(R.cycleDuration,0.6)), oct=Math.min(6,R.noiseDetail+1);
+    turbAttrs=`baseFrequency="${bf}" numOctaves="${oct}" seed="1"`;
+    turbKids=`<animate attributeName="baseFrequency" values="${bf};${bfHi};${bf}" keyTimes="0;0.08;1" dur="${cyc}s" repeatCount="indefinite"/>`+(R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${cyc}s" repeatCount="indefinite"/>`:"");
+    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" keyTimes="0;0.08;1" dur="${cyc}s" calcMode="spline" keySplines="0.2 0 0 1;0.5 0 0.9 1" repeatCount="indefinite"/>`;
+  }
+  const prims=`<feTurbulence type="fractalNoise" ${turbAttrs} result="noise">${turbKids}</feTurbulence>`+
+    `<feDisplacementMap in="${src||"SourceGraphic"}" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${lo}"${blurEl?' result="dsp"':""}>${dispAnim}</feDisplacementMap>${blurEl}`;
+  return { prims, move };
+}
+// Pose une image sur le filtre vivant de l'aperçu. els = { turb, disp, blur, move } (move porte la transformation).
+function baamApplier(els){
+  let lastSeed=-1;
+  return p=>{
+    els.turb.setAttribute("numOctaves",p.oct); els.turb.setAttribute("baseFrequency",p.bf);
+    els.disp.setAttribute("scale",p.scale.toFixed(2)); els.blur.setAttribute("stdDeviation",p.blur.toFixed(2));
+    if(p.transform) els.move.setAttribute("transform",p.transform); else els.move.removeAttribute("transform");
+    if(p.seed!==lastSeed){ els.turb.setAttribute("seed",p.seed); lastSeed=p.seed; }
+  };
+}
+/* ═══ fin BAAM-ENGINE v1 ═══ */
 
 // Polices typées graphisme (Google Fonts).
 const FONTS = [
@@ -226,165 +329,7 @@ async function embedFont(id){
   }catch(_){ return ""; }
 }
 
-// ── Couche A→B : dépliage des 4 axes macro vers les 10 BAAM ──────────────────
-// Poids de DÉVIATION en espace signé : baam = clamp01(0.5 + 0.5 * Σ w·macro_signed).
-// Donc macro=0.5 partout -> baam=0.5 partout (neutralité préservée).
-// Honore les exemples de la spec (alive, grain, flow).
-const PROJECTION = { // [energy, constraint, continuity, texture]
-  alive:       [ 0.7,  0.0,  0.2,  0.1],
-  tension:     [ 0.2,  0.8,  0.0,  0.0],
-  flow:        [ 0.0, -0.3,  0.7,  0.0],
-  grain:       [ 0.2,  0.0,  0.0,  0.8],
-  clarity:     [ 0.0,  0.3,  0.2, -0.5],
-  impulse:     [ 0.7,  0.0,  0.0,  0.2],
-  persistence: [ 0.0,  0.3,  0.5,  0.0],
-  spread:      [ 0.4,  0.0,  0.3,  0.2],
-  jitter:      [ 0.3,  0.2,  0.0,  0.6],
-  hysteresis:  [ 0.0,  0.4,  0.5,  0.0]
-};
-function macroToBaam(macro){
-  const ms = MACRO_ORDER.map(k => 2*macro[k] - 1); // signé [-1..1]
-  const baam = {};
-  for (const p of BAAM_ORDER){
-    const w = PROJECTION[p];
-    let s = 0; for (let i=0;i<4;i++) s += w[i]*ms[i];
-    baam[p] = clamp01(0.5 + 0.5*s);
-  }
-  return baam;
-}
-
-// ── Couche B→C : matrice de l'opérateur. R = B + M × U_signed ────────────────
-// Matrice générique (10×8), réutilisée (mise à l'échelle) par les opérateurs doux.
-// Lignes = BAAM_ORDER, colonnes = RT_ORDER.
-const G = [
-//   nFreq  nDet  dPeak  cycle  dFloor tVar  ext   rBias
-   [ 0.05,  0.00, 0.10,  0.10,  0.30,  0.25, 0.00, 0.00], // alive
-   [ 0.05,  0.10, 0.70, -0.20,  0.05,  0.10, 0.00, 0.10], // tension
-   [-0.10, -0.20, 0.00,  0.60,  0.05, -0.10, 0.10, 0.00], // flow
-   [ 0.60,  0.50, 0.10, -0.10,  0.00,  0.10, 0.00, 0.00], // grain
-   [-0.20, -0.40,-0.50,  0.10,  0.00, -0.20, 0.00,-0.05], // clarity
-   [ 0.05,  0.00, 0.60, -0.50, -0.10,  0.30, 0.00, 0.15], // impulse
-   [-0.05,  0.00, 0.10,  0.50,  0.40, -0.05, 0.05, 0.20], // persistence
-   [ 0.00,  0.00, 0.10,  0.00,  0.05,  0.00, 0.90, 0.00], // spread
-   [ 0.40,  0.20, 0.15, -0.30,  0.00,  0.70, 0.00, 0.10], // jitter
-   [ 0.00,  0.00, 0.05,  0.20,  0.30, -0.10, 0.00, 0.85]  // hysteresis
-];
-const scaleM = (m,k)=> m.map(row=>row.map(v=>v*k));
-
-// Matrice officielle de "fulguration" (SPECS_OPERATEUR_BAAM.md §11).
-const M_FULGURATION = [
-  [0.20,0.10,0.10,-0.20,0.00,0.90,0.00,0.10],
-  [0.10,0.00,0.95,-0.10,0.10,0.10,0.00,0.20],
-  [-0.10,0.00,0.10,0.80,0.00,-0.10,0.10,0.00],
-  [0.95,0.40,0.10,-0.10,0.00,0.20,0.00,0.00],
-  [-0.30,-0.80,-0.35,0.10,0.00,-0.20,0.00,-0.10],
-  [0.00,0.00,0.80,-0.75,-0.20,0.20,0.00,0.20],
-  [-0.10,0.00,0.10,0.45,0.85,0.10,0.10,0.20],
-  [0.00,0.00,0.10,0.00,0.00,0.00,1.00,0.00],
-  [0.80,0.20,0.15,-0.85,0.00,0.95,0.00,0.15],
-  [0.00,0.00,0.10,0.10,0.30,0.00,0.00,0.95]
-];
-
-// Opérateurs : base (runtime neutre) + matrice + un COMPORTEMENT propre `drive(rt,t)`.
-// La matrice/BAAM calcule le vecteur runtime ; le drive lui donne sa personnalité de
-// mouvement (ce qui distingue vraiment les opérateurs, pas juste l'amplitude).
-const TWO_PI = Math.PI*2;
-const OPERATORS = {
-  souffle: {
-    label:"Souffle", sub:"flotte — de la brise à la tempête",
-    base:[0.010, 1, 24, 5.0, 6, 20, 0.5, 0.50],
-    matrix: scaleM(G, 0.8),
-    // FLOTTE : grandes ondes (octaves 1, basse fréquence) => ça déforme mais NE PLIE PAS.
-    // + translation/cisaillement lents => la matière flotte. Amplitude brise -> tempête.
-    drive(rt,t){
-      turb.setAttribute("numOctaves", 1);
-      const bf = 0.006 + 0.012*clamp01(rt.noiseFrequency/0.1);
-      turb.setAttribute("baseFrequency", bf.toFixed(4));
-      const cyc = Math.max(rt.cycleDuration, 2.2);
-      const breath = 0.45 + 0.55*Math.sin(t*TWO_PI/cyc);
-      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*breath;
-      disp.setAttribute("scale", scale.toFixed(2));
-      const A = rt.displacementPeak*0.75;                 // flottaison ∝ force
-      const tx = A*Math.sin(t*0.5), ty = A*0.5*Math.sin(t*0.37+1.3), sk = 2.4*Math.sin(t*0.43);
-      fieldEl.setAttribute("transform", `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) skewX(${sk.toFixed(2)})`);
-      blur.setAttribute("stdDeviation", 0);
-      const sd = Math.floor(t*0.9); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
-    }
-  },
-  mirage: {
-    label:"Mirage", sub:"la matière se brouille, des ondes la déforment",
-    base:[0.050, 2, 30, 2.4, 10, 170, 0.6, 0.50],
-    matrix: scaleM(G, 1.0),
-    // MIRAGE : déformation INTERNE. Des ondes (fréquence moyenne qui dérive) traversent la
-    // matière et la gonflent/retombent, pendant qu'un flou respirant la BROUILLE.
-    drive(rt,t){
-      turb.setAttribute("numOctaves", Math.max(2, rt.noiseDetail));
-      const base = rt.noiseFrequency;
-      const fx = (base*(1.1+0.25*Math.sin(t*0.5))).toFixed(4);   // les ondes dérivent
-      const fy = (base*(0.8+0.25*Math.cos(t*0.4))).toFixed(4);
-      turb.setAttribute("baseFrequency", fx+" "+fy);
-      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*(0.55+0.45*Math.sin(t*1.3));
-      disp.setAttribute("scale", scale.toFixed(2));                // ondes amples INTERNES
-      blur.setAttribute("stdDeviation", (0.6+1.4*(0.5+0.5*Math.sin(t*1.1))).toFixed(2)); // ça se brouille
-      fieldEl.removeAttribute("transform");
-      seedPhase += (rt.temporalVariation/70)*0.016;
-      const sd = Math.floor(seedPhase); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
-    }
-  },
-  fulguration: {
-    label:"Fulguration", sub:"matière fulgurée, puis détente",
-    base:[0.08, 4, 48, 1.2, 1, 150, 0.6, 0.22],
-    matrix: M_FULGURATION,
-    // FULGURATION : calme, puis frappe sèche (attaque ~8% du cycle) + crépitement, puis
-    // détente exponentielle (returnBias règle la lenteur du relâchement). Soubresaut au pic.
-    drive(rt,t){
-      const cyc = Math.max(rt.cycleDuration, 0.6);
-      const ph = (t % cyc)/cyc, spike = 0.08;
-      let env;
-      if (ph < spike) env = ph/spike;
-      else { const k = 3 + (1-rt.returnBias)*7; env = Math.exp(-((ph-spike)/(1-spike))*k); }
-      const scale = rt.displacementFloor + (rt.displacementPeak-rt.displacementFloor)*env;
-      disp.setAttribute("scale", scale.toFixed(2));
-      turb.setAttribute("baseFrequency", (rt.noiseFrequency*(1+3.5*env)).toFixed(4));
-      turb.setAttribute("numOctaves", Math.min(6, rt.noiseDetail + (env>0.4?2:0)));
-      if (env>0.6){ const j=rt.displacementPeak*0.12; fieldEl.setAttribute("transform", `translate(${((Math.random()-0.5)*j).toFixed(1)} ${((Math.random()-0.5)*j).toFixed(1)})`); }
-      else fieldEl.removeAttribute("transform");
-      blur.setAttribute("stdDeviation", 0);
-      seedPhase += (rt.temporalVariation/40)*0.016*(0.3+env);
-      const sd = Math.floor(seedPhase); if (sd!==lastSeed){ turb.setAttribute("seed", sd); lastSeed=sd; }
-    }
-  }
-};
-
-// Bornes runtime (SPECS §8.2).
-function clampRuntime(raw){
-  const r = {
-    noiseFrequency:    clamp(raw[0], 0.001, 1.2),
-    noiseDetail:       Math.round(clamp(raw[1], 1, 6)),
-    displacementPeak:  clamp(raw[2], 0, 80),
-    cycleDuration:     clamp(raw[3], 0.2, 20),
-    displacementFloor: clamp(raw[4], 0, 40),
-    temporalVariation: clamp(raw[5], 0, 500),
-    effectExtent:      clamp(raw[6], 0, 1),
-    returnBias:        clamp(raw[7], 0, 1)
-  };
-  if (r.displacementFloor > r.displacementPeak) r.displacementFloor = r.displacementPeak; // règle spec
-  return r;
-}
-// R = B + M × U_signed  (U = BAAM 10, recentré en [-1..1]).
-function resolveRuntime(op, baam){
-  const U = BAAM_ORDER.map(k => 2*baam[k] - 1);
-  const out = op.base.slice();
-  for (let col=0; col<RT_ORDER.length; col++){
-    let d = 0;
-    for (let row=0; row<U.length; row++) d += op.matrix[row][col]*U[row];
-    out[col] += SPAN[col]*d;   // sensibilité à l'échelle du param
-  }
-  return clampRuntime(out);
-}
-
-const clamp   = (v,a,b)=> v<a?a : v>b?b : v;
-const clamp01 = v => clamp(v,0,1);
+// Le dépliage 4 → 10, les matrices et les opérateurs viennent du moteur commun (bloc BAAM-ENGINE plus haut).
 
 /* ── État + UI ─────────────────────────────────────────────────────────── */
 const state = {
@@ -547,7 +492,7 @@ function apply(){
   RT = resolveRuntime(OPERATORS[state.op], baam);
   // Attributs statiques du filtre (la frequence + le detail + la region).
   turb.setAttribute("numOctaves", RT.noiseDetail);
-  const pad = Math.round(25 + RT.effectExtent*75); // region du filtre selon effectExtent
+  const pad = baamPad(RT); // region du filtre selon effectExtent
   filt.setAttribute("x","-"+pad+"%"); filt.setAttribute("y","-"+pad+"%");
   filt.setAttribute("width",(100+2*pad)+"%"); filt.setAttribute("height",(100+2*pad)+"%");
   writeHash();
@@ -564,10 +509,13 @@ function fitText(){
 }
 
 /* ── Boucle runtime : l'opérateur module le SVG en temps réel ───────────── */
-let t0=performance.now(), seedPhase=0, lastSeed=-1;
+// L'opérateur calcule l'image à l'instant t (moteur commun, pur), puis on la pose sur le filtre vivant.
+// D (secondes) cale les mouvements sur une boucle parfaite (vidéo) ; sans D, mouvement libre.
+const applyFrame=baamApplier({ turb, disp, blur, move:fieldEl });
+function drive(t,D){ if (RT && OPERATORS[state.op]) applyFrame(OPERATORS[state.op].frame(RT, t, D)); }
+let t0=performance.now();
 function loop(now){
-  const t=(now-t0)/1000;
-  if (RT && OPERATORS[state.op] && OPERATORS[state.op].drive) OPERATORS[state.op].drive(RT, t);
+  drive((now-t0)/1000);
   requestAnimationFrame(loop);
 }
 
@@ -602,57 +550,37 @@ function flash(sel,msg){ const b=$(sel), old=b.textContent; b.textContent=msg; b
 /* ── Export FIDÈLE : logo SVG animé autonome, fond transparent ───────────────
    SMIL par opérateur (même caractère que le live) + police embarquée (woff2 base64)
    => rend dans la bonne fonte partout, sans dépendance, prêt à poser sur n'importe quel fond. */
-$("#export").onclick=async()=>{
-  if (!RT) return;
-  const btn=$("#export"); btn.textContent="Export…"; btn.classList.add("on");
-  const w=1000,h=420, R=RT, op=state.op, f=n=>Number(n).toFixed(2);
-  const pad=Math.round(25+R.effectExtent*75);
+// Le SVG autonome. D (s) : boucle calée (voir baamSmil), pour l'envoi au convertisseur.
+// → { svg, embedded } ; embedded = false si la police n'a pas pu être embarquée (repli système).
+async function buildExportSVG(D){
+  const w=1000,h=420, R=RT;
+  const pad=baamPad(R);
   const size=fieldEl.getAttribute("font-size");
   const txt=caseText(state.text||"BAAM", state.case).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-  const lo=f(R.displacementFloor), hi=f(R.displacementPeak);
-  const seedMax=Math.max(1,Math.round(R.temporalVariation/12));
   const faceCss=await embedFont(state.font); // "" si indisponible (repli système)
-
-  let turbAttrs, turbKids="", dispAnim, blurEl="", textAnim="";
-  if (op==="souffle"){
-    const bf=f(0.006+0.012*clamp01(R.noiseFrequency/0.1)), cyc=f(Math.max(R.cycleDuration,2.2)), A=f(R.displacementPeak*0.75), Ah=f(R.displacementPeak*0.375);
-    turbAttrs=`baseFrequency="${bf}" numOctaves="1" seed="1"`;
-    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
-    textAnim=`<animateTransform attributeName="transform" type="translate" additive="sum" values="-${A} -${Ah};${A} ${Ah};-${A} -${Ah}" dur="4s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>`
-      +`<animateTransform attributeName="transform" type="skewX" additive="sum" values="-2.4;2.4;-2.4" dur="4.8s" repeatCount="indefinite"/>`;
-  } else if (op==="mirage"){
-    const fx=f(R.noiseFrequency*1.1), fy=f(R.noiseFrequency*0.8), cyc=f(R.cycleDuration*1.2);
-    turbAttrs=`baseFrequency="${fx} ${fy}" numOctaves="${Math.max(2,R.noiseDetail)}" seed="1"`;
-    turbKids=R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${f(Math.max(R.cycleDuration,1))}s" repeatCount="indefinite"/>`:"";
-    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" dur="${cyc}s" repeatCount="indefinite"/>`;
-    blurEl=`<feGaussianBlur in="dsp" stdDeviation="0.6"><animate attributeName="stdDeviation" values="0.6;2;0.6" dur="2.4s" repeatCount="indefinite"/></feGaussianBlur>`;
-  } else { // fulguration
-    const bf=f(R.noiseFrequency), bfHi=f(R.noiseFrequency*4), cyc=f(Math.max(R.cycleDuration,0.8)), oct=Math.min(6,R.noiseDetail+1);
-    turbAttrs=`baseFrequency="${bf}" numOctaves="${oct}" seed="1"`;
-    turbKids=`<animate attributeName="baseFrequency" values="${bf};${bfHi};${bf}" keyTimes="0;0.08;1" dur="${cyc}s" repeatCount="indefinite"/>`
-      +(R.temporalVariation>0?`<animate attributeName="seed" values="0;${seedMax}" dur="${cyc}s" repeatCount="indefinite"/>`:"");
-    dispAnim=`<animate attributeName="scale" values="${lo};${hi};${lo}" keyTimes="0;0.08;1" dur="${cyc}s" calcMode="spline" keySplines="0.2 0 0 1;0.5 0 0.9 1" repeatCount="indefinite"/>`;
-  }
-  const dispResult = blurEl ? ` result="dsp"` : ``;
-  const out=
+  const s=baamSmil(state.op,R,null,D); // même SMIL que les autres tools, durées calées sur l'aperçu vivant
+  const svg=
 `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
   <defs>
     ${faceCss?`<style>${faceCss}</style>`:``}
-    <filter id="op" x="-${pad}%" y="-${pad}%" width="${100+2*pad}%" height="${100+2*pad}%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" ${turbAttrs} result="noise">${turbKids}</feTurbulence>
-      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="${lo}"${dispResult}>${dispAnim}</feDisplacementMap>
-      ${blurEl}
-    </filter>
+    <filter id="op" x="-${pad}%" y="-${pad}%" width="${100+2*pad}%" height="${100+2*pad}%" color-interpolation-filters="sRGB">${s.prims}</filter>
   </defs>
-  <text x="500" y="232" text-anchor="middle" dominant-baseline="middle" filter="url(#op)" font-size="${size}" fill="${state.color}" font-family="${fontCss(state.font)}" font-weight="${FONT_WEIGHT[state.font]||400}" font-style="${state.italic?'italic':'normal'}" letter-spacing="-0.01em">${txt}${textAnim}</text>
+  <text x="500" y="232" text-anchor="middle" dominant-baseline="middle" filter="url(#op)" font-size="${size}" fill="${state.color}" font-family="${fontCss(state.font)}" font-weight="${FONT_WEIGHT[state.font]||400}" font-style="${state.italic?'italic':'normal'}" letter-spacing="-0.01em">${txt}${s.move}</text>
 </svg>`;
+  return { svg, embedded:!!faceCss };
+}
+const exportName=()=>"baam-"+(state.text||"logo").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,24)+".svg";
+$("#export").onclick=async()=>{
+  if (!RT) return;
+  const btn=$("#export"); btn.textContent="Export…"; btn.classList.add("on");
+  const { svg:out, embedded }=await buildExportSVG();
   const blob=new Blob([out],{type:"image/svg+xml"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="baam-"+(state.text||"logo").toLowerCase().replace(/[^a-z0-9]+/g,"-").slice(0,24)+".svg";
+  a.download=exportName();
   a.click(); URL.revokeObjectURL(a.href);
   btn.classList.remove("on");
-  btn.textContent = faceCss ? "Logo exporté ✓" : "Exporté (police système)";
+  btn.textContent = embedded ? "Logo exporté ✓" : "Exporté (police système)";
   setTimeout(()=>{ btn.textContent="Exporter SVG"; }, 1800);
   BaamOptin.after();
 };
@@ -827,7 +755,8 @@ const BaamVideo=(()=>{
     if(onProgress) onProgress(1); rec.stop(); await stopped;
     return { blob:new Blob(chunks,{type:m.split(";")[0]}), ext:m.includes("mp4")?"mp4":"webm" };
   }
-  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep), prepare(), fileBase(), bg }
+  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep,D), prepare(), fileBase(), bg }
+  // D = durée de la vidéo (s) : un moteur qui cale ses mouvements dessus boucle sans couture.
   function panel(host, api, cfg){
     const v={ w:1080, h:1080, bg:cfg.bg||"#ffffff", seconds:6, scale:cfg.scale||0.62 };
     host.innerHTML=`<h2>Ta vidéo</h2><p class="bo-lead">Elle reprend exactement l'animation de l'aperçu.</p>`+
@@ -859,7 +788,7 @@ const BaamVideo=(()=>{
       const prog=q(".bo-progress"), bar=prog.querySelector("i"); prog.hidden=false; bar.style.width="0%";
       try{
         const prep=cfg.prepare ? await cfg.prepare() : null;
-        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
+        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep,v.seconds), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
         download(res.blob,`${cfg.fileBase()}-baam-${v.w}x${v.h}.${res.ext}`);
         done.hidden=false;
         done.innerHTML=`<b>✓ Vidéo prête</b> (${res.ext.toUpperCase()}, ${v.w}×${v.h}, ${v.seconds} s).`+
@@ -872,6 +801,122 @@ const BaamVideo=(()=>{
   return { mime, record, panel, download };
 })();
 /* ═══ fin BAAM-OPTIN v1 ═══ */
+/* ═══ BAAM-LINK v1 ═══════════════════════════════════════════════════════════
+   La passerelle entre BAAM Tools. Source canonique : shared/baam-link.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (node shared/inject.js).
+
+   Contrat de module — chaque tool se déclare :
+     BaamLink.init({
+       id: "fonds-vivants",                       // = son id de page (/baam-tools/<id>/)
+       anchor: élément sous lequel poser la rangée « Continuer avec »,
+       offers:  { palette: ()=>({ colors, base }), svg: { to:["convertisseur"], get: async ()=>({ svg, name }) } },
+       accepts: { palette: data=>{…}, svg: data=>{…} }
+     });
+   Une offre est une fonction, ou { get, to:[ids] } pour limiter les destinations proposées.
+   Un tool OFFRE un résultat ; la rangée propose les tools qui l'ACCEPTENT. Le clic
+   dépose le résultat dans le navigateur (localStorage, même domaine) et ouvre l'autre
+   tool, qui le consomme au chargement (valable 15 min, une seule fois).
+
+   Types de résultat :
+     palette — { colors:["#rrggbb", …], base:"#rrggbb" }
+     svg     — { svg:"<svg…>", name:"fichier.svg" }   (statique ou animé)
+
+   Adresses : /baam-tools/<id>/ par défaut ; en local (file://), les fichiers voisins.
+   Surcharge possible : window.BAAM_LINKS = { urls:{ "<id>":"…" } } (page ou page parente).
+═══════════════════════════════════════════════════════════════════════════════ */
+const BaamLink=(()=>{
+  const KEY="baam.tools.handoff", TTL=15*60*1000;
+  // Ce que chaque tool sait recevoir : c'est ce qui décide des destinations proposées.
+  const CATALOG={
+    "color-picker":    { label:"Color Picker",      accepts:[] },
+    "operateur-texte": { label:"Opérateur Texte",   accepts:["palette"] },
+    "animateur-logo":  { label:"Animateur de logo", accepts:["palette","svg"] },
+    "fonds-vivants":   { label:"Fonds vivants",     accepts:["palette"] },
+    "convertisseur":   { label:"Convertisseur",     accepts:["svg"] },
+    "mindmap":         { label:"Mindmap",           accepts:[] }
+  };
+  const SENT={ palette:"la palette", svg:"le visuel" };
+  const GOT={ palette:"Palette reçue", svg:"Visuel reçu" };
+  // Pourquoi aller là-bas, en quelques mots (affiché au survol).
+  const WHY={ "palette>operateur-texte":"colorer ton mot", "palette>animateur-logo":"teinter ton logo", "palette>fonds-vivants":"habiller une trame",
+    "svg>convertisseur":"en GIF, MP4, PNG, favicon…", "svg>animateur-logo":"l'animer avec un opérateur BAAM" };
+  const FILES={ "operateur-texte":"tools-src/operateur-texte/index.html" };
+  let self=null;
+
+  const conf=()=>{ let p={}; try{ if(window.parent && window.parent!==window && window.parent.BAAM_LINKS) p=window.parent.BAAM_LINKS; }catch(_){}
+    return Object.assign({ urls:{} }, p, window.BAAM_LINKS||{}); };
+  function urlOf(id){
+    const u=conf().urls||{}; if(u[id]) return u[id];
+    if(location.protocol==="file:"){ const up=/\/tools-src\//.test(location.pathname) ? "../../" : ""; return up+(FILES[id]||id+".html"); }
+    return `/baam-tools/${id}/`;
+  }
+  // Le tool peut être encadré (iframe du portail, même domaine) : on change la page entière.
+  function go(url){ try{ if(window.top!==window){ window.top.location.href=new URL(url,location.href).href; return; } }catch(_){} location.href=url; }
+
+  const CSS=`
+.bl-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:10px auto 0;max-width:760px;font-family:var(--mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);}
+.bl-row[hidden]{display:none!important;}
+.bl-k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#8a867c);margin-right:2px;}
+.bl-go{font-family:inherit;font-size:11px;letter-spacing:.03em;background:transparent;color:var(--ink,#17150f);border:1px dashed var(--line,#ddd8cd);border-radius:7px;padding:6px 10px;cursor:pointer;line-height:1.2;}
+.bl-go:hover{border-style:solid;border-color:var(--accent,#00a847);color:var(--accent,#00a847);}
+.bl-go:disabled{opacity:.45;cursor:default;}
+.bl-note{position:fixed;left:50%;top:14px;transform:translate(-50%,-8px);opacity:0;background:var(--ink,#17150f);color:#fff;border-radius:8px;padding:9px 14px;font:12px/1.3 var(--mono,ui-monospace,Menlo,Consolas,monospace);z-index:1001;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);}
+.bl-note.on{opacity:1;transform:translate(-50%,0);}
+.bl-note b{color:var(--accent-live,#00f058);}`;
+  function style(){ if(document.getElementById("bl-style")) return; const s=document.createElement("style"); s.id="bl-style"; s.textContent=CSS; document.head.appendChild(s); }
+  let noteT=null;
+  function note(html){ style(); let n=document.querySelector(".bl-note"); if(!n){ n=document.createElement("div"); n.className="bl-note"; n.setAttribute("role","status"); document.body.appendChild(n); }
+    n.innerHTML=html; requestAnimationFrame(()=>n.classList.add("on")); clearTimeout(noteT); noteT=setTimeout(()=>n.classList.remove("on"),3200); }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  // Les destinations possibles pour ce tool : [kind, id] pour chaque résultat offert.
+  const getter=o=>typeof o==="function" ? o : o.get;
+  function targets(){ const out=[]; for(const [kind,o] of Object.entries(self.offers||{})){ const only=typeof o==="object" && o.to;
+    for(const [id,t] of Object.entries(CATALOG)) if(id!==self.id && t.accepts.includes(kind) && (!only || only.includes(id))) out.push([kind,id]); } return out; }
+
+  // Deux couleurs lisibles ensemble, tirées d'une palette : la base en encre, la plus contrastée en fond
+  // (contraste WCAG) ; si rien ne contraste assez, un fond crème ou nuit selon la base.
+  function lum(hex){ const n=parseInt(hex.slice(1),16), ch=v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); };
+    return 0.2126*ch(n>>16&255)+0.7152*ch(n>>8&255)+0.0722*ch(n&255); }
+  const contrast=(a,b)=>{ const x=lum(a), y=lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); };
+  function pair(d){ const ok=c=>/^#[0-9a-f]{6}$/i.test(c||""), cs=(d.colors||[]).filter(ok).map(c=>c.toLowerCase());
+    const ink=ok(d.base)?d.base.toLowerCase():(cs[0]||"#17150f"); let paper=null, best=0;
+    for(const c of cs){ const k=contrast(ink,c); if(c!==ink && k>best){ best=k; paper=c; } }
+    if(!paper || best<3) paper=lum(ink)>0.35 ? "#17150f" : "#f1efe9";
+    return { ink, paper }; }
+
+  async function send(kind,to,btn){
+    if(btn) btn.disabled=true;
+    try{
+      const data=await getter(self.offers[kind])();
+      if(!data){ note("Rien à envoyer pour l'instant."); return; }
+      try{ localStorage.setItem(KEY,JSON.stringify({ v:1, kind, from:self.id, to, at:Date.now(), data })); }
+      catch(_){ note("Envoi impossible : ton navigateur bloque le stockage local (navigation privée ?)."); return; }
+      go(urlOf(to));
+    } catch(_){ note("L'envoi a échoué — réessaie."); }
+    finally{ if(btn) btn.disabled=false; }
+  }
+  function take(){
+    let h=null; try{ h=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(_){ return; }
+    if(!h || h.v!==1 || h.to!==self.id) return;
+    try{ localStorage.removeItem(KEY); }catch(_){}
+    if(Date.now()-h.at>TTL || !self.accepts || !self.accepts[h.kind]) return;
+    try{ self.accepts[h.kind](h.data,h); note(`${GOT[h.kind]||"Reçu"} depuis <b>${esc((CATALOG[h.from]||{}).label||h.from)}</b>`); }
+    catch(_){ note("Le contenu reçu n'a pas pu être chargé."); }
+  }
+  function row(){
+    const list=targets(); if(!list.length || !self.anchor) return;
+    style();
+    const r=document.createElement("div"); r.className="bl-row"; r.innerHTML=`<span class="bl-k">Continuer avec</span>`;
+    for(const [kind,id] of list){ const b=document.createElement("button"); b.type="button"; b.className="bl-go";
+      b.textContent=CATALOG[id].label+" →"; b.title=`Envoyer ${SENT[kind]} vers ${CATALOG[id].label}`+(WHY[kind+">"+id]?` — ${WHY[kind+">"+id]}`:"");
+      b.onclick=()=>send(kind,id,b); r.appendChild(b); }
+    self.anchor.after(r);
+  }
+  function init(o){ self=o; take(); row(); }
+  return { init, send, urlOf, pair, catalog:()=>CATALOG };
+})();
+/* ═══ fin BAAM-LINK v1 ═══ */
 /* ── Bonus : la vidéo du mot, capturée sur l'aperçu vivant (police embarquée) ── */
 BaamOptin.init({
   tool:"operateur-texte", bonusId:"video", anchor:document.querySelector(".actions"),
@@ -895,7 +940,7 @@ BaamOptin.init({
       // Chaque image pilote l'opérateur à l'instant t, puis copie le SVG : la vidéo ne dépend
       // pas de la boucle d'affichage (elle reste animée même si l'onglet passe en arrière-plan).
       // La police est embarquée : une image SVG ne voit pas les polices de la page.
-      svgAt:(t,dw,dh,face)=>{ if(RT && OPERATORS[state.op]) OPERATORS[state.op].drive(RT,t);
+      svgAt:(t,dw,dh,face,D)=>{ drive(t,D);
         const c=live.cloneNode(true); c.setAttribute("width",dw); c.setAttribute("height",dh);
         if(face){ const st=document.createElementNS("http://www.w3.org/2000/svg","style"); st.textContent=face; c.querySelector("defs").prepend(st); }
         return new XMLSerializer().serializeToString(c); }
@@ -912,6 +957,11 @@ buildOps(); buildFonts(); buildStyle(); buildColor(); buildMacro(); buildAdvTool
 requestAnimationFrame(loop);
 // Re-mesure la taille du texte une fois les polices chargées (métriques exactes).
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ fieldEl.style.fontFamily=fontCss(state.font); fitText(); });
+
+/* ── Passerelle : reçoit une palette (couleur du mot) ; envoie le logo animé au convertisseur ── */
+BaamLink.init({ id:"operateur-texte", anchor:document.querySelector(".actions"),
+  offers:{ svg:{ to:["convertisseur"], get:async()=>RT ? { svg:(await buildExportSVG(BAAM_LOOP[state.op])).svg, name:exportName() } : null } },
+  accepts:{ palette:d=>{ state.color=BaamLink.pair(d).ink; buildColor(); apply(); } } });
 </script>
 </body>
 </html>

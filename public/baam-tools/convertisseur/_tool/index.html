@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BAAM · Convertisseur SVG</title>
+<meta name="description" content="Convertis un SVG, statique ou animé, en PNG, JPG, WebP, GIF ou vidéo. Tout se passe dans ton navigateur : rien n'est envoyé." />
+<style>
+  :root{
+    --bg:#f1efe9; --ink:#17150f; --muted:#8a867c; --line:#ddd8cd; --panel:#ffffff; --accent:#00a847;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --ui:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--mono); font-size:13px; line-height:1.5; -webkit-font-smoothing:antialiased;}
+  main{max-width:1100px; margin:0 auto; padding:18px 22px 40px;}
+  button, .filebtn{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:7px; padding:8px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  button:hover, .filebtn:hover{border-color:var(--muted);}
+  button.on{border-color:var(--accent); color:var(--accent);}
+  button.primary, .filebtn.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
+  button.primary:hover, .filebtn.primary:hover{background:var(--accent); border-color:var(--accent);}
+  button:disabled{opacity:.38; cursor:default;}
+  button:disabled:hover{border-color:var(--line);}
+  button.primary:disabled:hover{background:var(--ink); border-color:var(--ink);}
+  .tag{font-size:9px; letter-spacing:.08em; background:var(--accent); color:#fff; border-radius:20px; padding:1px 7px;}
+
+  /* ── Aperçu ── */
+  .stage{position:relative; height:44vh; min-height:300px; border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center;
+    background-color:#fff; background-image:linear-gradient(45deg,#ece8de 25%,transparent 25%),linear-gradient(-45deg,#ece8de 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ece8de 75%),linear-gradient(-45deg,transparent 75%,#ece8de 75%); background-size:22px 22px; background-position:0 0,0 11px,11px -11px,-11px 0;}
+  .stage img{max-width:82%; max-height:82%; display:block;}
+  .info{position:absolute; left:10px; bottom:10px; font-size:11px; background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:7px; padding:4px 9px;}
+  .info b{color:var(--accent); font-weight:600;}
+  .dropzone{position:absolute; inset:10px; border:2px dashed var(--accent); border-radius:12px; background:rgba(241,239,233,.9); display:none; align-items:center; justify-content:center; font-size:13px; pointer-events:none;}
+  .stage.drag .dropzone{display:flex;}
+
+  /* ── Actions + progression ── */
+  .actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:14px 0 6px;}
+  .prog{max-width:560px; margin:8px auto 0;}
+  .prog .bar{height:6px; background:var(--line); border-radius:3px; overflow:hidden;}
+  .prog .bar i{display:block; height:100%; width:0; background:var(--accent); transition:width .12s linear;}
+  .prog span{display:block; text-align:center; font-size:11px; color:var(--muted); margin-top:5px;}
+  .result{text-align:center; font-family:var(--ui); font-size:13.5px; margin:10px 0 0;}
+  .result b{color:var(--accent);}
+
+  /* ── Réglages ── */
+  .controls{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px 18px; margin-top:6px;}
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .row + .row, .row + .sect, .sect + .row, .hint + .row{margin-top:14px;}
+  .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); min-width:74px;}
+  .src-name{font-family:var(--ui); font-size:13px; margin-left:6px; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .hint{font-size:11px; color:var(--muted); margin:8px 0 0;}
+  .paste-box{margin-top:10px;}
+  .paste-box textarea{width:100%; min-height:110px; font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:#fbfaf7; outline:none; resize:vertical;}
+  .paste-box textarea:focus{border-color:var(--accent);}
+  .paste-box .row{margin-top:8px;}
+  input[type=number]{width:96px; font-family:var(--mono); font-size:13px; border:1px solid var(--line); border-radius:7px; padding:7px 9px; outline:none;}
+  input[type=number]:focus{border-color:var(--accent);}
+  .readout{font-size:12px; color:var(--muted);}
+  .readout b{color:var(--ink); font-weight:600;}
+  .pick{width:34px; height:28px; padding:0; border:1px solid var(--line); border-radius:6px; background:var(--panel); cursor:pointer;}
+  input[type=range]{flex:1; min-width:140px; max-width:320px; -webkit-appearance:none; appearance:none; height:3px; background:var(--line); border-radius:2px; outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff;}
+  .sect{border-top:1px dashed var(--line); padding-top:12px;}
+  .sect-h{font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin:0 0 4px;}
+  .check{display:inline-flex; gap:7px; align-items:center; font-family:var(--ui); font-size:13px; cursor:pointer;}
+
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; font-size:12px; padding:9px 16px; border-radius:8px; opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; z-index:2000;}
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast b{color:var(--accent);}
+</style>
+  <script src="/leads-config.js"></script>
+</head>
+<body>
+<main>
+  <div class="stage" id="stage">
+    <img id="preview" alt="Aperçu du SVG" />
+    <div class="info" id="info">—</div>
+    <div class="dropzone">Dépose ton SVG ici</div>
+  </div>
+
+  <div class="actions">
+    <button id="convert" class="primary">Convertir en PNG</button>
+    <button id="faviconBtn" title="Bonus : pack favicon complet">Pack favicon <span class="tag">bonus</span></button>
+    <button id="spriteBtn" title="Bonus : planche de sprites de l'animation">Planche de sprites <span class="tag">bonus</span></button>
+  </div>
+  <div class="prog" id="prog" hidden><div class="bar"><i></i></div><span></span></div>
+  <p class="result" id="result" hidden></p>
+
+  <div class="controls">
+    <div class="row">
+      <span class="lbl">Source</span>
+      <label class="filebtn primary">Choisir un SVG<input type="file" id="file" accept=".svg,image/svg+xml" hidden></label>
+      <button id="pasteBtn">Coller un code SVG</button>
+      <button id="sampleBtn">Exemple animé</button>
+      <span class="src-name" id="srcName">—</span>
+    </div>
+    <div class="paste-box" id="pasteBox" hidden>
+      <textarea id="pasteText" spellcheck="false" placeholder="<svg viewBox=&quot;0 0 100 100&quot;>…</svg>"></textarea>
+      <div class="row"><button class="primary" id="pasteUse">Utiliser ce SVG</button><button id="pasteCancel">Annuler</button></div>
+    </div>
+    <p class="hint">Tout se passe dans ton navigateur : ton fichier n'est envoyé nulle part. Les animations SMIL et CSS sont prises en charge ; celles pilotées par JavaScript ne le sont pas.</p>
+
+    <div class="row"><span class="lbl">Format</span><span class="row" id="formats"></span></div>
+    <div class="row">
+      <span class="lbl">Largeur</span>
+      <input type="number" id="width" min="16" step="1" /> <span class="readout">px · hauteur <b id="height">—</b> px</span>
+      <span class="row" id="presets"></span>
+    </div>
+    <div class="row" id="bgRow">
+      <span class="lbl">Fond</span>
+      <button id="bgT">transparent</button><button id="bgC">couleur</button>
+      <input type="color" class="pick" id="bgColor" value="#ffffff" title="Couleur de fond" />
+      <span class="readout" id="bgNote"></span>
+    </div>
+    <div class="row" id="qualityRow"><span class="lbl">Qualité</span><input type="range" id="quality" min="0.5" max="1" step="0.01" value="0.92" /><span class="readout"><b id="qualityV"></b></span></div>
+
+    <div class="sect" id="animSect">
+      <p class="sect-h">Animation</p>
+      <div class="row"><span class="lbl">Boucle</span><input type="number" id="loop" min="0.5" max="20" step="0.1" /> <span class="readout">s · détectée : <b id="loopDetected">—</b></span></div>
+      <div class="row" id="fpsRow"><span class="lbl">Images/s</span><span class="row" id="fps"></span><span class="readout" id="frameCount"></span></div>
+      <div class="row" id="ditherRow"><span class="lbl">GIF</span><label class="check"><input type="checkbox" id="dither" /> tramage — adoucit les dégradés, alourdit le fichier</label></div>
+      <div class="row" id="stillRow"><span class="lbl">Instant</span><input type="range" id="still" min="0" max="3" step="0.01" value="0" /><span class="readout">image fixe prise à <b id="stillV">0,00 s</b></span></div>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+   BAAM · Convertisseur SVG — PNG, JPG, WebP, GIF, vidéo. 100 % navigateur.
+   Capture exacte d'une animation à l'instant t : on recule le départ de chaque
+   animation de t (SMIL : begin ; CSS : animation-delay + pause), puis on rend
+   le SVG en image. Encodeur GIF, ZIP et ICO maison, sans dépendance.
+   Opt-in et vidéo : bloc commun BAAM-OPTIN v1 (shared/baam-optin.js).
+============================================================================ */
+const $=s=>document.querySelector(s);
+/* ═══ BAAM-OPTIN v1 ══════════════════════════════════════════════════════════
+   Bloc partagé par tous les BAAM Tools. Source canonique : shared/baam-optin.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (shared/inject-optin.js) ;
+   à servir un jour comme fichier commun côté portail.
+
+   Principe : l'outil reste gratuit, sans compte. Un BONUS se débloque contre un
+   e-mail, proposé APRÈS l'usage (carte discrète), jamais avant. Un CTA mène vers
+   l'univers BAAM concerné (studio.baam.pro, agence.baam.pro…).
+
+   Leads — rien n'est envoyé tant qu'aucune destination n'est configurée :
+     window.BAAM_LEADS = { endpoint:"https://…", privacyUrl:"https://…" }   // POST JSON
+     window.BAAM_LEADS = { netlifyForm:"bonus", privacyUrl:"https://…" }    // Netlify Forms
+   Lu dans la page OU dans la page parente (tool encadré en iframe).
+   Corps envoyé : { email, newsletter, tool, bonus, page, at }.
+   Le bonus se débloque même si l'envoi échoue. Un déblocage vaut pour tous les tools.
+═══════════════════════════════════════════════════════════════════════════════ */
+const BaamOptin=(()=>{
+  const KEY="baam.tools.bonus-unlocked";
+  let o=null, session=false, dismissed=false, busy=false;
+  const el={};
+  const conf=()=>{ let p={}; try{ if(window.parent && window.parent!==window && window.parent.BAAM_LEADS) p=window.parent.BAAM_LEADS; }catch(_){}
+    return Object.assign({ endpoint:null, netlifyForm:null, privacyUrl:"https://tools.baam.pro/confidentialite/" }, p, window.BAAM_LEADS||{}); };
+  const unlocked=()=>{ if(session) return true; try{ return localStorage.getItem(KEY)==="1"; }catch(_){ return false; } };
+  const mk=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
+  const UI='system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+  const INK='var(--ink,#17150f)', LINE='var(--line,#ddd8cd)', MUTED='var(--muted,#8a867c)', ACC='var(--accent,#00a847)', MONO='var(--mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace)';
+  const CSS=`
+.bo-card,.bo-modal,.bo-studio{--bo-ui:${UI};}
+.bo-card[hidden],.bo-modal[hidden],.bo-gate[hidden],.bo-bonus[hidden],.bo-host[hidden],.bo-progress[hidden],.bo-done[hidden]{display:none!important;}
+.bo-card{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid ${LINE};border-left:3px solid ${ACC};border-radius:10px;padding:12px 14px;margin:8px auto 0;max-width:760px;font-family:${MONO};color:${INK};animation:bo-rise .25s ease;box-sizing:border-box;}
+@keyframes bo-rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.bo-body p{margin:0;font-family:var(--bo-ui);font-size:13.5px;line-height:1.45;}
+.bo-ok{color:${ACC};font-weight:700;}
+.bo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+.bo-btn{font-family:${MONO};font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#fff;color:${INK};border:1px solid ${LINE};border-radius:7px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;line-height:1.2;}
+.bo-btn:hover{border-color:${MUTED};}
+.bo-btn.on{border-color:${ACC};color:${ACC};}
+.bo-primary{background:${INK};color:#fff;border-color:${INK};}
+.bo-primary:hover{background:${ACC};border-color:${ACC};color:#fff;}
+.bo-btn:disabled{opacity:.45;cursor:default;}
+.bo-x{margin-left:auto;border:none;background:none;font-size:19px;color:${MUTED};cursor:pointer;line-height:1;padding:0 4px;}
+.bo-studio{text-align:center;font-family:var(--bo-ui);font-size:13px;color:${MUTED};margin:12px 0 18px;}
+.bo-studio a{color:${INK};font-weight:600;text-decoration:none;border-bottom:1.5px solid ${ACC};}
+.bo-studio a:hover{color:${ACC};}
+.bo-modal{position:fixed;inset:0;background:rgba(23,21,15,.42);display:flex;align-items:center;justify-content:center;padding:16px;z-index:1000;}
+.bo-dialog{background:#fff;border-radius:14px;width:min(580px,100%);max-height:92vh;overflow:auto;padding:20px 22px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);font-family:${MONO};font-size:13px;color:${INK};box-sizing:border-box;}
+.bo-dialog h2{font-family:var(--bo-ui);font-size:20px;margin:0 0 6px;letter-spacing:-.01em;}
+.bo-lead{font-family:var(--bo-ui);font-size:14px;color:#4a473f;margin:0 0 14px;line-height:1.45;}
+.bo-f{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:${MUTED};margin:14px 0 6px;}
+.bo-f b{color:${INK};}
+.bo-dialog input[type=email],.bo-dialog input[type=text]{width:100%;box-sizing:border-box;font-family:var(--bo-ui);font-size:15px;border:1px solid ${LINE};border-radius:8px;padding:10px 12px;outline:none;}
+.bo-dialog input[type=email]:focus,.bo-dialog input[type=text]:focus{border-color:${ACC};}
+.bo-err{color:#c62828;font-family:var(--bo-ui);font-size:12.5px;margin-top:6px;min-height:1em;}
+.bo-choice{border:0;padding:0;margin:16px 0 0;min-width:0;}
+.bo-choice legend{font-family:${MONO};font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:${MUTED};padding:0;margin:0 0 7px;}
+.bo-choice-card{display:flex;gap:10px;align-items:flex-start;border:1px solid ${LINE};border-radius:9px;padding:11px 12px;margin-top:7px;cursor:pointer;font-family:var(--bo-ui);line-height:1.35;transition:border-color .16s,background .16s,transform .16s;}
+.bo-choice-card:hover{border-color:${MUTED};transform:translateY(-1px);}
+.bo-choice-card:has(input:checked){border-color:${ACC};background:color-mix(in srgb,${ACC} 7%,#fff);}
+.bo-choice-card input{margin:3px 0 0;accent-color:${ACC};flex:0 0 auto;}
+.bo-choice-card span{display:flex;flex-direction:column;gap:3px;}
+.bo-choice-card b{font-size:13.5px;color:${INK};}
+.bo-choice-card small{font-size:11.5px;color:${MUTED};}
+.bo-choice-yes{border-left:3px solid ${ACC};}
+.bo-choice-badge{display:inline-flex!important;width:max-content;font-family:${MONO};font-size:9px!important;text-transform:uppercase;letter-spacing:.08em;color:${ACC}!important;}
+.bo-legal{font-family:var(--bo-ui);font-size:11.5px;color:${MUTED};margin:12px 0 0;line-height:1.5;}
+.bo-legal a{color:inherit;}
+.bo-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.bo-range{width:100%;accent-color:${ACC};}
+.bo-progress{height:6px;background:${LINE};border-radius:3px;overflow:hidden;margin-top:14px;}
+.bo-progress i{display:block;height:100%;width:0;background:${ACC};transition:width .15s linear;}
+.bo-host{margin-top:12px;border-radius:10px;overflow:hidden;border:1px solid ${LINE};background:#f6f4ef;display:flex;justify-content:center;}
+.bo-host canvas{max-width:100%;max-height:260px;display:block;}
+.bo-done{font-family:var(--bo-ui);font-size:14px;margin-top:12px;line-height:1.5;}
+.bo-done b{color:${ACC};}
+.bo-done a{color:${INK};}
+.bo-code{width:100%;box-sizing:border-box;min-height:200px;font-family:${MONO};font-size:12px;line-height:1.5;border:1px solid ${LINE};border-radius:8px;padding:10px 12px;background:#fbfaf7;resize:vertical;outline:none;color:${INK};}
+.bo-note{font-family:var(--bo-ui);font-size:12px;color:${MUTED};margin:8px 0 0;line-height:1.45;}
+`;
+  const api={ close:()=>close(), setBusy:v=>{ busy=!!v; }, studioUrl:()=>o.studio.url, studioPitch:()=>o.studio.pitch||o.studio.label };
+
+  function init(opts){
+    o=opts;
+    const st=mk("style"); st.textContent=CSS; document.head.appendChild(st);
+    el.card=mk("div","bo-card"); el.card.hidden=true;
+    el.card.innerHTML=`<div class="bo-body"><p><span class="bo-ok">✓ ${o.okLabel||"C'est prêt."}</span> <span class="bo-txt"></span></p>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary bo-get">${o.getLabel}</button>`+
+      `<a class="bo-btn" target="_blank" rel="noopener" href="${o.studio.url}">${o.studio.cardLabel}</a></div></div>`+
+      `<button type="button" class="bo-x" aria-label="Fermer">×</button>`;
+    o.anchor.after(el.card);
+    el.studio=mk("p","bo-studio",`${o.studio.line} <a target="_blank" rel="noopener" href="${o.studio.url}">${o.studio.label}</a>`);
+    (o.studioAnchor||el.card).after(el.studio);
+    el.card.querySelector(".bo-get").onclick=open;
+    el.card.querySelector(".bo-x").onclick=()=>{ el.card.hidden=true; dismissed=true; };
+    el.modal=mk("div","bo-modal"); el.modal.hidden=true;
+    el.modal.innerHTML=`<div class="bo-dialog" role="dialog" aria-modal="true" aria-label="${o.bonusTitle}">`+
+      `<section class="bo-gate"><h2>${o.bonusTitle}</h2><p class="bo-lead">${o.bonusPitch}</p>`+
+      `<form novalidate><label class="bo-f" for="bo-email">Ton e-mail</label>`+
+      `<input type="email" id="bo-email" autocomplete="email" placeholder="toi@exemple.com" required><div class="bo-err"></div>`+
+      `<fieldset class="bo-choice"><legend>Et pour la suite ?</legend>`+
+      `<label class="bo-choice-card bo-choice-yes"><input type="radio" name="bo-news-choice" value="yes"> <span><i class="bo-choice-badge">Le meilleur de BAAM</i><b>Oui — je veux les nouveaux tools, guides et bonus</b><small>Avant-premières · 1 à 2 e-mails par mois · désinscription en un clic</small></span></label>`+
+      `<label class="bo-choice-card"><input type="radio" name="bo-news-choice" value="no"> <span><b>Non — je veux seulement ce bonus</b><small>Aucun e-mail éditorial ne sera envoyé</small></span></label></fieldset>`+
+      `<div class="bo-err bo-choice-err"></div>`+
+      `<p class="bo-legal">Ton e-mail débloque les bonus BAAM Tools sur cet appareil. Ton choix newsletter est enregistré séparément. <a class="bo-priv" target="_blank" rel="noopener">Confidentialité</a></p>`+
+      `<div class="bo-row"><button type="submit" class="bo-btn bo-primary bo-submit">${o.unlockLabel}</button><button type="button" class="bo-btn bo-close">Annuler</button></div></form></section>`+
+      `<section class="bo-bonus" hidden></section></div>`;
+    document.body.appendChild(el.modal);
+    el.modal.addEventListener("click",e=>{ if(e.target===el.modal || e.target.closest(".bo-close")) close(); });
+    window.addEventListener("keydown",e=>{ if(e.key==="Escape" && !el.modal.hidden) close(); });
+    el.modal.querySelector("form").addEventListener("submit",submit);
+  }
+  function after(){ if(dismissed || !o) return; el.card.querySelector(".bo-txt").textContent = unlocked() ? (o.doneUnlocked||"") : (o.doneLocked||""); el.card.hidden=false; }
+  function open(){
+    el.modal.querySelector(".bo-priv").href=conf().privacyUrl;
+    el.modal.hidden=false;
+    const u=unlocked(); el.modal.querySelector(".bo-gate").hidden=u; el.modal.querySelector(".bo-bonus").hidden=!u;
+    if(u) renderBonus(); else setTimeout(()=>{ const i=el.modal.querySelector("#bo-email"); if(i) i.focus(); },30);
+  }
+  function renderBonus(){ const b=el.modal.querySelector(".bo-bonus"); b.innerHTML=""; o.renderBonus(b,api); }
+  function close(){ if(busy) return; el.modal.hidden=true; }
+  async function submit(e){
+    e.preventDefault();
+    const f=e.target, input=f.querySelector("#bo-email"), email=input.value.trim(), err=f.querySelector(".bo-err"), choiceErr=f.querySelector(".bo-choice-err"), choice=f.querySelector('input[name="bo-news-choice"]:checked'), btn=f.querySelector(".bo-submit");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ err.textContent="Cette adresse ne semble pas valide."; input.focus(); return; }
+    err.textContent="";
+    if(!choice){ choiceErr.textContent="Choisis l'une des deux options pour continuer."; f.querySelector('input[name="bo-news-choice"]').focus(); return; }
+    choiceErr.textContent=""; btn.disabled=true; const label=btn.textContent; btn.textContent="Un instant…";
+    await send(email, choice.value==="yes");
+    session=true; try{ localStorage.setItem(KEY,"1"); }catch(_){}
+    btn.disabled=false; btn.textContent=label;
+    el.modal.querySelector(".bo-gate").hidden=true; el.modal.querySelector(".bo-bonus").hidden=false; renderBonus();
+  }
+  async function send(email,newsletter){
+    const c=conf(), body={ email, newsletter, tool:o.tool, bonus:o.bonusId, page:location.href.split("#")[0], at:new Date().toISOString() };
+    try{
+      if(c.endpoint){ await fetch(c.endpoint,{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) }); return true; }
+      if(c.netlifyForm){ await fetch("/",{ method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:new URLSearchParams({ "form-name":c.netlifyForm, "bot-field":"", email, newsletter:newsletter?"oui":"non", tool:o.tool, bonus:o.bonusId, page:body.page }).toString() }); return true; }
+      console.info("[BAAM Tools] Aucune destination de leads configurée — e-mail non envoyé.", body); return false;
+    }catch(_){ return false; }
+  }
+  return { init, after, open, unlocked, api };
+})();
+
+/* Vidéo : rendu image par image d'un SVG fourni par le tool, enregistré en MP4
+   (ou WebM selon le navigateur). Le temps de l'animation suit l'horloge réelle,
+   donc la vitesse est juste quelle que soit la cadence obtenue. */
+const BaamVideo=(()=>{
+  const FORMATS=[["1080x1080","Carré 1080"],["1920x1080","Paysage 1920×1080"],["1080x1350","Portrait 1080×1350"]];
+  const BGS=[["#ffffff","blanc"],["#f1efe9","crème"],["#17150f","noir"]];
+  function mime(){ for(const m of ["video/mp4;codecs=avc1.42E01E","video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]){
+    try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }catch(_){} } return null; }
+  function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); }
+  async function record(v, svgAt, onProgress, host){
+    const m=mime(); if(!m) throw new Error("unsupported");
+    const w=v.w, h=v.h, k=Math.min(w*v.scale/v.box.w, h*v.scale/v.box.h);
+    const dw=Math.round(v.view.w*k), dh=Math.round(v.view.h*k), dx=Math.round((w-dw)/2), dy=Math.round((h-dh)/2);
+    const c=document.createElement("canvas"); c.width=w; c.height=h; if(host){ host.innerHTML=""; host.appendChild(c); host.hidden=false; }
+    const ctx=c.getContext("2d");
+    const rec=new MediaRecorder(c.captureStream(30),{ mimeType:m, videoBitsPerSecond:Math.round(Math.min(16e6,w*h*6)) });
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data && e.data.size) chunks.push(e.data); };
+    const stopped=new Promise(r=>rec.onstop=r);
+    const drawAt=async t=>{ const url=URL.createObjectURL(new Blob([svgAt(t,dw,dh)],{type:"image/svg+xml"})), img=new Image();
+      try{ await new Promise((ok,ko)=>{ img.onload=ok; img.onerror=ko; img.src=url; }); ctx.fillStyle=v.bg; ctx.fillRect(0,0,w,h); ctx.drawImage(img,dx,dy,dw,dh); }
+      finally{ URL.revokeObjectURL(url); } };
+    await drawAt(0); rec.start(250);
+    const start=performance.now();
+    for(;;){ const t=(performance.now()-start)/1000; if(t>=v.seconds) break; await drawAt(t); if(onProgress) onProgress(t/v.seconds); }
+    if(onProgress) onProgress(1); rec.stop(); await stopped;
+    return { blob:new Blob(chunks,{type:m.split(";")[0]}), ext:m.includes("mp4")?"mp4":"webm" };
+  }
+  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep,D), prepare(), fileBase(), bg }
+  // D = durée de la vidéo (s) : un moteur qui cale ses mouvements dessus boucle sans couture.
+  function panel(host, api, cfg){
+    const v={ w:1080, h:1080, bg:cfg.bg||"#ffffff", seconds:6, scale:cfg.scale||0.62 };
+    host.innerHTML=`<h2>Ta vidéo</h2><p class="bo-lead">Elle reprend exactement l'animation de l'aperçu.</p>`+
+      `<label class="bo-f">Format</label><div class="bo-chips bo-fmt"></div>`+
+      `<label class="bo-f">Fond</label><div class="bo-chips bo-bg"></div>`+
+      `<label class="bo-f">Durée</label><div class="bo-chips bo-dur"></div>`+
+      `<label class="bo-f">Taille ${cfg.subject||"du sujet"} <b class="bo-sv"></b></label><input type="range" class="bo-range" min="0.35" max="0.95" step="0.01">`+
+      `<div class="bo-host" hidden></div><div class="bo-progress" hidden><i></i></div><div class="bo-done" hidden></div>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary bo-go">Générer la vidéo</button><button type="button" class="bo-btn bo-close">Fermer</button></div>`;
+    const q=s=>host.querySelector(s);
+    const chips=(sel,items,isOn,set)=>{ const box=q(sel); box.innerHTML="";
+      items.forEach(([val,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="bo-btn"+(isOn(val)?" on":""); b.innerHTML=label; b.onclick=()=>{ set(val); draw(); }; box.appendChild(b); });
+      return box; };
+    function draw(){
+      chips(".bo-fmt",FORMATS,f=>f===`${v.w}x${v.h}`,f=>{ const p=f.split("x").map(Number); v.w=p[0]; v.h=p[1]; });
+      const bg=chips(".bo-bg",BGS.map(([c,n])=>[c,`<span style="width:12px;height:12px;border-radius:3px;border:1px solid #ccc;background:${c};display:inline-block"></span>${n}`]),c=>c===v.bg,c=>{ v.bg=c; });
+      const p=document.createElement("input"); p.type="color"; p.value=v.bg; p.title="Fond personnalisé";
+      p.style.cssText="width:34px;height:28px;padding:0;border:1px solid #ddd8cd;border-radius:6px;cursor:pointer;background:#fff";
+      p.oninput=()=>{ v.bg=p.value; }; p.onchange=draw; bg.appendChild(p);
+      chips(".bo-dur",[[4,"4 s"],[6,"6 s"],[10,"10 s"]],d=>d===v.seconds,d=>{ v.seconds=d; });
+      q(".bo-range").value=v.scale; q(".bo-sv").textContent=Math.round(v.scale*100)+" %";
+    }
+    draw();
+    q(".bo-range").addEventListener("input",e=>{ v.scale=parseFloat(e.target.value); q(".bo-sv").textContent=Math.round(v.scale*100)+" %"; });
+    q(".bo-go").onclick=async()=>{
+      const done=q(".bo-done"), go=q(".bo-go");
+      if(!mime()){ done.hidden=false; done.textContent="Ton navigateur ne sait pas enregistrer de vidéo. Essaie Chrome, Edge ou Firefox — l'export SVG reste disponible."; return; }
+      api.setBusy(true); go.disabled=true; go.textContent="Enregistrement…"; done.hidden=true;
+      const prog=q(".bo-progress"), bar=prog.querySelector("i"); prog.hidden=false; bar.style.width="0%";
+      try{
+        const prep=cfg.prepare ? await cfg.prepare() : null;
+        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep,v.seconds), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
+        download(res.blob,`${cfg.fileBase()}-baam-${v.w}x${v.h}.${res.ext}`);
+        done.hidden=false;
+        done.innerHTML=`<b>✓ Vidéo prête</b> (${res.ext.toUpperCase()}, ${v.w}×${v.h}, ${v.seconds} s).`+
+          (res.ext==="webm" ? " Ton navigateur l'a encodée en WebM : la plupart des réseaux l'acceptent, sinon un convertisseur la passe en MP4." : "")+
+          `<br>Envie d'aller plus loin ? <a href="${api.studioUrl()}" target="_blank" rel="noopener">${api.studioPitch()}</a>`;
+      }catch(_){ done.hidden=false; done.textContent="L'enregistrement a échoué — réessaie, ou utilise l'export SVG."; }
+      finally{ api.setBusy(false); go.disabled=false; go.textContent="Générer à nouveau"; }
+    };
+  }
+  return { mime, record, panel, download };
+})();
+/* ═══ fin BAAM-OPTIN v1 ═══ */
+/* ═══ BAAM-LINK v1 ═══════════════════════════════════════════════════════════
+   La passerelle entre BAAM Tools. Source canonique : shared/baam-link.js.
+   Une copie IDENTIQUE est injectée dans chaque tool (node shared/inject.js).
+
+   Contrat de module — chaque tool se déclare :
+     BaamLink.init({
+       id: "fonds-vivants",                       // = son id de page (/baam-tools/<id>/)
+       anchor: élément sous lequel poser la rangée « Continuer avec »,
+       offers:  { palette: ()=>({ colors, base }), svg: { to:["convertisseur"], get: async ()=>({ svg, name }) } },
+       accepts: { palette: data=>{…}, svg: data=>{…} }
+     });
+   Une offre est une fonction, ou { get, to:[ids] } pour limiter les destinations proposées.
+   Un tool OFFRE un résultat ; la rangée propose les tools qui l'ACCEPTENT. Le clic
+   dépose le résultat dans le navigateur (localStorage, même domaine) et ouvre l'autre
+   tool, qui le consomme au chargement (valable 15 min, une seule fois).
+
+   Types de résultat :
+     palette — { colors:["#rrggbb", …], base:"#rrggbb" }
+     svg     — { svg:"<svg…>", name:"fichier.svg" }   (statique ou animé)
+
+   Adresses : /baam-tools/<id>/ par défaut ; en local (file://), les fichiers voisins.
+   Surcharge possible : window.BAAM_LINKS = { urls:{ "<id>":"…" } } (page ou page parente).
+═══════════════════════════════════════════════════════════════════════════════ */
+const BaamLink=(()=>{
+  const KEY="baam.tools.handoff", TTL=15*60*1000;
+  // Ce que chaque tool sait recevoir : c'est ce qui décide des destinations proposées.
+  const CATALOG={
+    "color-picker":    { label:"Color Picker",      accepts:[] },
+    "operateur-texte": { label:"Opérateur Texte",   accepts:["palette"] },
+    "animateur-logo":  { label:"Animateur de logo", accepts:["palette","svg"] },
+    "fonds-vivants":   { label:"Fonds vivants",     accepts:["palette"] },
+    "convertisseur":   { label:"Convertisseur",     accepts:["svg"] },
+    "mindmap":         { label:"Mindmap",           accepts:[] }
+  };
+  const SENT={ palette:"la palette", svg:"le visuel" };
+  const GOT={ palette:"Palette reçue", svg:"Visuel reçu" };
+  // Pourquoi aller là-bas, en quelques mots (affiché au survol).
+  const WHY={ "palette>operateur-texte":"colorer ton mot", "palette>animateur-logo":"teinter ton logo", "palette>fonds-vivants":"habiller une trame",
+    "svg>convertisseur":"en GIF, MP4, PNG, favicon…", "svg>animateur-logo":"l'animer avec un opérateur BAAM" };
+  const FILES={ "operateur-texte":"tools-src/operateur-texte/index.html" };
+  let self=null;
+
+  const conf=()=>{ let p={}; try{ if(window.parent && window.parent!==window && window.parent.BAAM_LINKS) p=window.parent.BAAM_LINKS; }catch(_){}
+    return Object.assign({ urls:{} }, p, window.BAAM_LINKS||{}); };
+  function urlOf(id){
+    const u=conf().urls||{}; if(u[id]) return u[id];
+    if(location.protocol==="file:"){ const up=/\/tools-src\//.test(location.pathname) ? "../../" : ""; return up+(FILES[id]||id+".html"); }
+    return `/baam-tools/${id}/`;
+  }
+  // Le tool peut être encadré (iframe du portail, même domaine) : on change la page entière.
+  function go(url){ try{ if(window.top!==window){ window.top.location.href=new URL(url,location.href).href; return; } }catch(_){} location.href=url; }
+
+  const CSS=`
+.bl-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:10px auto 0;max-width:760px;font-family:var(--mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);}
+.bl-row[hidden]{display:none!important;}
+.bl-k{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted,#8a867c);margin-right:2px;}
+.bl-go{font-family:inherit;font-size:11px;letter-spacing:.03em;background:transparent;color:var(--ink,#17150f);border:1px dashed var(--line,#ddd8cd);border-radius:7px;padding:6px 10px;cursor:pointer;line-height:1.2;}
+.bl-go:hover{border-style:solid;border-color:var(--accent,#00a847);color:var(--accent,#00a847);}
+.bl-go:disabled{opacity:.45;cursor:default;}
+.bl-note{position:fixed;left:50%;top:14px;transform:translate(-50%,-8px);opacity:0;background:var(--ink,#17150f);color:#fff;border-radius:8px;padding:9px 14px;font:12px/1.3 var(--mono,ui-monospace,Menlo,Consolas,monospace);z-index:1001;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);}
+.bl-note.on{opacity:1;transform:translate(-50%,0);}
+.bl-note b{color:var(--accent-live,#00f058);}`;
+  function style(){ if(document.getElementById("bl-style")) return; const s=document.createElement("style"); s.id="bl-style"; s.textContent=CSS; document.head.appendChild(s); }
+  let noteT=null;
+  function note(html){ style(); let n=document.querySelector(".bl-note"); if(!n){ n=document.createElement("div"); n.className="bl-note"; n.setAttribute("role","status"); document.body.appendChild(n); }
+    n.innerHTML=html; requestAnimationFrame(()=>n.classList.add("on")); clearTimeout(noteT); noteT=setTimeout(()=>n.classList.remove("on"),3200); }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  // Les destinations possibles pour ce tool : [kind, id] pour chaque résultat offert.
+  const getter=o=>typeof o==="function" ? o : o.get;
+  function targets(){ const out=[]; for(const [kind,o] of Object.entries(self.offers||{})){ const only=typeof o==="object" && o.to;
+    for(const [id,t] of Object.entries(CATALOG)) if(id!==self.id && t.accepts.includes(kind) && (!only || only.includes(id))) out.push([kind,id]); } return out; }
+
+  // Deux couleurs lisibles ensemble, tirées d'une palette : la base en encre, la plus contrastée en fond
+  // (contraste WCAG) ; si rien ne contraste assez, un fond crème ou nuit selon la base.
+  function lum(hex){ const n=parseInt(hex.slice(1),16), ch=v=>{ v/=255; return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4); };
+    return 0.2126*ch(n>>16&255)+0.7152*ch(n>>8&255)+0.0722*ch(n&255); }
+  const contrast=(a,b)=>{ const x=lum(a), y=lum(b); return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05); };
+  function pair(d){ const ok=c=>/^#[0-9a-f]{6}$/i.test(c||""), cs=(d.colors||[]).filter(ok).map(c=>c.toLowerCase());
+    const ink=ok(d.base)?d.base.toLowerCase():(cs[0]||"#17150f"); let paper=null, best=0;
+    for(const c of cs){ const k=contrast(ink,c); if(c!==ink && k>best){ best=k; paper=c; } }
+    if(!paper || best<3) paper=lum(ink)>0.35 ? "#17150f" : "#f1efe9";
+    return { ink, paper }; }
+
+  async function send(kind,to,btn){
+    if(btn) btn.disabled=true;
+    try{
+      const data=await getter(self.offers[kind])();
+      if(!data){ note("Rien à envoyer pour l'instant."); return; }
+      try{ localStorage.setItem(KEY,JSON.stringify({ v:1, kind, from:self.id, to, at:Date.now(), data })); }
+      catch(_){ note("Envoi impossible : ton navigateur bloque le stockage local (navigation privée ?)."); return; }
+      go(urlOf(to));
+    } catch(_){ note("L'envoi a échoué — réessaie."); }
+    finally{ if(btn) btn.disabled=false; }
+  }
+  function take(){
+    let h=null; try{ h=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(_){ return; }
+    if(!h || h.v!==1 || h.to!==self.id) return;
+    try{ localStorage.removeItem(KEY); }catch(_){}
+    if(Date.now()-h.at>TTL || !self.accepts || !self.accepts[h.kind]) return;
+    try{ self.accepts[h.kind](h.data,h); note(`${GOT[h.kind]||"Reçu"} depuis <b>${esc((CATALOG[h.from]||{}).label||h.from)}</b>`); }
+    catch(_){ note("Le contenu reçu n'a pas pu être chargé."); }
+  }
+  function row(){
+    const list=targets(); if(!list.length || !self.anchor) return;
+    style();
+    const r=document.createElement("div"); r.className="bl-row"; r.innerHTML=`<span class="bl-k">Continuer avec</span>`;
+    for(const [kind,id] of list){ const b=document.createElement("button"); b.type="button"; b.className="bl-go";
+      b.textContent=CATALOG[id].label+" →"; b.title=`Envoyer ${SENT[kind]} vers ${CATALOG[id].label}`+(WHY[kind+">"+id]?` — ${WHY[kind+">"+id]}`:"");
+      b.onclick=()=>send(kind,id,b); r.appendChild(b); }
+    self.anchor.after(r);
+  }
+  function init(o){ self=o; take(); row(); }
+  return { init, send, urlOf, pair, catalog:()=>CATALOG };
+})();
+/* ═══ fin BAAM-LINK v1 ═══ */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fr=(n,d=2)=>Number(n).toFixed(d).replace(".",",");
+const kb=b=>b>=1048576?fr(b/1048576,1)+" Mo":Math.max(1,Math.round(b/1024))+" Ko";
+
+const SAMPLE=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240"><rect x="10" y="10" width="220" height="220" rx="52" fill="#17150f"/><path d="M46 150 C80 96 120 96 150 140 S200 180 200 120" fill="none" stroke="#f1efe9" stroke-width="18" stroke-linecap="round" stroke-dasharray="260" stroke-dashoffset="260"><animate attributeName="stroke-dashoffset" values="260;0;0;260" keyTimes="0;0.45;0.7;1" dur="3s" repeatCount="indefinite"/></path><circle cx="168" cy="72" r="22" fill="#00f058"><animate attributeName="r" values="22;30;22" dur="1.5s" repeatCount="indefinite"/></circle></svg>`;
+const FORMATS=[ {id:"png",label:"PNG",anim:false,alpha:true,mime:"image/png",ext:"png"}, {id:"jpg",label:"JPG",anim:false,alpha:false,mime:"image/jpeg",ext:"jpg"},
+  {id:"webp",label:"WebP",anim:false,alpha:true,mime:"image/webp",ext:"webp"}, {id:"gif",label:"GIF",anim:true,alpha:true,ext:"gif"}, {id:"video",label:"MP4",anim:true,alpha:false} ];
+const st={ fmt:"png", width:1080, bg:"transparent", bgColor:"#ffffff", quality:0.92, loop:3, fps:15, still:0, dither:false };
+let src=null, busy=false;
+
+/* ── Lecture et nettoyage du SVG ── */
+function sanitizeSVG(text){
+  const doc=new DOMParser().parseFromString(text,"image/svg+xml"), el=doc.documentElement;
+  if(!el || el.localName!=="svg" || doc.getElementsByTagName("parsererror").length) return null;
+  ["script","foreignObject","iframe","embed","object","audio","video","canvas","handler","listener"].forEach(t=>[...doc.getElementsByTagName(t)].forEach(n=>n.remove()));
+  [...doc.getElementsByTagName("*")].forEach(n=>{
+    [...n.attributes].forEach(a=>{ const k=a.name.toLowerCase(), v=(a.value||"").trim().toLowerCase();
+      if(k.startsWith("on")) n.removeAttribute(a.name);
+      else if((k==="href"||k.endsWith(":href")) && !(v.startsWith("#")||v.startsWith("data:image/"))) n.removeAttribute(a.name);
+      else if(v.includes("javascript:")) n.removeAttribute(a.name); });
+    const tag=n.localName.toLowerCase();
+    if(["animate","set","animatetransform","animatemotion"].includes(tag)){ const an=(n.getAttribute("attributeName")||"").toLowerCase(); if(an.startsWith("on")||an.includes("href")) n.remove(); }
+    if(tag==="style") n.textContent=n.textContent.replace(/@import[^;]*;?/gi,"").replace(/url\(\s*['"]?\s*(?!#|data:)[^)]*\)/gi,"none");
+  });
+  return el;
+}
+function ensureSize(el){
+  const num=v=>{ const f=parseFloat(v); return isFinite(f)&&f>0&&!/%/.test(String(v))?f:0; };
+  let vb=el.getAttribute("viewBox"), w=num(el.getAttribute("width")), h=num(el.getAttribute("height"));
+  if(!vb){
+    if(!(w&&h)){
+      const host=document.createElementNS("http://www.w3.org/2000/svg","svg"); host.setAttribute("style","position:absolute;left:-9999px;top:0;width:10px;height:10px");
+      document.body.appendChild(host); const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+      [...el.childNodes].forEach(c=>{ if(c.nodeType===1 && c.localName!=="style") g.appendChild(document.importNode(c,true)); });
+      host.appendChild(g); let bb={x:0,y:0,width:300,height:150}; try{ const b=g.getBBox(); if(b.width&&b.height) bb=b; }catch(_){} host.remove();
+      vb=`${bb.x} ${bb.y} ${bb.width} ${bb.height}`; w=bb.width; h=bb.height;
+    } else vb=`0 0 ${w} ${h}`;
+    el.setAttribute("viewBox",vb);
+  }
+  const p=vb.split(/[\s,]+/).map(Number);
+  if(!(w&&h)){ w=p[2]||300; h=p[3]||150; }
+  el.setAttribute("width",w); el.setAttribute("height",h);
+  if(!el.getAttribute("xmlns")) el.setAttribute("xmlns","http://www.w3.org/2000/svg");
+  return { w, h, ratio:(p[3]||h)/(p[2]||w) };
+}
+
+/* ── Analyse des animations (SMIL + CSS) et de la durée de boucle ── */
+const SMIL_SEL="animate,animateTransform,animateMotion,set,animateColor";
+function clockToSec(v){ if(v==null) return null; v=String(v).trim(); let m;
+  if((m=v.match(/^(-?[\d.]+)\s*(ms|s|min|h)?$/))){ const n=parseFloat(m[1]), u=m[2]||"s"; return u==="ms"?n/1000:u==="min"?n*60:u==="h"?n*3600:n; }
+  if((m=v.match(/^(\d+):(\d{2}):(\d{2}(?:\.\d+)?)$/))) return (+m[1])*3600+(+m[2])*60+parseFloat(m[3]);
+  if((m=v.match(/^(\d{1,2}):(\d{2}(?:\.\d+)?)$/))) return (+m[1])*60+parseFloat(m[2]);
+  return null; }
+function analyze(el){
+  el.setAttribute("data-bcv","r"); [...el.getElementsByTagName("*")].forEach((e,i)=>e.setAttribute("data-bcv",String(i)));
+  // CSS : on lit les animations calculées dans un shadow DOM (les styles du SVG n'en sortent pas).
+  const host=document.createElement("div"); host.style.cssText="position:absolute;left:-99999px;top:0;width:1px;height:1px;overflow:hidden";
+  document.body.appendChild(host); const root=host.attachShadow({mode:"open"}); const live=document.importNode(el,true); root.appendChild(live);
+  const css=[];
+  [live,...live.querySelectorAll("*")].forEach(e=>{ const cs=getComputedStyle(e);
+    if(cs.animationName && cs.animationName!=="none"){ const t=s=>s.split(",").map(x=>clockToSec(x)||0);
+      css.push({ id:e.getAttribute("data-bcv"), delays:t(cs.animationDelay), durs:t(cs.animationDuration) }); } });
+  host.remove();
+  const smil=[...el.querySelectorAll(SMIL_SEL)];
+  const controllable=smil.filter(a=>{ const b=a.getAttribute("begin"); return b==null || b.trim()==="" || clockToSec(b)!==null; });
+  const durs=[]; controllable.forEach(a=>{ const d=clockToSec(a.getAttribute("dur")); if(d>0) durs.push(d); }); css.forEach(c=>c.durs.forEach(d=>{ if(d>0) durs.push(d); }));
+  let loop=3;
+  if(durs.length){ const cs=durs.map(d=>Math.max(1,Math.round(d*100))), g=(a,b)=>b?g(b,a%b):a; let l=cs[0];
+    for(const c of cs.slice(1)){ l=l/g(l,c)*c; if(l>2000) break; } loop=(l<=2000?l:Math.max(...cs))/100; }
+  return { css, animated:css.length>0 || controllable.length>0, loop:Math.min(20,Math.max(0.5,+loop.toFixed(2))) };
+}
+
+/* ── Rendu d'une image à l'instant t ── */
+function frameSVG(t,W,H){
+  const c=src.base.cloneNode(true); c.setAttribute("width",W); c.setAttribute("height",H);
+  for(const a of src.css){ const e=a.id==="r"?c:c.querySelector(`[data-bcv="${a.id}"]`); if(!e || !e.style) continue;
+    e.style.setProperty("animation-delay",a.delays.map(d=>`${(d-t).toFixed(3)}s`).join(","),"important");
+    e.style.setProperty("animation-play-state","paused","important"); }
+  c.querySelectorAll(SMIL_SEL).forEach(a=>{ const b=a.getAttribute("begin"), off=(b==null||b.trim()==="")?0:clockToSec(b); if(off===null) return; a.setAttribute("begin",`${(off-t).toFixed(3)}s`); });
+  return new XMLSerializer().serializeToString(c);
+}
+async function frameImage(t,W,H){
+  const url=URL.createObjectURL(new Blob([frameSVG(t,W,H)],{type:"image/svg+xml"})), img=new Image();
+  try{ await new Promise((ok,ko)=>{ img.onload=ok; img.onerror=()=>ko(new Error("render")); img.src=url; }); return img; }
+  finally{ setTimeout(()=>URL.revokeObjectURL(url),0); }
+}
+async function frameCanvas(t,W,H,bg){
+  const img=await frameImage(t,W,H), c=document.createElement("canvas"); c.width=W; c.height=H; const x=c.getContext("2d",{willReadFrequently:true});
+  if(bg){ x.fillStyle=bg; x.fillRect(0,0,W,H); } x.drawImage(img,0,0,W,H); return c;
+}
+
+/* ── Encodeur GIF (palette par median cut, tramage optionnel, LZW, boucle infinie) ── */
+function medianCut(frames,max){
+  let total=0; frames.forEach(a=>total+=a.length/4);
+  const step=Math.max(1,Math.floor(total/90000)), px=[]; let k=0;
+  for(const a of frames) for(let i=0;i<a.length;i+=4){ if((k++%step)!==0 || a[i+3]<128) continue; px.push((a[i]<<16)|(a[i+1]<<8)|a[i+2]); }
+  if(!px.length) px.push(0);
+  const boxes=[px];
+  while(boxes.length<max){
+    let bi=-1, best=0, ch=0;
+    boxes.forEach((b,i)=>{ if(b.length<2) return; let r0=255,r1=0,g0=255,g1=0,b0=255,b1=0;
+      for(const c of b){ const r=c>>16&255,g=c>>8&255,bl=c&255; if(r<r0)r0=r; if(r>r1)r1=r; if(g<g0)g0=g; if(g>g1)g1=g; if(bl<b0)b0=bl; if(bl>b1)b1=bl; }
+      const rr=r1-r0, gr=g1-g0, br=b1-b0, m=Math.max(rr,gr,br); if(m>best){ best=m; bi=i; ch=m===rr?16:m===gr?8:0; } });
+    if(bi<0) break;
+    const b=boxes[bi]; b.sort((x,y)=>((x>>ch)&255)-((y>>ch)&255)); const mid=b.length>>1; boxes.splice(bi,1,b.slice(0,mid),b.slice(mid));
+  }
+  return boxes.map(b=>{ let r=0,g=0,bl=0; for(const c of b){ r+=c>>16&255; g+=c>>8&255; bl+=c&255; } const n=b.length; return [Math.round(r/n),Math.round(g/n),Math.round(bl/n)]; });
+}
+function makeIndexer(pal,offset){
+  const cache=new Int16Array(32768).fill(-1);
+  return (r,g,b)=>{ const key=((r>>3)<<10)|((g>>3)<<5)|(b>>3); let v=cache[key]; if(v>=0) return v; let bd=1e12;
+    for(let i=0;i<pal.length;i++){ const p=pal[i], dr=p[0]-r, dg=p[1]-g, db=p[2]-b, d=2*dr*dr+4*dg*dg+3*db*db; if(d<bd){ bd=d; v=i; } }
+    v+=offset; cache[key]=v; return v; };
+}
+function toIndices(d,W,H,idx,pal,offset,transparent,dither){
+  const out=new Uint8Array(W*H);
+  if(!dither){ for(let p=0,i=0;p<out.length;p++,i+=4) out[p]=(transparent && d[i+3]<128)?0:idx(d[i],d[i+1],d[i+2]); return out; }
+  let er=new Float32Array((W+2)*3), nx=new Float32Array((W+2)*3);
+  for(let y=0;y<H;y++){ nx.fill(0);
+    for(let x=0;x<W;x++){ const p=y*W+x, i=p*4; if(transparent && d[i+3]<128){ out[p]=0; continue; }
+      const e=(x+1)*3; let r=d[i]+er[e], g=d[i+1]+er[e+1], b=d[i+2]+er[e+2];
+      r=r<0?0:r>255?255:r; g=g<0?0:g>255?255:g; b=b<0?0:b>255?255:b;
+      const k=idx(r|0,g|0,b|0); out[p]=k; const c=pal[k-offset], q=[r-c[0],g-c[1],b-c[2]];
+      for(let j=0;j<3;j++){ er[e+3+j]+=q[j]*7/16; nx[e-3+j]+=q[j]*3/16; nx[e+j]+=q[j]*5/16; nx[e+3+j]+=q[j]/16; } }
+    const t=er; er=nx; nx=t; }
+  return out;
+}
+function lzwBlocks(ix,minCode){
+  const clear=1<<minCode, eoi=clear+1; let next=eoi+1, size=minCode+1, cur=0, shift=0, p=0;
+  const out=new Uint8Array(ix.length*2+1024), table=new Map();
+  const emit=c=>{ cur|=c<<shift; shift+=size; while(shift>=8){ out[p++]=cur&255; cur>>>=8; shift-=8; } };
+  emit(clear); let prefix=ix[0];
+  for(let i=1;i<ix.length;i++){ const k=ix[i], key=(prefix<<8)|k, code=table.get(key);
+    if(code!==undefined){ prefix=code; continue; }
+    emit(prefix);
+    if(next===4096){ emit(clear); table.clear(); next=eoi+1; size=minCode+1; }
+    else { if(next>=(1<<size)) size++; table.set(key,next++); }
+    prefix=k; }
+  emit(prefix); emit(eoi); if(shift>0) out[p++]=cur&255;
+  const blocks=new Uint8Array(p+Math.ceil(p/255)+1); let q=0;
+  for(let i=0;i<p;i+=255){ const n=Math.min(255,p-i); blocks[q++]=n; blocks.set(out.subarray(i,i+n),q); q+=n; }
+  blocks[q++]=0; return blocks.subarray(0,q);
+}
+function gifWriter(W,H,pal,transparent){
+  const parts=[], u16=v=>[v&255,(v>>8)&255], n=pal.length+(transparent?1:0);
+  let size=2; while(size<n) size<<=1; const bits=Math.log2(size), minCode=Math.max(2,bits);
+  const head=[71,73,70,56,57,97,...u16(W),...u16(H),0x80|((bits-1)<<4)|(bits-1),0,0];
+  const table=(transparent?[[0,0,0]]:[]).concat(pal); while(table.length<size) table.push([0,0,0]);
+  table.forEach(c=>head.push(c[0],c[1],c[2]));
+  head.push(0x21,0xFF,0x0B,78,69,84,83,67,65,80,69,50,46,48,0x03,0x01,0,0,0x00); // NETSCAPE2.0 : boucle infinie
+  parts.push(new Uint8Array(head));
+  return {
+    frame(ix,delay){ parts.push(new Uint8Array([0x21,0xF9,0x04, transparent?((2<<2)|1):(1<<2), ...u16(delay), 0, 0x00, 0x2C,0,0,0,0,...u16(W),...u16(H),0x00,minCode])); parts.push(lzwBlocks(ix,minCode)); },
+    end(){ parts.push(new Uint8Array([0x3B])); return new Blob(parts,{type:"image/gif"}); }
+  };
+}
+
+/* ── ZIP (stocké) et ICO, pour les packs bonus ── */
+const CRC=(()=>{ const t=new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; t[n]=c>>>0; } return t; })();
+const crc32=b=>{ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c=CRC[(c^b[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+function zipBlob(files){
+  const enc=new TextEncoder(), parts=[], central=[], now=new Date();
+  const dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate(), tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+  let off=0;
+  for(const f of files){ const name=enc.encode(f.name), data=f.data, crc=crc32(data);
+    const lh=new DataView(new ArrayBuffer(30)); lh.setUint32(0,0x04034b50,true); lh.setUint16(4,20,true); lh.setUint16(6,0x0800,true); lh.setUint16(8,0,true); lh.setUint16(10,tm,true); lh.setUint16(12,dt,true);
+    lh.setUint32(14,crc,true); lh.setUint32(18,data.length,true); lh.setUint32(22,data.length,true); lh.setUint16(26,name.length,true); lh.setUint16(28,0,true);
+    parts.push(new Uint8Array(lh.buffer),name,data);
+    const ch=new DataView(new ArrayBuffer(46)); ch.setUint32(0,0x02014b50,true); ch.setUint16(4,20,true); ch.setUint16(6,20,true); ch.setUint16(8,0x0800,true); ch.setUint16(10,0,true); ch.setUint16(12,tm,true); ch.setUint16(14,dt,true);
+    ch.setUint32(16,crc,true); ch.setUint32(20,data.length,true); ch.setUint32(24,data.length,true); ch.setUint16(28,name.length,true); ch.setUint32(42,off,true);
+    central.push(new Uint8Array(ch.buffer),name); off+=30+name.length+data.length; }
+  const cd=central.reduce((s,a)=>s+a.length,0), end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true); end.setUint16(8,files.length,true); end.setUint16(10,files.length,true); end.setUint32(12,cd,true); end.setUint32(16,off,true);
+  return new Blob([...parts,...central,new Uint8Array(end.buffer)],{type:"application/zip"});
+}
+function icoBytes(pngs){
+  const n=pngs.length, head=new DataView(new ArrayBuffer(6+16*n)); head.setUint16(2,1,true); head.setUint16(4,n,true);
+  let off=6+16*n; pngs.forEach((p,i)=>{ const b=6+16*i; head.setUint8(b,p.size>=256?0:p.size); head.setUint8(b+1,p.size>=256?0:p.size); head.setUint16(b+4,1,true); head.setUint16(b+6,32,true); head.setUint32(b+8,p.data.length,true); head.setUint32(b+12,off,true); off+=p.data.length; });
+  const out=new Uint8Array(off); out.set(new Uint8Array(head.buffer),0); let o=6+16*n; pngs.forEach(p=>{ out.set(p.data,o); o+=p.data.length; }); return out;
+}
+const canvasBytes=(c,type,q)=>new Promise(ok=>c.toBlob(async b=>ok(new Uint8Array(await b.arrayBuffer())),type||"image/png",q));
+const textBytes=s=>new TextEncoder().encode(s);
+
+/* ── Conversion ── */
+const fmt=()=>FORMATS.find(f=>f.id===st.fmt);
+const dims=()=>{ let W=Math.max(16,Math.round(st.width)), H=Math.max(16,Math.round(W*src.ratio)); if(st.fmt==="video"){ W+=W%2; H+=H%2; } return {W,H}; };
+const maxW=()=>st.fmt==="gif"?1200:st.fmt==="video"?3840:8192;
+const bgFor=f=>(!f.alpha || st.bg==="color") ? st.bgColor : null;
+const base=()=>(src.name||"image").replace(/\.svg$/i,"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"image";
+function download(blob,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),3000); }
+function progress(p,label){ $("#prog").hidden=false; $("#prog i").style.width=Math.round(p*100)+"%"; $("#prog span").textContent=label||""; }
+const tick=()=>new Promise(r=>setTimeout(r,0));
+
+async function makeGIF(){
+  const {W,H}=dims(), fps=st.fps, n=Math.max(1,Math.round(st.loop*fps)), delay=Math.max(2,Math.round(100/fps)), transparent=!bgFor(fmt()), bg=bgFor(fmt());
+  const picks=[...new Set(Array.from({length:Math.min(8,n)},(_,i)=>Math.floor(i*n/Math.min(8,n))))], samples=[];
+  for(const i of picks){ samples.push((await frameCanvas(i/fps,W,H,bg)).getContext("2d").getImageData(0,0,W,H).data); progress(samples.length/picks.length*0.15,"Analyse des couleurs…"); await tick(); }
+  const pal=medianCut(samples,transparent?255:256), idx=makeIndexer(pal,transparent?1:0), gif=gifWriter(W,H,pal,transparent);
+  for(let i=0;i<n;i++){ const d=(await frameCanvas(i/fps,W,H,bg)).getContext("2d").getImageData(0,0,W,H).data;
+    gif.frame(toIndices(d,W,H,idx,pal,transparent?1:0,transparent,st.dither),delay);
+    progress(0.15+0.85*(i+1)/n,`Image ${i+1} / ${n}`); await tick(); }
+  return { blob:gif.end(), ext:"gif", detail:`${n} images, ${fps} i/s` };
+}
+async function convert(){
+  if(!src || busy) return;
+  const f=fmt(); if(f.anim && !src.animated){ toast("Ce SVG n'est pas animé — choisis PNG, JPG ou WebP."); return; }
+  busy=true; setBusy(true); $("#result").hidden=true; const t0=performance.now();
+  try{
+    let res;
+    if(f.id==="gif") res=await makeGIF();
+    else if(f.id==="video"){ const {W,H}=dims();
+      progress(0,"Enregistrement vidéo…");
+      const r=await BaamVideo.record({ w:W, h:H, bg:st.bgColor, seconds:st.loop, scale:1, view:{w:W,h:H}, box:{w:W,h:H} }, (t,dw,dh)=>frameSVG(t,dw,dh), p=>progress(p,"Enregistrement vidéo — en temps réel"), null);
+      res={ blob:r.blob, ext:r.ext, detail:`${fr(st.loop,1)} s` };
+    } else { const {W,H}=dims(); progress(0.3,"Rendu…");
+      const c=await frameCanvas(src.animated?st.still:0,W,H,bgFor(f));
+      const blob=await new Promise(ok=>c.toBlob(ok,f.mime,f.id==="png"?undefined:st.quality));
+      const ext=blob.type==="image/webp"?"webp":blob.type==="image/jpeg"?"jpg":"png";
+      res={ blob, ext, detail: (f.id==="webp" && ext!=="webp") ? "ton navigateur ne sait pas écrire le WebP : PNG à la place" : "" };
+    }
+    const {W,H}=dims(), name=`${base()}-${W}x${H}.${res.ext}`;
+    download(res.blob,name);
+    $("#result").hidden=false;
+    $("#result").innerHTML=`<b>✓ ${esc(name)}</b> — ${W} × ${H} · ${kb(res.blob.size)}${res.detail?" · "+esc(res.detail):""} · ${fr((performance.now()-t0)/1000,1)} s`;
+    BaamOptin.after();
+  }catch(e){ $("#result").hidden=false; $("#result").textContent="La conversion a échoué — essaie une taille plus petite, ou un autre format."; }
+  finally{ busy=false; setBusy(false); $("#prog").hidden=true; }
+}
+function setBusy(b){ document.querySelectorAll(".controls button, .controls input, .actions button").forEach(e=>e.disabled=b); if(!b) refresh(); }
+
+/* ── Interface ── */
+function refresh(){
+  const f=fmt(), on=!!src;
+  $("#convert").disabled=!on; $("#convert").textContent=on?`Convertir en ${f.id==="video"?videoLabel():f.label}`:"Choisis un SVG";
+  $("#formats").innerHTML="";
+  FORMATS.forEach(x=>{ const b=document.createElement("button"); b.textContent=x.id==="video"?videoLabel():x.label; b.className=x.id===st.fmt?"on":"";
+    const dis=on && x.anim && !src.animated; b.disabled=dis; if(dis) b.title="Ce SVG n'est pas animé"; b.onclick=()=>{ st.fmt=x.id; if(st.width>maxW()) st.width=maxW(); if(x.id==="gif" && st.width>800) st.width=600; refresh(); }; $("#formats").appendChild(b); });
+  $("#width").value=st.width; $("#width").max=maxW();
+  $("#height").textContent=on?dims().H:"—";
+  $("#presets").innerHTML="";
+  const pres=on?[["×1",src.w],["×2",src.w*2],["×4",src.w*4],["512",512],["1080",1080],["1920",1920]]:[];
+  pres.filter(([,w])=>w<=maxW()).forEach(([l,w])=>{ const b=document.createElement("button"); b.textContent=l; b.className=Math.round(w)===Math.round(st.width)?"on":""; b.onclick=()=>{ st.width=Math.round(w); refresh(); }; $("#presets").appendChild(b); });
+  const alphaOK=f.alpha;
+  $("#bgT").disabled=!alphaOK; $("#bgT").className=alphaOK && st.bg==="transparent"?"on":""; $("#bgC").className=(!alphaOK || st.bg==="color")?"on":"";
+  $("#bgColor").value=st.bgColor;
+  $("#bgNote").textContent=!alphaOK ? (f.id==="jpg"?"le JPG n'a pas de transparence":"la vidéo n'a pas de transparence") : (f.id==="gif" && st.bg==="transparent" ? "transparence du GIF : bords nets, sans demi-teintes" : "");
+  $("#qualityRow").hidden=!(f.id==="jpg"||f.id==="webp"); $("#qualityV").textContent=Math.round(st.quality*100)+" %";
+  const anim=on && src.animated;
+  $("#animSect").hidden=!anim;
+  if(anim){
+    $("#loop").value=st.loop; $("#loopDetected").textContent=fr(src.loop,2)+" s";
+    $("#fpsRow").hidden=f.id!=="gif"; $("#ditherRow").hidden=f.id!=="gif"; $("#stillRow").hidden=f.anim;
+    $("#fps").innerHTML=""; [10,15,20,25].forEach(v=>{ const b=document.createElement("button"); b.textContent=v; b.className=v===st.fps?"on":""; b.onclick=()=>{ st.fps=v; refresh(); }; $("#fps").appendChild(b); });
+    $("#frameCount").textContent=`→ ${Math.max(1,Math.round(st.loop*st.fps))} images`;
+    $("#dither").checked=st.dither;
+    const s=$("#still"); s.max=st.loop; if(st.still>st.loop) st.still=0; s.value=st.still; $("#stillV").textContent=fr(st.still)+" s";
+  }
+  $("#faviconBtn").disabled=!on; $("#spriteBtn").disabled=!on;
+  $("#info").innerHTML=on?`${Math.round(src.w)} × ${Math.round(src.h)} · ${src.animated?`<b>animé</b> · boucle ${fr(src.loop,2)} s`:"statique"}`:"Aucun SVG";
+}
+const videoLabel=()=>{ const m=BaamVideo.mime(); return m && m.includes("webm") ? "WebM" : "MP4"; };
+function loadSVGText(text,name){
+  const el=sanitizeSVG(text); if(!el){ toast("Ce SVG n'est pas lisible — vérifie le code."); return; }
+  const size=ensureSize(el), info=analyze(el);
+  src={ name, base:el, w:size.w, h:size.h, ratio:size.ratio, css:info.css, animated:info.animated, loop:info.loop };
+  st.loop=info.loop; st.still=0; if(!info.animated && fmt().anim) st.fmt="png";
+  const prevUrl=$("#preview").dataset.url; if(prevUrl) URL.revokeObjectURL(prevUrl);
+  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(el)],{type:"image/svg+xml"})); $("#preview").src=url; $("#preview").dataset.url=url;
+  $("#srcName").textContent=name; $("#result").hidden=true; refresh();
+}
+function loadFile(file){
+  if(!file) return;
+  if(!(file.type==="image/svg+xml" || /\.svg$/i.test(file.name||""))){ toast("Le convertisseur part d'un SVG."); return; }
+  if(file.size>15*1024*1024){ toast("Fichier trop lourd — 15 Mo maximum."); return; }
+  const r=new FileReader(); r.onload=()=>loadSVGText(String(r.result),file.name||"image.svg"); r.onerror=()=>toast("Lecture du fichier impossible."); r.readAsText(file);
+}
+$("#file").addEventListener("change",e=>{ loadFile(e.target.files[0]); e.target.value=""; });
+$("#sampleBtn").onclick=()=>loadSVGText(SAMPLE,"exemple-anime.svg");
+$("#pasteBtn").onclick=()=>{ $("#pasteBox").hidden=!$("#pasteBox").hidden; if(!$("#pasteBox").hidden) $("#pasteText").focus(); };
+$("#pasteCancel").onclick=()=>{ $("#pasteBox").hidden=true; };
+$("#pasteUse").onclick=()=>{ const t=$("#pasteText").value; if(!/<svg[\s>]/i.test(t)){ toast("Colle un code qui commence par &lt;svg"); return; } loadSVGText(t,"svg-colle.svg"); $("#pasteBox").hidden=true; };
+const stage=$("#stage");
+["dragenter","dragover"].forEach(ev=>stage.addEventListener(ev,e=>{ e.preventDefault(); stage.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev=>stage.addEventListener(ev,e=>{ e.preventDefault(); stage.classList.remove("drag"); }));
+stage.addEventListener("drop",e=>{ const f=e.dataTransfer && e.dataTransfer.files[0]; if(f) loadFile(f); });
+document.addEventListener("paste",e=>{ const tag=(document.activeElement&&document.activeElement.tagName||"").toLowerCase(); if(tag==="textarea"||tag==="input") return;
+  const t=(e.clipboardData&&e.clipboardData.getData("text/plain"))||""; if(/<svg[\s>]/i.test(t)){ e.preventDefault(); loadSVGText(t,"svg-colle.svg"); } });
+$("#width").addEventListener("change",e=>{ st.width=Math.min(maxW(),Math.max(16,Math.round(+e.target.value||st.width))); refresh(); });
+$("#bgT").onclick=()=>{ st.bg="transparent"; refresh(); };
+$("#bgC").onclick=()=>{ st.bg="color"; refresh(); };
+$("#bgColor").addEventListener("input",e=>{ st.bgColor=e.target.value; st.bg="color"; refresh(); });
+$("#quality").addEventListener("input",e=>{ st.quality=+e.target.value; $("#qualityV").textContent=Math.round(st.quality*100)+" %"; });
+$("#loop").addEventListener("change",e=>{ st.loop=Math.min(20,Math.max(0.5,+e.target.value||st.loop)); refresh(); });
+$("#dither").addEventListener("change",e=>{ st.dither=e.target.checked; });
+$("#still").addEventListener("input",e=>{ st.still=+e.target.value; $("#stillV").textContent=fr(st.still)+" s"; });
+$("#convert").onclick=convert;
+
+/* ── Bonus : pack favicon + planche de sprites ── */
+async function faviconPack(pad,bg){
+  const S=[16,32,48,180,192,512], files=[], pngs={};
+  const t=src.animated?st.still:0;
+  for(const s of S){ const c=document.createElement("canvas"); c.width=s; c.height=s; const x=c.getContext("2d");
+    const fill=bg || (s===180?"#ffffff":null); if(fill){ x.fillStyle=fill; x.fillRect(0,0,s,s); }
+    const box=s*(1-2*pad), k=Math.min(box/src.w, box/src.h), w=Math.max(1,Math.round(src.w*k)), h=Math.max(1,Math.round(src.h*k));
+    const img=await frameImage(t,w,h); x.drawImage(img,Math.round((s-w)/2),Math.round((s-h)/2),w,h);
+    pngs[s]=await canvasBytes(c); }
+  files.push({ name:"favicon.ico", data:icoBytes([16,32,48].map(s=>({size:s,data:pngs[s]}))) });
+  files.push({ name:"favicon.svg", data:textBytes(new XMLSerializer().serializeToString(src.base)) });
+  files.push({ name:"favicon-16x16.png", data:pngs[16] }, { name:"favicon-32x32.png", data:pngs[32] }, { name:"favicon-48x48.png", data:pngs[48] });
+  files.push({ name:"apple-touch-icon.png", data:pngs[180] }, { name:"android-chrome-192x192.png", data:pngs[192] }, { name:"android-chrome-512x512.png", data:pngs[512] });
+  files.push({ name:"site.webmanifest", data:textBytes(JSON.stringify({ name:"", short_name:"", icons:[{src:"/android-chrome-192x192.png",sizes:"192x192",type:"image/png"},{src:"/android-chrome-512x512.png",sizes:"512x512",type:"image/png"}], theme_color:"#ffffff", background_color:"#ffffff", display:"standalone" },null,2)) });
+  files.push({ name:"LISEZ-MOI.txt", data:textBytes(`Pack favicon — BAAM Tools\n\nPose ces fichiers à la racine de ton site, puis colle ceci dans le <head> :\n\n<link rel="icon" href="/favicon.ico" sizes="any">\n<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n<link rel="manifest" href="/site.webmanifest">\n\nComplète "name" et "short_name" dans site.webmanifest.\n`) });
+  return zipBlob(files);
+}
+async function spriteSheet(layout,fps,fw,onP){
+  const n=Math.max(1,Math.round(st.loop*fps)); let cols=layout==="strip"?n:Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/cols);
+  fw=Math.max(8,Math.min(Math.round(fw), Math.floor(8192/cols))); const fh=Math.max(8,Math.round(fw*src.ratio));
+  const sheet=document.createElement("canvas"); sheet.width=cols*fw; sheet.height=rows*fh; const x=sheet.getContext("2d"), frames=[];
+  for(let i=0;i<n;i++){ const cx=(i%cols)*fw, cy=Math.floor(i/cols)*fh; x.drawImage(await frameImage(i/fps,fw,fh),cx,cy,fw,fh); frames.push({i,x:cx,y:cy,w:fw,h:fh}); if(onP) onP((i+1)/n); await tick(); }
+  const meta={ image:"sprite.png", size:{w:sheet.width,h:sheet.height}, frameWidth:fw, frameHeight:fh, columns:cols, rows, count:n, fps, duration:+(n/fps).toFixed(3) };
+  const files=[ { name:"sprite.png", data:await canvasBytes(sheet) }, { name:"sprite.json", data:textBytes(JSON.stringify({frames,meta},null,2)) } ];
+  if(layout==="strip") files.push({ name:"sprite.css", data:textBytes(`.sprite{\n  width:${fw}px; height:${fh}px;\n  background:url(sprite.png) 0 0 / ${sheet.width}px ${fh}px no-repeat;\n  animation:sprite-play ${meta.duration}s steps(${n}) infinite;\n}\n@keyframes sprite-play{ to{ background-position:-${sheet.width}px 0; } }\n`) });
+  return { blob:zipBlob(files), n, cols, rows, sheet:[sheet.width,sheet.height] };
+}
+
+BaamOptin.init({
+  tool:"convertisseur", bonusId:"favicon-sprites", anchor:document.querySelector(".actions"),
+  okLabel:"Fichier converti.",
+  doneLocked:"Converti dans ton navigateur, sans rien envoyer. En bonus : le pack favicon complet et la planche de sprites de ton animation.",
+  doneUnlocked:"Tes bonus sont débloqués sur cet appareil — pack favicon et planche de sprites.",
+  getLabel:"Obtenir les bonus",
+  bonusTitle:"Pack favicon + planche de sprites",
+  bonusPitch:"Toutes les tailles d'icône pour ton site, avec le .ico et l'extrait HTML à coller — et, pour une animation, la planche de sprites prête pour le web ou un jeu.",
+  unlockLabel:"Débloquer les bonus",
+  studio:{ url:"https://studio.baam.pro/", line:"Des animations sur-mesure pour ta marque ?", label:"Aller plus loin avec BAAM Studio ↗", cardLabel:"Motion sur-mesure — BAAM Studio ↗" },
+  renderBonus:(host,api)=>{
+    const fv={ pad:0.08, bg:null }, sp={ layout:"grid", fps:12, fw:256 };
+    host.innerHTML=`<h2>Tes bonus</h2><p class="bo-lead">Générés dans ton navigateur à partir de ton SVG.</p>`+
+      `<label class="bo-f">Pack favicon — 16 à 512 px, .ico, .svg, manifest et extrait HTML</label>`+
+      `<div class="bo-chips"><span style="font-size:11px;color:#8a867c">Marge</span><input type="range" class="bo-range fv-pad" min="0" max="0.25" step="0.01" style="max-width:180px"><b class="fv-padv" style="font-size:12px"></b></div>`+
+      `<div class="bo-chips" style="margin-top:8px"><button type="button" class="bo-btn fv-t">fond transparent</button><button type="button" class="bo-btn fv-c">fond couleur</button><input type="color" class="fv-col" value="#ffffff" style="width:34px;height:28px;padding:0;border:1px solid #ddd8cd;border-radius:6px;cursor:pointer;background:#fff"></div>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-primary fv-go">Télécharger le pack favicon (.zip)</button></div>`+
+      `<p class="bo-note fv-note">L'icône Apple (180 px) reçoit toujours un fond : iOS n'affiche pas la transparence.</p>`+
+      `<label class="bo-f">Planche de sprites</label><div class="sp-body"></div>`+
+      `<div class="bo-progress" hidden><i></i></div><div class="bo-done" hidden></div>`+
+      `<div class="bo-row"><button type="button" class="bo-btn bo-close">Fermer</button></div>`;
+    const q=s=>host.querySelector(s), done=q(".bo-done"), prog=q(".bo-progress"), bar=prog.querySelector("i");
+    const drawFv=()=>{ q(".fv-pad").value=fv.pad; q(".fv-padv").textContent=Math.round(fv.pad*100)+" %"; q(".fv-t").className="bo-btn"+(fv.bg?"":" on"); q(".fv-c").className="bo-btn"+(fv.bg?" on":""); };
+    q(".fv-pad").addEventListener("input",e=>{ fv.pad=+e.target.value; drawFv(); });
+    q(".fv-t").onclick=()=>{ fv.bg=null; drawFv(); }; q(".fv-c").onclick=()=>{ fv.bg=q(".fv-col").value; drawFv(); };
+    q(".fv-col").addEventListener("input",e=>{ fv.bg=e.target.value; drawFv(); });
+    q(".fv-go").onclick=async()=>{ api.setBusy(true); q(".fv-go").disabled=true; done.hidden=true;
+      try{ download(await faviconPack(fv.pad,fv.bg),`${base()}-favicon.zip`); done.hidden=false; done.innerHTML="<b>✓ Pack favicon prêt</b> — l'extrait HTML est dans LISEZ-MOI.txt."; }
+      catch(_){ done.hidden=false; done.textContent="La génération a échoué — réessaie."; }
+      finally{ api.setBusy(false); q(".fv-go").disabled=false; } };
+    drawFv();
+    const body=q(".sp-body");
+    if(!src.animated){ body.innerHTML=`<p class="bo-note" style="margin-top:0">Ton SVG n'est pas animé : la planche de sprites sert à découper une animation. Charge un SVG animé, ou l'exemple animé.</p>`; return; }
+    body.innerHTML=`<div class="bo-chips"><button type="button" class="bo-btn sp-grid">grille (jeux)</button><button type="button" class="bo-btn sp-strip">bande (CSS)</button></div>`+
+      `<div class="bo-chips sp-fps" style="margin-top:8px"></div>`+
+      `<div class="bo-chips" style="margin-top:8px"><span style="font-size:11px;color:#8a867c">Taille d'une image</span><input type="number" class="sp-fw" min="16" max="1024" style="width:90px"><span style="font-size:11px;color:#8a867c">px</span></div>`+
+      `<p class="bo-note sp-info"></p><div class="bo-row"><button type="button" class="bo-btn bo-primary sp-go">Télécharger la planche (.zip)</button></div>`;
+    const drawSp=()=>{ q(".sp-grid").className="bo-btn"+(sp.layout==="grid"?" on":""); q(".sp-strip").className="bo-btn"+(sp.layout==="strip"?" on":"");
+      const box=q(".sp-fps"); box.innerHTML='<span style="font-size:11px;color:#8a867c">Images/s</span>';
+      [8,12,24,30].forEach(v=>{ const b=document.createElement("button"); b.type="button"; b.className="bo-btn"+(v===sp.fps?" on":""); b.textContent=v; b.onclick=()=>{ sp.fps=v; drawSp(); }; box.appendChild(b); });
+      const n=Math.max(1,Math.round(st.loop*sp.fps)), cols=sp.layout==="strip"?n:Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/cols), fw=Math.min(sp.fw,Math.floor(8192/cols)), fh=Math.round(fw*src.ratio);
+      q(".sp-fw").value=sp.fw;
+      q(".sp-info").textContent=`${n} images · ${cols} × ${rows} · planche ${cols*fw} × ${rows*fh} px`+(fw<sp.fw?` (images réduites à ${fw} px pour rester sous 8192 px)`:"")+(sp.layout==="strip"?" · avec le CSS prêt à l'emploi":" · avec le JSON des coordonnées"); };
+    q(".sp-grid").onclick=()=>{ sp.layout="grid"; drawSp(); }; q(".sp-strip").onclick=()=>{ sp.layout="strip"; drawSp(); };
+    q(".sp-fw").addEventListener("change",e=>{ sp.fw=Math.min(1024,Math.max(16,Math.round(+e.target.value||sp.fw))); drawSp(); });
+    q(".sp-go").onclick=async()=>{ api.setBusy(true); q(".sp-go").disabled=true; done.hidden=true; prog.hidden=false; bar.style.width="0%";
+      try{ const r=await spriteSheet(sp.layout,sp.fps,sp.fw,p=>{ bar.style.width=Math.round(p*100)+"%"; }); download(r.blob,`${base()}-sprites.zip`);
+        done.hidden=false; done.innerHTML=`<b>✓ Planche prête</b> — ${r.n} images, ${r.sheet[0]} × ${r.sheet[1]} px.`; }
+      catch(_){ done.hidden=false; done.textContent="La génération a échoué — essaie une taille d'image plus petite."; }
+      finally{ api.setBusy(false); q(".sp-go").disabled=false; prog.hidden=true; } };
+    drawSp();
+  }
+});
+$("#faviconBtn").onclick=()=>BaamOptin.open();
+$("#spriteBtn").onclick=()=>BaamOptin.open();
+
+let toastT=null; function toast(html){ const t=$("#toast"); t.innerHTML=html; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),1800); }
+
+loadSVGText(SAMPLE,"exemple-anime.svg");
+
+/* ── Passerelle : reçoit les visuels des autres tools ; envoie un logo à animer ── */
+BaamLink.init({ id:"convertisseur", anchor:document.querySelector(".actions"),
+  offers:{ svg:()=>src ? { svg:new XMLSerializer().serializeToString(src.base), name:src.name } : null },
+  accepts:{ svg:d=>loadSVGText(d.svg, d.name||"visuel.svg") } });
+</script>
+</body>
+</html>

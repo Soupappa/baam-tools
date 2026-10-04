@@ -9,7 +9,7 @@ const portal = JSON.parse(await readFile(join(publicDir, ".well-known", "baam.js
 
 assert.equal(registry.meta.territory, "tools");
 assert.equal(registry.meta.count, registry.assets.length);
-assert.equal(registry.assets.length, 12);
+assert.equal(registry.assets.length, 15);
 assert.deepEqual(new Set(registry.assets.map((asset) => asset.type)), new Set(["free-webtool", "tutorial", "resource"]));
 assert.equal(portal.id, "baam-tools");
 assert.equal(portal.relations.length, registry.assets.length);
@@ -51,6 +51,15 @@ assert.match(colorPicker, /\.\/_tool\//);
 assert.match(colorPicker, /src="\/leads-config\.js"/);
 const colorPickerTool = await readFile(join(publicDir, "baam-tools", "color-picker", "_tool", "index.html"), "utf8");
 assert.match(colorPickerTool, /src="\/leads-config\.js"/);
+for (const tool of ["animateur-logo", "fonds-vivants", "convertisseur"]) {
+  const shell = await readFile(join(publicDir, "baam-tools", tool, "index.html"), "utf8");
+  const inner = await readFile(join(publicDir, "baam-tools", tool, "_tool", "index.html"), "utf8");
+  assert.match(shell, /tool-frame-shell/);
+  assert.match(shell, /\.\/_tool\//);
+  assert.match(inner, /src="\/leads-config\.js"/);
+  assert.match(inner, /BaamLink\.init/);
+  assert.match(inner, new RegExp(`id:(?:"${tool}"|TOOL_ID)`));
+}
 const guide = await readFile(join(publicDir, "guides", "motion-par-claude", "index.html"), "utf8");
 assert.equal((guide.match(/Copier le prompt/g) || []).length, 5);
 assert.match(guide, /Le pipeline en neuf passages/);

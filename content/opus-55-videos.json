@@ -28,7 +28,5 @@
     "Lire le prompt comme point de départ, puis observer tout ce qui vient du contexte du projet.",
     "Utiliser la galerie comme réserve de mécaniques, jamais comme banque de styles à copier."
   ],
-  "relations": [
-    { "type": "related-to", "target": "guide-motion-claude" }
-  ]
+  "relations": []
 }
