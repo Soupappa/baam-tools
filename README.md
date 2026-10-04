@@ -73,6 +73,18 @@ push Tools → Netlify Tools → hook BAAM.pro → racine
 
 Les URLs privées de hooks resteront dans Netlify et ne seront jamais versionnées.
 
+## Collecte des bonus
+
+Le build publie un formulaire Netlify Forms statique nommé `bonus` et injecte
+automatiquement `/leads-config.js` dans chaque BAAM Tool, qu'il soit natif ou encadré.
+Les outils envoient l'adresse, le choix newsletter, l'outil, le bonus et la page ; la
+case newsletter reste indépendante et décochée par défaut. La page
+`/confidentialite/` décrit le traitement et le stockage local fonctionnel.
+
+Après le premier déploiement, activer **Forms → Form detection** dans Netlify puis
+redéployer. Les soumissions sont ensuite visibles dans **Forms → bonus**. Ne contacter
+à des fins éditoriales que les lignes dont `newsletter` vaut `oui`.
+
 ## Flux éditorial conseillé
 
 1. Lancer `lancer-site.bat`, puis ouvrir `/builder/`.

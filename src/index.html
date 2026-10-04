@@ -50,8 +50,18 @@
 
   <footer class="site-footer">
     <span>BAAM.TOOLS / portail autonome</span>
-    <nav><a href="/builder/">Page builder</a><a href="/data/registry.json">Registre JSON</a></nav>
+    <nav><a href="/confidentialite/">Confidentialité</a><a href="/builder/">Page builder</a><a href="/data/registry.json">Registre JSON</a></nav>
   </footer>
+
+  <form name="bonus" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden aria-hidden="true">
+    <input type="hidden" name="form-name" value="bonus">
+    <input name="bot-field" tabindex="-1" autocomplete="off">
+    <input name="email" type="email">
+    <input name="newsletter">
+    <input name="tool">
+    <input name="bonus">
+    <input name="page">
+  </form>
 
   <script src="/app.js" defer></script>
 </body>

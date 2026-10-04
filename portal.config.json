@@ -10,6 +10,10 @@
     "tagline": "Prendre. Comprendre. Fabriquer.",
     "description": "Des outils concrets, des guides copiables et une sélection de ressources externes pour fabriquer sans détour."
   },
+  "leads": {
+    "netlifyForm": "bonus",
+    "privacyPath": "/confidentialite/"
+  },
   "featured": [
     "operateur-texte",
     "color-picker",

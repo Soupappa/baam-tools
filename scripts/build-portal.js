@@ -9,6 +9,11 @@ const publicDir = join(root, "public");
 const config = JSON.parse(await readFile(join(root, "portal.config.json"), "utf8"));
 const checkOnly = process.argv.includes("--check");
 const publicStatuses = new Set(["preview", "public"]);
+const leadConfig = {
+  netlifyForm: config.leads?.netlifyForm || "bonus",
+  privacyUrl: new URL((config.leads?.privacyPath || "/confidentialite/").replace(/^\//, ""), config.territory.url).href
+};
+const leadConfigTag = '<script src="/leads-config.js"></script>';
 
 const escapeHtml = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -16,6 +21,17 @@ const escapeHtml = (value = "") => String(value)
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;")
   .replaceAll("'", "&#039;");
+
+function withLeadConfig(html) {
+  if (html.includes(leadConfigTag)) return html;
+  if (!html.includes("</head>")) throw new Error("impossible d’injecter la configuration leads : </head> absent");
+  return html.replace("</head>", `  ${leadConfigTag}\n</head>`);
+}
+
+async function configurePublishedTool(file) {
+  const html = await readFile(file, "utf8");
+  await writeFile(file, withLeadConfig(html));
+}
 
 const contentFiles = (await readdir(join(root, "content"))).filter((file) => file.endsWith(".json")).sort();
 const items = [];
@@ -179,7 +195,7 @@ function pageShell(item, body, aside = "") {
       ${aside}
     </div>
   </main>
-  <footer class="site-footer"><span>BAAM.TOOLS / ${escapeHtml(typeLabel)}</span><a href="https://baam.pro/">BAAM.pro ↗</a></footer>
+  <footer class="site-footer"><span>BAAM.TOOLS / ${escapeHtml(typeLabel)}</span><nav><a href="/confidentialite/">Confidentialité</a><a href="https://baam.pro/">BAAM.pro ↗</a></nav></footer>
   <script src="/page.js" defer></script>
 </body>
 </html>`;
@@ -220,6 +236,7 @@ function toolFramePage(item) {
   <meta name="description" content="${escapeHtml(item.summary)}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/tool-shell.css">
+  ${leadConfigTag}
 </head>
 <body class="baam-tool tool-frame-page" style="--tool-accent:${escapeHtml(item.presentation.accent)}">
   <header class="tool-shell-header">
@@ -280,6 +297,9 @@ for (const file of ["index.html", "styles.css", "app.js", "page.js", "favicon.sv
   await copyFile(join(root, "src", file), join(publicDir, file));
 }
 await copyFile(join(root, "src", "tool-shell.css"), join(publicDir, "tool-shell.css"));
+await writeFile(join(publicDir, "leads-config.js"), `window.BAAM_LEADS = Object.assign(${JSON.stringify(leadConfig)}, window.BAAM_LEADS || {});\n`);
+await mkdir(join(publicDir, "confidentialite"), { recursive: true });
+await copyFile(join(root, "src", "privacy.html"), join(publicDir, "confidentialite", "index.html"));
 await mkdir(join(publicDir, "builder"), { recursive: true });
 await copyFile(join(root, "src", "builder.html"), join(publicDir, "builder", "index.html"));
 await copyFile(join(root, "src", "builder.js"), join(publicDir, "builder", "builder.js"));
@@ -294,9 +314,13 @@ for (const item of visible) {
       await mkdir(toolDestination, { recursive: true });
       if (item.sourceDir) await cp(resolve(root, item.sourceDir), toolDestination, { recursive: true, force: true });
       else await copyFile(resolve(root, item.sourceFile), join(toolDestination, "index.html"));
+      await configurePublishedTool(join(toolDestination, "index.html"));
       await writeFile(join(destination, "index.html"), toolFramePage(item));
-    } else if (item.sourceDir) await cp(resolve(root, item.sourceDir), destination, { recursive: true, force: true });
-    else await copyFile(resolve(root, item.sourceFile), join(destination, "index.html"));
+    } else {
+      if (item.sourceDir) await cp(resolve(root, item.sourceDir), destination, { recursive: true, force: true });
+      else await copyFile(resolve(root, item.sourceFile), join(destination, "index.html"));
+      await configurePublishedTool(join(destination, "index.html"));
+    }
   } else if (item.type === "tutorial") {
     await writeFile(join(destination, "index.html"), tutorialPage(item));
   } else if (item.type === "resource") {
@@ -309,6 +333,6 @@ await writeFile(join(publicDir, "data", "graph.json"), `${JSON.stringify(graph, 
 await writeFile(join(publicDir, "data", "graph.jsonld"), `${JSON.stringify(graphLd, null, 2)}\n`);
 await writeFile(join(publicDir, ".well-known", "baam.json"), `${JSON.stringify(portalManifest, null, 2)}\n`);
 await writeFile(join(publicDir, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${config.territory.url}sitemap.xml\n`);
-await writeFile(join(publicDir, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[config.territory.url, ...assets.map((asset) => asset.url)].map((url) => `  <url><loc>${url}</loc><lastmod>${latestDate}</lastmod></url>`).join("\n")}\n</urlset>\n`);
+await writeFile(join(publicDir, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[config.territory.url, leadConfig.privacyUrl, ...assets.map((asset) => asset.url)].map((url) => `  <url><loc>${url}</loc><lastmod>${latestDate}</lastmod></url>`).join("\n")}\n</urlset>\n`);
 
 console.log(`BAAM.TOOLS compilé — ${assets.length} contenus, trois gabarits, ${graph.edges.length} relations.`);
