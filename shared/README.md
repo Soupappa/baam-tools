@@ -1,6 +1,73 @@
-# shared — le bloc commun BAAM-OPTIN
+# shared — les blocs communs des BAAM Tools
 
-`baam-optin.js` contient deux modules utilisés par tous les BAAM Tools :
+Deux blocs sont partagés. Chaque tool en embarque une **copie identique** (les tools restent
+autonomes, un seul fichier) ; on ne modifie jamais une copie, seulement la source, puis :
+
+```bash
+node shared/inject.js
+```
+
+(`node shared/inject-optin.js` marche toujours : c'est l'ancien nom, il fait la même chose.)
+
+| Bloc | Source | Tools |
+|---|---|---|
+| `BAAM-OPTIN` | `baam-optin.js` | tous |
+| `BAAM-ENGINE` | `baam-engine.js` | animateur-logo, fonds-vivants, operateur-texte |
+| `BAAM-LINK` | `baam-link.js` | animateur-logo, color-picker, convertisseur, fonds-vivants, operateur-texte |
+
+Pour un nouveau tool : placer le repère `/*@BAAM-OPTIN@*/` ou `/*@BAAM-ENGINE@*/` dans son
+script, l'ajouter à la liste du bloc dans `BLOCKS` (`inject.js`), puis relancer le script.
+
+## BAAM-ENGINE — le moteur BAAM
+
+`baam-engine.js` : 4 axes → 10 paramètres BAAM → runtime → image à l'instant t → filtre SVG.
+Pur et déterministe, sans IA. Il expose :
+
+- `macroToBaam(macro)`, `resolveRuntime(op, baam)` — la chaîne de calcul ;
+- `OPERATORS` (souffle, mirage, fulguration), chacun avec `frame(rt, t, D)` → l'image à
+  l'instant t. Avec `D` (secondes), tous les mouvements se calent sur une boucle parfaite ;
+- `baamFilterPrims(p, src)` — les primitives de filtre d'une image figée (PNG, vidéo) ;
+- `baamSmil(opId, R, src)` — le même opérateur en SMIL, pour le SVG animé exporté
+  (durées calées sur l'aperçu vivant) → `{ prims, move }` ;
+- `baamApplier({ turb, disp, blur, move })` — pose une image sur le filtre vivant de l'aperçu ;
+- `baamPad(R)` — la marge de la région du filtre.
+
+Corriger ou ajouter un opérateur ici le corrige partout après `node shared/inject.js`.
+
+Avec `D`, `baamSmil` rend chaque durée diviseur exact de `D` (au centième) : le SVG animé boucle
+en `D` secondes, et le convertisseur le détecte. `BAAM_LOOP` donne la boucle naturelle de chaque
+opérateur (Souffle 12 s, Mirage et Fulguration 6 s).
+
+## BAAM-LINK — la passerelle entre tools (contrat de module)
+
+Chaque tool se déclare avec `BaamLink.init({ id, anchor, offers, accepts })` :
+
+- `offers` : ce qu'il produit — `palette` → `{ colors, base }`, `svg` → `{ svg, name }`.
+  Une offre est une fonction, ou `{ get, to:[ids] }` pour limiter les destinations ;
+- `accepts` : ce qu'il sait recevoir, avec la fonction qui le charge.
+
+Une rangée discrète « Continuer avec » apparaît sous `anchor`, avec les tools qui acceptent ce
+que celui-ci offre. Le clic dépose le résultat dans le navigateur (`localStorage`, clé
+`baam.tools.handoff`, consommée à l'arrivée, valable 15 min) et ouvre l'autre tool.
+
+| Depuis | Offre | Vers |
+|---|---|---|
+| Color Picker | palette | Opérateur Texte (couleur du mot), Animateur (teinte), Fonds vivants (encre + fond) |
+| Opérateur Texte, Animateur, Fonds vivants | SVG animé, boucle calée | Convertisseur (GIF, MP4, PNG, favicon, sprites) |
+| Convertisseur | SVG chargé | Animateur de logo |
+
+Le catalogue (`CATALOG` dans `baam-link.js`) déclare ce que chaque tool accepte : un nouveau tool
+s'y ajoute en une ligne. `BaamLink.pair(palette)` tire d'une palette deux couleurs lisibles ensemble.
+
+**Pour l'intégration (Codex)** : les liens visent `/baam-tools/<id>/`, avec les ids
+`operateur-texte`, `color-picker`, `animateur-logo`, `fonds-vivants`, `convertisseur`, `mindmap`
+— à garder pour les fiches `content/*.json`. En mode `frame`, le clic change la page entière
+(fenêtre parente, même domaine). Autre adresse : `window.BAAM_LINKS = { urls:{ "<id>":"…" } }`.
+En local (`file://`), les liens visent les fichiers voisins.
+
+## BAAM-OPTIN — opt-in et vidéo
+
+`baam-optin.js` contient deux modules :
 
 - **`BaamOptin`** — la carte discrète qui apparaît *après* l'usage, le CTA vers l'univers
   BAAM concerné, la fenêtre « bonus contre e-mail » (choix newsletter actif, séparé et
@@ -8,16 +75,9 @@
   la mémoire du déblocage (une seule fois pour tous les tools) et l'envoi du lead ;
 - **`BaamVideo`** — l'enregistreur vidéo (MP4, ou WebM selon le navigateur) et son panneau.
 
-Chaque tool en embarque une **copie identique** : les tools restent autonomes (un fichier).
-
-## Mettre à jour le bloc
-
-1. Modifier **uniquement** `shared/baam-optin.js`.
-2. Lancer `node shared/inject-optin.js` : il remplace le bloc dans chaque tool
-   (`animateur-logo.html`, `color-picker.html`, `mindmap.html`, `convertisseur.html`,
-   `tools-src/operateur-texte/index.html`).
-3. Pour un nouveau tool : placer le repère `/*@BAAM-OPTIN@*/` dans son script, l'ajouter à la
-   liste `TOOLS` du script d'injection, puis appeler `BaamOptin.init({...})`.
+Un nouveau tool appelle ensuite `BaamOptin.init({...})`. Dans `BaamVideo.panel`, `svgAt`
+reçoit `(t, dw, dh, prep, D)` : `D` est la durée de la vidéo, à passer à `frame(rt, t, D)`
+pour une vidéo qui boucle sans couture.
 
 ## Brancher la collecte d'e-mails — Netlify Forms (choix du 04/10)
 

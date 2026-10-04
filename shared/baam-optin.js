@@ -168,7 +168,8 @@ const BaamVideo=(()=>{
     if(onProgress) onProgress(1); rec.stop(); await stopped;
     return { blob:new Blob(chunks,{type:m.split(";")[0]}), ext:m.includes("mp4")?"mp4":"webm" };
   }
-  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep), prepare(), fileBase(), bg }
+  // Panneau complet dans la fenêtre bonus. cfg : { subject, view(), box(), svgAt(t,dw,dh,prep,D), prepare(), fileBase(), bg }
+  // D = durée de la vidéo (s) : un moteur qui cale ses mouvements dessus boucle sans couture.
   function panel(host, api, cfg){
     const v={ w:1080, h:1080, bg:cfg.bg||"#ffffff", seconds:6, scale:cfg.scale||0.62 };
     host.innerHTML=`<h2>Ta vidéo</h2><p class="bo-lead">Elle reprend exactement l'animation de l'aperçu.</p>`+
@@ -200,7 +201,7 @@ const BaamVideo=(()=>{
       const prog=q(".bo-progress"), bar=prog.querySelector("i"); prog.hidden=false; bar.style.width="0%";
       try{
         const prep=cfg.prepare ? await cfg.prepare() : null;
-        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
+        const res=await record({ ...v, view:cfg.view(), box:cfg.box() }, (t,dw,dh)=>cfg.svgAt(t,dw,dh,prep,v.seconds), p=>{ bar.style.width=Math.round(p*100)+"%"; }, q(".bo-host"));
         download(res.blob,`${cfg.fileBase()}-baam-${v.w}x${v.h}.${res.ext}`);
         done.hidden=false;
         done.innerHTML=`<b>✓ Vidéo prête</b> (${res.ext.toUpperCase()}, ${v.w}×${v.h}, ${v.seconds} s).`+
