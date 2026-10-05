@@ -35,6 +35,9 @@ Livré localement :
   secours `https://baam-tools.netlify.app/` créés ;
 - domaine `tools.baam.pro` déclaré côté Netlify, détection Netlify Forms activée et
   notification `Deploy succeeded` reliée au build hook de BAAM.pro ;
+- CNAME Namecheap `tools` → `baam-tools.netlify.app` publié, DNS validé par Netlify,
+  certificat HTTPS émis et réponse publique `200 OK` vérifiée sur les deux nœuds ;
+- formulaire `bonus` détecté par Netlify Forms et prêt à collecter les inscriptions ;
 - registre Tools connecté à la façade racine : 15 actifs importés, trois nouveaux
   outils testés et quatre outils mis en avant dans le carrousel ;
 - recette navigateur desktop/mobile et parcours accueil → guide → outil réussis.
@@ -43,11 +46,9 @@ Commandes validées : `npm test`, `npm run check`, `npm run build`.
 
 ## Reste à faire
 
-1. Finaliser le CNAME Namecheap `tools` → `baam-tools.netlify.app` si la session du
-   registrar a expiré, puis vérifier la propagation et l'émission du certificat HTTPS.
-2. Effectuer le déploiement stratégique suivant pour que Netlify détecte le formulaire
-   `bonus`, puis faire une soumission réelle et vérifier son arrivée dans **Forms → bonus**.
-3. Intégrer les prochains BAAM Tools et continuer la sélection éditoriale depuis le
+1. Effectuer une première soumission réelle et vérifier son arrivée dans
+   **Forms → bonus**.
+2. Intégrer les prochains BAAM Tools et continuer la sélection éditoriale depuis le
    builder, par lots afin d'économiser les crédits de build.
 
 Ne pas ajouter de CMS généraliste tant que les fiches JSON et le builder local
