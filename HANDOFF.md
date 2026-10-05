@@ -1,6 +1,6 @@
 # HANDOFF — BAAM.Tools
 
-## État au 4 octobre 2026
+## État au 5 octobre 2026
 
 Le dossier initial ne contenait que `operateur-texte.html`. Il possède maintenant un
 portail autonome statique, sans framework ni dépendance d'exécution.
@@ -11,7 +11,7 @@ Livré localement :
 - filtres combinables et URL-adressables par **type** et **thème** ;
 - redistribution animée des cartes, avec respect de `prefers-reduced-motion` ;
 - contrat JSON et générateur pour `free-webtool`, `tutorial` et `resource` ;
-- douze contenus publics : trois BAAM Tools, trois guides complets et six ressources
+- quinze contenus publics : six BAAM Tools, trois guides complets et six ressources
   externes ; ajout des guides du brief visuel et de la landing page, puis des fiches
   Excalidraw, Penpot, Squoosh et Haikei ;
 - previews de cartes flexibles : texte animé, SVG/image, MP4 et iframe locale ;
@@ -22,28 +22,33 @@ Livré localement :
 - mode d'habillage `frame` pour envelopper un HTML autonome dans la coque BAAM sans
   modifier sa source, avec synchronisation du hash entre l'outil et l'URL publique ;
 - Color Picker intégré comme deuxième BAAM Tool et conservé comme source autonome ;
+- Animateur de logo, Fonds vivants et Convertisseur intégrés en mode `frame` sous
+  leurs identifiants stables ; leurs actions « Continuer avec » échangent réellement
+  les SVG et les réglages entre les trois routes publiques ;
 - système d'opt-in partagé embarqué dans les BAAM Tools : bonus après usage, choix actif
   obligatoire et séparé pour la newsletter, mémoire de déblocage et injection depuis `shared/` ;
 - collecte Netlify Forms `bonus` raccordée au build pour les outils natifs et encadrés,
   avec formulaire statique, honeypot, configuration commune et page `/confidentialite/` ;
 - registre territorial, graphe, JSON-LD, manifest `/.well-known/baam.json`, sitemap ;
-- serveur local déclaré sur le port 8091 et configuration Netlify prête ;
+- serveur local déclaré sur le port 8091 ; dépôt public
+  `https://github.com/Soupappa/baam-tools`, site Netlify `baam-tools` et origine de
+  secours `https://baam-tools.netlify.app/` créés ;
+- domaine `tools.baam.pro` déclaré côté Netlify, détection Netlify Forms activée et
+  notification `Deploy succeeded` reliée au build hook de BAAM.pro ;
+- registre Tools connecté à la façade racine : 15 actifs importés, trois nouveaux
+  outils testés et quatre outils mis en avant dans le carrousel ;
 - recette navigateur desktop/mobile et parcours accueil → guide → outil réussis.
 
 Commandes validées : `npm test`, `npm run check`, `npm run build`.
 
 ## Reste à faire
 
-1. Faire valider la direction visuelle et les libellés par Antoine.
-2. Intégrer les prochains BAAM Tools produits en parallèle et continuer la sélection
-   éditoriale depuis le builder.
-3. Créer le dépôt GitHub distant sans pousser avant le lot de publication choisi.
-4. Créer le site Netlify, ajouter `tools.baam.pro` et son CNAME Namecheap.
-5. Ajouter Tools à `data/territory.sources.json` dans BAAM.pro, puis configurer la
-   cascade Tools → BAAM.pro.
-6. Contrôler le registre public et la carte Tools dans la façade racine.
-7. Au prochain déploiement stratégique, activer **Forms → Form detection** dans Netlify,
-   redéployer puis faire une soumission réelle et vérifier son arrivée dans **Forms → bonus**.
+1. Finaliser le CNAME Namecheap `tools` → `baam-tools.netlify.app` si la session du
+   registrar a expiré, puis vérifier la propagation et l'émission du certificat HTTPS.
+2. Effectuer le déploiement stratégique suivant pour que Netlify détecte le formulaire
+   `bonus`, puis faire une soumission réelle et vérifier son arrivée dans **Forms → bonus**.
+3. Intégrer les prochains BAAM Tools et continuer la sélection éditoriale depuis le
+   builder, par lots afin d'économiser les crédits de build.
 
 Ne pas ajouter de CMS généraliste tant que les fiches JSON et le builder local
 couvrent le besoin réel.
