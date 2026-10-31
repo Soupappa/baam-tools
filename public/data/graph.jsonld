@@ -22,6 +22,22 @@
       }
     },
     {
+      "@id": "https://tools.baam.pro/baam-tools/splats/",
+      "@type": "SoftwareApplication",
+      "name": "Splats",
+      "description": "Faire naître des mots, une image, des formes 3D ou votre dessin à partir de milliers de taches gaussiennes, aux couleurs de votre choix, puis enchaîner une séquence et l’enregistrer en MP4 : 16:9, 9:16 ou carré.",
+      "dateModified": "2026-10-31",
+      "keywords": [
+        "animation",
+        "vidéo",
+        "design"
+      ],
+      "isPartOf": {
+        "@id": "https://tools.baam.pro/",
+        "name": "BAAM.TOOLS"
+      }
+    },
+    {
       "@id": "https://tools.baam.pro/baam-tools/color-picker/",
       "@type": "SoftwareApplication",
       "name": "Color Picker",

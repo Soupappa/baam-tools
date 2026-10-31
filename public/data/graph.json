@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "builtAt": "2026-10-05T00:00:00.000Z",
+  "builtAt": "2026-10-31T00:00:00.000Z",
   "nodes": [
     {
       "id": "operateur-texte",
@@ -26,6 +26,31 @@
         "accent": "#00a86b",
         "index": "01",
         "glyph": "Aa"
+      }
+    },
+    {
+      "id": "splats",
+      "title": "Splats",
+      "summary": "Faire naître des mots, une image, des formes 3D ou votre dessin à partir de milliers de taches gaussiennes, aux couleurs de votre choix, puis enchaîner une séquence et l’enregistrer en MP4 : 16:9, 9:16 ou carré.",
+      "type": "free-webtool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/splats/",
+      "updatedAt": "2026-10-31",
+      "tags": [
+        "animation",
+        "vidéo",
+        "design"
+      ],
+      "preview": {
+        "type": "none"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "13",
+        "glyph": "⁘"
       }
     },
     {
@@ -401,6 +426,18 @@
       "generated": true
     },
     {
+      "source": "splats",
+      "target": "animateur-logo",
+      "type": "related-to",
+      "generated": false
+    },
+    {
+      "source": "splats",
+      "target": "fonds-vivants",
+      "type": "related-to",
+      "generated": false
+    },
+    {
       "source": "color-picker",
       "target": "animateur-logo",
       "type": "related-to",
@@ -443,6 +480,12 @@
       "generated": false
     },
     {
+      "source": "animateur-logo",
+      "target": "splats",
+      "type": "related-to",
+      "generated": true
+    },
+    {
       "source": "fonds-vivants",
       "target": "color-picker",
       "type": "related-to",
@@ -453,6 +496,12 @@
       "target": "convertisseur",
       "type": "related-to",
       "generated": false
+    },
+    {
+      "source": "fonds-vivants",
+      "target": "splats",
+      "type": "related-to",
+      "generated": true
     },
     {
       "source": "convertisseur",

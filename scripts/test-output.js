@@ -9,7 +9,7 @@ const portal = JSON.parse(await readFile(join(publicDir, ".well-known", "baam.js
 
 assert.equal(registry.meta.territory, "tools");
 assert.equal(registry.meta.count, registry.assets.length);
-assert.equal(registry.assets.length, 15);
+assert.equal(registry.assets.length, 16);
 assert.deepEqual(new Set(registry.assets.map((asset) => asset.type)), new Set(["free-webtool", "tutorial", "resource"]));
 assert.equal(portal.id, "baam-tools");
 assert.equal(portal.relations.length, registry.assets.length);

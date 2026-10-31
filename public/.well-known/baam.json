@@ -9,7 +9,7 @@
     "tools"
   ],
   "url": "https://tools.baam.pro/",
-  "updatedAt": "2026-10-05",
+  "updatedAt": "2026-10-31",
   "tags": [
     "tools",
     "guides",
@@ -20,6 +20,10 @@
     {
       "type": "has-part",
       "target": "operateur-texte"
+    },
+    {
+      "type": "has-part",
+      "target": "splats"
     },
     {
       "type": "has-part",

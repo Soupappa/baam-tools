@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "splats",
+  "title": "Splats",
+  "eyebrow": "Titres et vidéos en taches",
+  "summary": "Faire naître des mots, une image, des formes 3D ou votre dessin à partir de milliers de taches gaussiennes, aux couleurs de votre choix, puis enchaîner une séquence et l’enregistrer en MP4 : 16:9, 9:16 ou carré.",
+  "type": "free-webtool",
+  "status": "public",
+  "themes": [
+    "animation",
+    "vidéo",
+    "design"
+  ],
+  "updatedAt": "2026-10-31",
+  "path": "/baam-tools/splats/",
+  "cta": "Créer une vidéo en splats",
+  "meta": [
+    "Gratuit",
+    "Export MP4",
+    "16:9 · 9:16 · 1:1"
+  ],
+  "cardPreview": {
+    "type": "iframe",
+    "url": "/baam-tools/splats/_tool/?preview=1",
+    "alt": "Des milliers de taches de couleur qui forment des mots et des formes en 3D"
+  },
+  "presentation": {
+    "accent": "#00a86b",
+    "index": "13",
+    "glyph": "⁘"
+  },
+  "relations": [
+    {
+      "type": "related-to",
+      "target": "animateur-logo"
+    },
+    {
+      "type": "related-to",
+      "target": "fonds-vivants"
+    }
+  ],
+  "sourceDir": "tools-src/splats",
+  "toolShell": "frame"
+}

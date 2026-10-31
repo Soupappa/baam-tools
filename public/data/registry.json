@@ -2,9 +2,9 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "a6234d4471416152ebf77d7e747fa9a4b763bd8a7d6e9b623bc11d8f7c3cc14f",
-    "compiledAt": "2026-10-05",
-    "count": 15,
+    "sourceHash": "458a6c2849a35d28648fed2550d1c42c41fb1973b06bd30d7d1d4ac3e3f4c43c",
+    "compiledAt": "2026-10-31",
+    "count": 16,
     "contentTypes": {
       "free-webtool": "BAAM Tool",
       "tutorial": "Guide",
@@ -89,6 +89,63 @@
           "type": "related-to",
           "target": "guide-motion-claude",
           "generated": true
+        }
+      ],
+      "sourceOrigin": "file"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "splats",
+      "title": "Splats",
+      "eyebrow": "Titres et vidéos en taches",
+      "summary": "Faire naître des mots, une image, des formes 3D ou votre dessin à partir de milliers de taches gaussiennes, aux couleurs de votre choix, puis enchaîner une séquence et l’enregistrer en MP4 : 16:9, 9:16 ou carré.",
+      "type": "free-webtool",
+      "typeLabel": "BAAM Tool",
+      "status": "public",
+      "territories": [
+        "tools"
+      ],
+      "url": "https://tools.baam.pro/baam-tools/splats/",
+      "path": "/baam-tools/splats/",
+      "externalUrl": null,
+      "updatedAt": "2026-10-31",
+      "tags": [
+        "animation",
+        "vidéo",
+        "design"
+      ],
+      "themes": [
+        "animation",
+        "vidéo",
+        "design"
+      ],
+      "meta": [
+        "Gratuit",
+        "Export MP4",
+        "16:9 · 9:16 · 1:1"
+      ],
+      "cta": "Créer une vidéo en splats",
+      "preview": {
+        "type": "none"
+      },
+      "cardPreview": {
+        "type": "iframe",
+        "url": "/baam-tools/splats/_tool/?preview=1",
+        "alt": "Des milliers de taches de couleur qui forment des mots et des formes en 3D"
+      },
+      "presentation": {
+        "accent": "#00a86b",
+        "index": "13",
+        "glyph": "⁘"
+      },
+      "relations": [
+        {
+          "type": "related-to",
+          "target": "animateur-logo"
+        },
+        {
+          "type": "related-to",
+          "target": "fonds-vivants"
         }
       ],
       "sourceOrigin": "file"
@@ -269,6 +326,11 @@
         {
           "type": "related-to",
           "target": "convertisseur"
+        },
+        {
+          "type": "related-to",
+          "target": "splats",
+          "generated": true
         }
       ],
       "sourceOrigin": "file"
@@ -326,6 +388,11 @@
         {
           "type": "related-to",
           "target": "convertisseur"
+        },
+        {
+          "type": "related-to",
+          "target": "splats",
+          "generated": true
         }
       ],
       "sourceOrigin": "file"
