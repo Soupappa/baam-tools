@@ -5,7 +5,7 @@
 
    Principe : l'outil reste gratuit, sans compte. Un BONUS se débloque contre un
    e-mail, proposé APRÈS l'usage (carte discrète), jamais avant. Un CTA mène vers
-   l'univers BAAM concerné (studio.baam.pro, agence.baam.pro…).
+   l'univers BAAM concerné (studio.baam.pro, solutions.baam.pro…).
 
    Leads — rien n'est envoyé tant qu'aucune destination n'est configurée :
      window.BAAM_LEADS = { endpoint:"https://…", privacyUrl:"https://…" }   // POST JSON

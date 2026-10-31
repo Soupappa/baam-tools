@@ -175,7 +175,7 @@ const $=s=>document.querySelector(s);
 
    Principe : l'outil reste gratuit, sans compte. Un BONUS se débloque contre un
    e-mail, proposé APRÈS l'usage (carte discrète), jamais avant. Un CTA mène vers
-   l'univers BAAM concerné (studio.baam.pro, agence.baam.pro…).
+   l'univers BAAM concerné (studio.baam.pro, solutions.baam.pro…).
 
    Leads — rien n'est envoyé tant qu'aucune destination n'est configurée :
      window.BAAM_LEADS = { endpoint:"https://…", privacyUrl:"https://…" }   // POST JSON
@@ -824,7 +824,7 @@ BaamOptin.init({
   bonusTitle:"Tes exports pro, offerts",
   bonusPitch:"Ta carte en PDF pour l'imprimer ou l'envoyer, en OPML pour la rouvrir dans XMind, MindNode ou Logseq, et en Mermaid pour une doc ou un agent.",
   unlockLabel:"Débloquer les exports",
-  studio:{ url:"https://agence.baam.pro/", line:"Cartographier une organisation, un métier, une stratégie ?", label:"Aller plus loin avec BAAM Agence ↗", cardLabel:"Cartographie sur-mesure — BAAM Agence ↗" },
+  studio:{ url:"https://solutions.baam.pro/", line:"Cartographier une organisation, un métier, une stratégie ?", label:"Aller plus loin avec BAAM Solutions ↗", cardLabel:"Cartographie sur mesure — BAAM Solutions ↗" },
   renderBonus:(host)=>{
     host.innerHTML=`<h2>Tes exports pro</h2><p class="bo-lead">Ta carte, prête pour l'impression et pour tes autres outils.</p>`+
       `<label class="bo-f">PDF</label><div class="bo-row" style="margin-top:0"><button type="button" class="bo-btn bo-primary bo-pdf">Imprimer / enregistrer en PDF</button></div>`+
