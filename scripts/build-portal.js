@@ -14,6 +14,19 @@ const leadConfig = {
   privacyUrl: new URL((config.leads?.privacyPath || "/confidentialite/").replace(/^\//, ""), config.territory.url).href
 };
 const leadConfigTag = '<script src="/leads-config.js"></script>';
+const brandMeta = (title, description) => `
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:image" content="https://baam.pro/icones/og-tools.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://baam.pro/icones/og-tools.png">
+  <link rel="icon" href="https://baam.pro/icones/b-tools.svg" type="image/svg+xml">
+  <link rel="icon" href="https://baam.pro/icones/b-tools-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="https://baam.pro/icones/b-tools-180.png">
+  <link rel="stylesheet" href="https://baam.pro/baam-tokens.css">
+  <script src="https://baam.pro/baam-signe.js" defer></script>`;
 
 const escapeHtml = (value = "") => String(value)
   .replaceAll("&", "&amp;")
@@ -28,9 +41,18 @@ function withLeadConfig(html) {
   return html.replace("</head>", `  ${leadConfigTag}\n</head>`);
 }
 
+function withBrandMeta(html) {
+  if (html.includes("b-tools.svg")) return html;
+  const title = html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() || "BAAM Tools";
+  const description = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i)?.[1]?.trim()
+    || "Outils gratuits, guides copiables et ressources externes sélectionnées par BAAM.";
+  if (!html.includes("</head>")) throw new Error("impossible d’injecter la marque : </head> absent");
+  return html.replace("</head>", `${brandMeta(title, description)}\n</head>`);
+}
+
 async function configurePublishedTool(file) {
   const html = await readFile(file, "utf8");
-  await writeFile(file, withLeadConfig(html));
+  await writeFile(file, withLeadConfig(withBrandMeta(html)));
 }
 
 const contentFiles = (await readdir(join(root, "content"))).filter((file) => file.endsWith(".json")).sort();
@@ -175,12 +197,12 @@ function pageShell(item, body, aside = "") {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(item.title)} · BAAM.TOOLS</title>
   <meta name="description" content="${escapeHtml(item.summary)}">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+${brandMeta(`${item.title} · BAAM.TOOLS`, item.summary)}
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="detail-page" style="--item-accent:${escapeHtml(item.presentation.accent)}">
   <header class="site-header compact">
-    <a class="wordmark" href="/" aria-label="Retour à BAAM Tools"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="wordmark" href="/" aria-label="Retour à BAAM Tools"><baam-signe sans-polices univers="tools"></baam-signe></a>
     <a class="header-link" href="/">← Bibliothèque</a>
   </header>
   <main class="detail-main">
@@ -195,7 +217,7 @@ function pageShell(item, body, aside = "") {
       ${aside}
     </div>
   </main>
-  <footer class="site-footer"><span>BAAM.TOOLS / ${escapeHtml(typeLabel)}</span><nav><a href="/confidentialite/">Confidentialité</a><a href="https://baam.pro/">BAAM.pro ↗</a></nav></footer>
+  <footer class="site-footer"><span class="footer-sign"><baam-signe sans-polices univers="tools"></baam-signe><span>/ ${escapeHtml(typeLabel)}</span></span><nav><a href="/confidentialite/">Confidentialité</a><a href="https://baam.pro/">BAAM.pro ↗</a></nav></footer>
   <script src="/page.js" defer></script>
 </body>
 </html>`;
@@ -234,13 +256,13 @@ function toolFramePage(item) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(item.title)} · BAAM.TOOLS</title>
   <meta name="description" content="${escapeHtml(item.summary)}">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+${brandMeta(`${item.title} · BAAM.TOOLS`, item.summary)}
   <link rel="stylesheet" href="/tool-shell.css">
   ${leadConfigTag}
 </head>
 <body class="baam-tool tool-frame-page" style="--tool-accent:${escapeHtml(item.presentation.accent)}">
   <header class="tool-shell-header">
-    <a class="tool-wordmark" href="/"><span>BAAM</span><i>·</i>TOOLS</a>
+    <a class="tool-wordmark" href="/" aria-label="BAAM Tools, accueil"><baam-signe sans-polices univers="tools"></baam-signe></a>
     <a class="tool-back" href="/">← Bibliothèque</a>
   </header>
   <main class="tool-frame-main">
@@ -303,7 +325,7 @@ if (checkOnly) {
 
 await mkdir(join(publicDir, "data"), { recursive: true });
 await mkdir(join(publicDir, ".well-known"), { recursive: true });
-for (const file of ["index.html", "styles.css", "app.js", "page.js", "favicon.svg"]) {
+for (const file of ["index.html", "styles.css", "app.js", "page.js", "favicon.ico"]) {
   await copyFile(join(root, "src", file), join(publicDir, file));
 }
 await copyFile(join(root, "src", "tool-shell.css"), join(publicDir, "tool-shell.css"));

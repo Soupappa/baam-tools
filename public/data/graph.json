@@ -23,7 +23,7 @@
         "url": "https://tools.baam.pro/baam-tools/operateur-texte/"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "01",
         "glyph": "Aa"
       }
@@ -48,7 +48,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "13",
         "glyph": "⁘"
       }
@@ -73,7 +73,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "02",
         "glyph": "◉"
       }
@@ -98,7 +98,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "03",
         "glyph": "⌘"
       }
@@ -123,7 +123,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "04",
         "glyph": "◒"
       }
@@ -148,7 +148,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "05",
         "glyph": "≋"
       }
@@ -173,7 +173,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "06",
         "glyph": "↯"
       }
@@ -225,7 +225,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "05",
         "glyph": "◫"
       }
@@ -250,7 +250,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "06",
         "glyph": "↗"
       }
@@ -328,7 +328,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "09",
         "glyph": "✎"
       }
@@ -354,7 +354,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "10",
         "glyph": "▦"
       }
@@ -380,7 +380,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "11",
         "glyph": "⇲"
       }
@@ -406,7 +406,7 @@
         "type": "none"
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "12",
         "glyph": "≈"
       }

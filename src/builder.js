@@ -15,9 +15,9 @@ const statusHost = document.querySelector("#builder-status");
 const saveButton = document.querySelector("#save-local");
 
 const types = {
-  "free-webtool": { label: "BAAM Tool", accent: "#00a86b", prefix: "/baam-tools/", glyph: "Aa" },
+  "free-webtool": { label: "BAAM Tool", accent: "#753CFF", prefix: "/baam-tools/", glyph: "Aa" },
   "tutorial": { label: "Guide", accent: "#ff8a34", prefix: "/guides/", glyph: "//" },
-  "resource": { label: "Externe", accent: "#5b45ff", prefix: "/externes/", glyph: "↗" }
+  "resource": { label: "Externe", accent: "#753CFF", prefix: "/externes/", glyph: "↗" }
 };
 
 const blockLabels = {

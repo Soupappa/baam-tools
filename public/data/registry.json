@@ -2,7 +2,7 @@
   "meta": {
     "schemaVersion": 1,
     "territory": "tools",
-    "sourceHash": "458a6c2849a35d28648fed2550d1c42c41fb1973b06bd30d7d1d4ac3e3f4c43c",
+    "sourceHash": "1d4ae6cf8f30883edadf9b412bda4da353f2ca6a05ba017c57d103edb5b01d62",
     "compiledAt": "2026-10-31",
     "count": 16,
     "contentTypes": {
@@ -28,7 +28,7 @@
     "title": "BAAM.TOOLS",
     "url": "https://tools.baam.pro/",
     "localUrl": "http://127.0.0.1:8091/",
-    "accent": "#5b45ff",
+    "accent": "#753CFF",
     "tagline": "Prendre. Comprendre. Fabriquer.",
     "description": "Des outils concrets, des guides copiables et une sélection de ressources externes pour fabriquer sans détour."
   },
@@ -75,7 +75,7 @@
         "alt": "L’Opérateur Texte BAAM en mouvement"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "01",
         "glyph": "Aa"
       },
@@ -134,7 +134,7 @@
         "alt": "Des milliers de taches de couleur qui forment des mots et des formes en 3D"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "13",
         "glyph": "⁘"
       },
@@ -191,7 +191,7 @@
         "alt": "Le Color Picker BAAM en mouvement"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "02",
         "glyph": "◉"
       },
@@ -260,7 +260,7 @@
         "alt": "La Mindmap Récursive BAAM en action"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "03",
         "glyph": "⌘"
       },
@@ -314,7 +314,7 @@
         "alt": "L’Animateur de logo BAAM en mouvement"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "04",
         "glyph": "◒"
       },
@@ -376,7 +376,7 @@
         "alt": "Les Fonds vivants BAAM en mouvement"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "05",
         "glyph": "≋"
       },
@@ -438,7 +438,7 @@
         "alt": "Le Convertisseur SVG BAAM en action"
       },
       "presentation": {
-        "accent": "#00a86b",
+        "accent": "#753CFF",
         "index": "06",
         "glyph": "↯"
       },
@@ -562,7 +562,7 @@
         "caption": "Comparer les prompts, les moteurs et les choix de mise en scène."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "05",
         "glyph": "◫"
       },
@@ -616,7 +616,7 @@
         "caption": "Voir immédiatement l’effet de chaque option d’optimisation."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "06",
         "glyph": "↗"
       },
@@ -800,7 +800,7 @@
         "caption": "Dessiner assez vite pour continuer à penser."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "09",
         "glyph": "✎"
       },
@@ -856,7 +856,7 @@
         "caption": "Prototyper dans un vocabulaire plus proche du produit final."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "10",
         "glyph": "▦"
       },
@@ -917,7 +917,7 @@
         "caption": "Choisir la différence que l’œil accepte et le réseau apprécie."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "11",
         "glyph": "⇲"
       },
@@ -973,7 +973,7 @@
         "caption": "Générer une matière, puis la reprendre dans le système du projet."
       },
       "presentation": {
-        "accent": "#5b45ff",
+        "accent": "#753CFF",
         "index": "12",
         "glyph": "≈"
       },
